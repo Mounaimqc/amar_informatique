@@ -26,7 +26,51 @@ async function loadProductsFromFirebase() {
     document.getElementById('productsGrid').innerHTML = '<p style="text-align:center; grid-column:1/-1; color:red;">❌ Erreur de chargement des produits.</p>';
   }
 }
+let currentProductId = null;
 
+function openProductDetail(productId) {
+  const product = products.find(p => p.id === productId);
+  if (!product) return;
+
+  currentProductId = productId;
+  document.getElementById('detailImage').src = product.image;
+  document.getElementById('detailName').textContent = product.name;
+  document.getElementById('detailCategory').textContent = product.category;
+  document.getElementById('detailDescription').textContent = product.description || 'Pas de description.';
+  document.getElementById('detailPrice').textContent = (product.price || 0).toFixed(2);
+
+  document.getElementById('productDetailModal').classList.add('active');
+}
+
+// ربط زر "Ajouter" في الـ Modal
+document.getElementById('modalAddToCartBtn')?.addEventListener('click', () => {
+  if (currentProductId) {
+    addToCart(currentProductId);
+    document.getElementById('productDetailModal').classList.remove('active');
+  }
+});
+
+// ========== MODAL IMAGE ==========
+function openImageModal(imageUrl, productName) {
+  const modal = document.getElementById('imageModal');
+  const img = document.getElementById('modalImage');
+  img.src = imageUrl;
+  img.alt = productName;
+  modal.classList.add('active');
+}
+
+// لا حاجة لتغيير event listeners لأن .close-modal موجود مسبقاً
+// لكن تأكد أن الـ Modal يُغلق عند النقر خارجه
+document.addEventListener('DOMContentLoaded', () => {
+  const imageModal = document.getElementById('imageModal');
+  if (imageModal) {
+    imageModal.addEventListener('click', (e) => {
+      if (e.target === imageModal) {
+        imageModal.classList.remove('active');
+      }
+    });
+  }
+});
 // ========== AFFICHAGE DES PRODUITS ==========
 function loadProducts(filteredProducts = null) {
   const grid = document.getElementById('productsGrid');
@@ -40,9 +84,19 @@ function loadProducts(filteredProducts = null) {
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
-      <img src="${product.image}" alt="${product.name}" class="product-image"
-        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2220%22 fill=%22%23666%22%3E${product.name}%3C/text%3E%3C/svg%3E'">
-      <div class="product-info">
+<div class="product-card" onclick="openProductDetail('${product.id}')">
+  <img src="${product.image}" alt="${product.name}" class="product-image"
+       onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage non disponible%3C/text%3E%3C/svg%3E'">
+  <div class="product-info">
+    <h3 class="product-name">${product.name}</h3>
+    <p class="product-category">${product.category}</p>
+    <p class="product-description">${product.description}</p>
+    <div class="product-footer">
+      <span class="product-price">${(product.price || 0).toFixed(2)} DA</span>
+      <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart('${product.id}')">Ajouter</button>
+    </div>
+  </div>
+</div>
         <h3 class="product-name">${product.name}</h3>
         <p class="product-category">${product.category}</p>
         <p class="product-description">${product.description}</p>
