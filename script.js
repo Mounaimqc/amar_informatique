@@ -1,12 +1,24 @@
 // ========== VARIABLES GLOBALES ==========
 let products = [];
 let cart = [];
+let currentProductId = null;
 
 // ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', function () {
-  loadProductsFromFirebase(); // ← تحميل المنتجات من Firebase
+  loadProductsFromFirebase();
   setupEventListeners();
   loadCartFromStorage();
+
+  // ربط زر الإضافة في Modal
+  const modalBtn = document.getElementById('modalAddToCartBtn');
+  if (modalBtn) {
+    modalBtn.addEventListener('click', () => {
+      if (currentProductId) {
+        addToCart(currentProductId);
+        document.getElementById('productDetailModal').classList.remove('active');
+      }
+    });
+  }
 });
 
 // ========== CHARGER LES PRODUITS DEPUIS FIREBASE ==========
@@ -20,14 +32,58 @@ async function loadProductsFromFirebase() {
         ...doc.data()
       });
     });
-    loadProducts(); // عرضهم في الشبكة
+    loadProducts();
   } catch (error) {
     console.error("Erreur chargement produits:", error);
     document.getElementById('productsGrid').innerHTML = '<p style="text-align:center; grid-column:1/-1; color:red;">❌ Erreur de chargement des produits.</p>';
   }
 }
-let currentProductId = null;
 
+// ========== AFFICHAGE DES PRODUITS ==========
+function loadProducts(filteredProducts = null) {
+  const grid = document.getElementById('productsGrid');
+  if (!grid) return;
+
+  const productsToDisplay = filteredProducts || products;
+  grid.innerHTML = '';
+
+  if (productsToDisplay.length === 0) {
+    grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Aucun produit trouvé.</p>';
+    return;
+  }
+
+  productsToDisplay.forEach(product => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.onclick = () => openProductDetail(product.id);
+
+    const img = document.createElement('img');
+    img.src = product.image;
+    img.alt = product.name;
+    img.className = 'product-image';
+    img.onerror = function() {
+      this.src = 'image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage non disponible%3C/text%3E%3C/svg%3E';
+    };
+
+    const info = document.createElement('div');
+    info.className = 'product-info';
+    info.innerHTML = `
+      <h3 class="product-name">${product.name}</h3>
+      <p class="product-category">${product.category}</p>
+      <p class="product-description">${product.description || ''}</p>
+      <div class="product-footer">
+        <span class="product-price">${(product.price || 0).toFixed(2)} DA</span>
+        <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart('${product.id}')">Ajouter</button>
+      </div>
+    `;
+
+    card.appendChild(img);
+    card.appendChild(info);
+    grid.appendChild(card);
+  });
+}
+
+// ========== MODAL DÉTAIL PRODUIT ==========
 function openProductDetail(productId) {
   const product = products.find(p => p.id === productId);
   if (!product) return;
@@ -40,74 +96,6 @@ function openProductDetail(productId) {
   document.getElementById('detailPrice').textContent = (product.price || 0).toFixed(2);
 
   document.getElementById('productDetailModal').classList.add('active');
-}
-
-// ربط زر "Ajouter" في الـ Modal
-document.getElementById('modalAddToCartBtn')?.addEventListener('click', () => {
-  if (currentProductId) {
-    addToCart(currentProductId);
-    document.getElementById('productDetailModal').classList.remove('active');
-  }
-});
-
-// ========== MODAL IMAGE ==========
-function openImageModal(imageUrl, productName) {
-  const modal = document.getElementById('imageModal');
-  const img = document.getElementById('modalImage');
-  img.src = imageUrl;
-  img.alt = productName;
-  modal.classList.add('active');
-}
-
-// لا حاجة لتغيير event listeners لأن .close-modal موجود مسبقاً
-// لكن تأكد أن الـ Modal يُغلق عند النقر خارجه
-document.addEventListener('DOMContentLoaded', () => {
-  const imageModal = document.getElementById('imageModal');
-  if (imageModal) {
-    imageModal.addEventListener('click', (e) => {
-      if (e.target === imageModal) {
-        imageModal.classList.remove('active');
-      }
-    });
-  }
-});
-// ========== AFFICHAGE DES PRODUITS ==========
-function loadProducts(filteredProducts = null) {
-  const grid = document.getElementById('productsGrid');
-  const productsToDisplay = filteredProducts || products;
-  grid.innerHTML = '';
-  if (productsToDisplay.length === 0) {
-    grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Aucun produit trouvé.</p>';
-    return;
-  }
-  productsToDisplay.forEach(product => {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.innerHTML = `
-<div class="product-card" onclick="openProductDetail('${product.id}')">
-  <img src="${product.image}" alt="${product.name}" class="product-image"
-       onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage non disponible%3C/text%3E%3C/svg%3E'">
-  <div class="product-info">
-    <h3 class="product-name">${product.name}</h3>
-    <p class="product-category">${product.category}</p>
-    <p class="product-description">${product.description}</p>
-    <div class="product-footer">
-      <span class="product-price">${(product.price || 0).toFixed(2)} DA</span>
-      <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart('${product.id}')">Ajouter</button>
-    </div>
-  </div>
-</div>
-        <h3 class="product-name">${product.name}</h3>
-        <p class="product-category">${product.category}</p>
-        <p class="product-description">${product.description}</p>
-        <div class="product-footer">
-          <span class="product-price">${(product.price || 0).toFixed(2)} DA</span>
-          <button class="add-to-cart-btn" onclick="addToCart('${product.id}')">Ajouter</button>
-        </div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
 }
 
 // ========== FONCTIONS DU PANIER ==========
@@ -247,7 +235,7 @@ function filterProducts() {
 // ========== FORMULAIRE DE COMMANDE ==========
 function generateOrderNumber() {
   const now = new Date();
-  const datePart = now.toISOString().slice(2, 10).replace(/-/g, ''); // YYMMDD
+  const datePart = now.toISOString().slice(2, 10).replace(/-/g, '');
   let count = localStorage.getItem('orderCount') || '0';
   count = String(parseInt(count) + 1).padStart(3, '0');
   localStorage.setItem('orderCount', count);
@@ -404,6 +392,8 @@ style.textContent = `
 @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 `;
 document.head.appendChild(style);
+
+
 
 // ========== DONNÉES WILAYAS & PRIX ==========
 // ========== WILAYAS & COMMUNES ==========
