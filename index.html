@@ -173,6 +173,36 @@
     <button class="btn-primary" onclick="location.reload()">Continuer vos achats</button>
   </div>
 </div>
+<!-- Modal لعرض الصورة الكاملة -->
+<div class="modal" id="imageModal">
+  <div class="modal-content image-modal-content">
+    <span class="close-modal">&times;</span>
+    <img id="modalImage" src="" alt="Image du produit" style="max-width: 90%; max-height: 80vh; display: block; margin: 0 auto;">
+  </div>
+</div>
+<!-- Modal لعرض الصورة الكاملة -->
+<div class="modal" id="imageModal">
+  <div class="modal-content image-modal-content">
+    <span class="close-modal">&times;</span>
+    <img id="modalImage" src="" alt="Image du produit" style="max-width: 90%; max-height: 80vh; display: block; margin: 0 auto;">
+  </div>
+</div>
+<!-- Modal تفاصيل المنتج -->
+<div class="modal" id="productDetailModal">
+  <div class="modal-content product-detail-content">
+    <span class="close-modal">&times;</span>
+    <div class="product-detail">
+      <img id="detailImage" src="" alt="" class="detail-image">
+      <div class="detail-info">
+        <h2 id="detailName"></h2>
+        <p id="detailCategory"></p>
+        <p id="detailDescription"></p>
+        <p class="product-price"><strong id="detailPrice"></strong> DA</p>
+        <button class="add-to-cart-btn" id="modalAddToCartBtn">Ajouter au panier</button>
+      </div>
+    </div>
+  </div>
+</div>
 
     <footer>
         <p>&copy; 2026 Ma Boutique. Tous droits réservés.</p>
