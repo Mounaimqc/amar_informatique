@@ -1,10 +1,10 @@
 /* ==============================
-GESTION DES COMMANDES (FIREBASE)
+GESTION DES COMMANDES & PRODUITS (FIREBASE)
 ============================== */
 
 let allCommandes = [];
 
-// ========== CHARGEMENT DES COMMANDES DEPUIS FIREBASE ==========
+// ========== CHARGEMENT DES COMMANDES ==========
 function loadCommandes() {
   const tbody = document.getElementById('ordersTableBody');
   tbody.innerHTML = '<tr><td colspan="9">Chargement...</td></tr>';
@@ -27,7 +27,7 @@ function loadCommandes() {
     });
 }
 
-// ========== AFFICHAGE DU TABLEAU ==========
+// ========== AFFICHAGE COMMANDES ==========
 function displayCommandes(commandes) {
   const tbody = document.getElementById('ordersTableBody');
   if (commandes.length === 0) {
@@ -59,12 +59,11 @@ function displayCommandes(commandes) {
   `).join('');
 }
 
-// ========== MODAL DÉTAILS ==========
+// ========== MODAL DÉTAILS COMMANDE ==========
 function showDetail(orderNumber) {
   const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
   if (!cmd) return;
 
-  // Sauvegarder l'ID du document Firebase dans le modal
   document.getElementById('detailModal').dataset.firebaseId = cmd.id;
   document.getElementById('detailModal').dataset.currentOrderNumber = orderNumber;
 
@@ -81,7 +80,6 @@ function showDetail(orderNumber) {
   badge.textContent = getStatusLabel(status);
   badge.className = 'status-badge-table ' + getStatusClass(status);
 
-  // Produits
   const itemsContainer = document.getElementById('detailItems');
   if (cmd.cartItems && cmd.cartItems.length > 0) {
     itemsContainer.innerHTML = cmd.cartItems.map(item => `
@@ -94,7 +92,6 @@ function showDetail(orderNumber) {
     itemsContainer.innerHTML = '<p>Aucun produit</p>';
   }
 
-  // Totals
   document.getElementById('detailCartTotal').textContent = (cmd.cartTotal || 0).toFixed(2);
   document.getElementById('detailShipping').textContent = (cmd.shippingPrice || 0).toFixed(2);
   document.getElementById('detailTotal').textContent = (cmd.grandTotal || 0).toFixed(2);
@@ -106,7 +103,7 @@ function closeDetail() {
   document.getElementById('detailModal').classList.remove('active');
 }
 
-// ========== GESTION DU STATUT ==========
+// ========== GESTION STATUT ==========
 function getStatusClass(status) {
   return {
     pending: 'status-pending',
@@ -127,7 +124,6 @@ function getStatusLabel(status) {
   }[status] || '⏳ En attente';
 }
 
-// ✅ Mise à jour du statut dans Firebase
 function updateOrderStatus(newStatus) {
   const firebaseId = document.getElementById('detailModal').dataset.firebaseId;
   const orderNumber = document.getElementById('detailModal').dataset.currentOrderNumber;
@@ -141,11 +137,10 @@ function updateOrderStatus(newStatus) {
     status: newStatus
   })
   .then(() => {
-    // Mettre à jour localement
     const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
     if (cmd) cmd.status = newStatus;
     showNotification('Statut mis à jour');
-    filterCommandes(); // Recharger la table
+    filterCommandes();
   })
   .catch((error) => {
     console.error("Erreur mise à jour:", error);
@@ -153,7 +148,7 @@ function updateOrderStatus(newStatus) {
   });
 }
 
-// ========== SUPPRESSION ==========
+// ========== SUPPRESSION COMMANDE ==========
 function deleteCommande(orderNumber) {
   if (!confirm(`Supprimer la commande ${orderNumber} ?`)) return;
 
@@ -176,7 +171,7 @@ function deleteCommande(orderNumber) {
     });
 }
 
-// ========== FILTRES ==========
+// ========== FILTRES COMMANDES ==========
 function filterCommandes() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const type = document.getElementById('filterType').value;
@@ -249,6 +244,108 @@ function exportCommandes() {
   document.body.removeChild(a);
 }
 
+// ========== AJOUT PRODUIT AVEC IMAGE ==========
+function openAddProductModal() {
+  document.getElementById('addProductModal').classList.add('active');
+  document.getElementById('addProductForm').reset();
+  document.getElementById('imagePreview').innerHTML = '';
+}
+
+function closeAddProductModal() {
+  document.getElementById('addProductModal').classList.remove('active');
+}
+
+// معاينة الصورة
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('productImageFile');
+  if (fileInput) {
+    fileInput.addEventListener('change', function(e) {
+      const preview = document.getElementById('imagePreview');
+      preview.innerHTML = '';
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          img.style.maxWidth = '100%';
+          img.style.maxHeight = '200px';
+          img.style.borderRadius = '5px';
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+});
+
+// حفظ المنتج
+// ========== حفظ المنتج مع معالجة الأخطاء التفصيلية ==========
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('addProductForm');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('productName')?.value.trim();
+      const category = document.getElementById('productCategory')?.value;
+      const description = document.getElementById('productDescription')?.value.trim();
+      const priceInput = document.getElementById('productPrice')?.value;
+      const fileInput = document.getElementById('productImageFile');
+      const file = fileInput?.files[0];
+
+      // التحقق من الحقول
+      if (!name || !category || !priceInput || !file) {
+        alert("⚠️ Veuillez remplir tous les champs obligatoires.");
+        return;
+      }
+
+      const price = parseFloat(priceInput);
+      if (isNaN(price) || price <= 0) {
+        alert("⚠️ Le prix doit être un nombre positif.");
+        return;
+      }
+
+      try {
+        showNotification('📤 Téléchargement de l\'image...');
+        
+        // رفع الصورة
+        const storageRef = storage.ref();
+        const safeFileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+        const imageRef = storageRef.child(`produits/${safeFileName}`);
+        await imageRef.put(file);
+        const imageUrl = await imageRef.getDownloadURL();
+
+        // حفظ المنتج
+        const nouveauProduit = {
+          name,
+          image: imageUrl,
+          category,
+          description: description || '',
+          price,
+          dateAdded: new Date().toISOString()
+        };
+
+        await db.collection("produits").add(nouveauProduit);
+        showNotification('✅ Produit ajouté avec succès!');
+        
+        // إغلاق النموذج وتنظيفه
+        closeAddProductModal();
+        form.reset();
+        document.getElementById('imagePreview').innerHTML = '';
+        
+      } catch (error) {
+        console.error("❌ Erreur complète:", error);
+        let msg = "❌ Erreur inconnue.";
+        if (error.code === 'storage/unauthorized') {
+          msg = "❌ Accès refusé à Firebase Storage. Vérifiez les règles.";
+        } else if (error.code === 'permission-denied') {
+          msg = "❌ Permission refusée dans Firestore.";
+        }
+        alert(msg + "\nVérifiez la console pour plus de détails.");
+      }
+    });
+  }
+});
 // ========== UTILITAIRES ==========
 function showNotification(msg) {
   const n = document.createElement('div');
@@ -278,12 +375,9 @@ function formatDateTime(d) {
 document.addEventListener('DOMContentLoaded', () => {
   loadCommandes();
 
-  // Écouteurs de filtre
-  document.getElementById('searchInput').addEventListener('input', filterCommandes);
-  document.getElementById('filterType').addEventListener('change', filterCommandes);
-  document.getElementById('filterWilaya').addEventListener('change', filterCommandes);
-
-  // Bouton Réinitialiser
-  const resetBtn = document.querySelector('.filters button');
-  if (resetBtn) resetBtn.addEventListener('click', clearFilters);
+  // Écouteurs filtres
+  document.getElementById('searchInput')?.addEventListener('input', filterCommandes);
+  document.getElementById('filterType')?.addEventListener('change', filterCommandes);
+  document.getElementById('filterWilaya')?.addEventListener('change', filterCommandes);
+  document.querySelector('.filters button')?.addEventListener('click', clearFilters);
 });
