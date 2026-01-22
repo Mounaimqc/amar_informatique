@@ -140,7 +140,7 @@
             Veuillez entrer votre mot de passe administrateur
         </div>
 
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <form id="loginForm">
             <div class="form-group">
                 <label for="password">Mot de passe</label>
                 <input type="password" id="password" placeholder="Entrez le mot de passe" autofocus>
@@ -150,31 +150,45 @@
     </div>
 
     <script>
-        // Mot de passe admin (à changer!)
-        const ADMIN_PASSWORD = 'amar2024';
+        // ⚠️ لا تضع كلمة المرور الحقيقية هنا في الإنتاج!
+        // هذا فقط لتجربة محلية.
+        const ADMIN_PASSWORD_HASH = 'amar2024'; // ← غيّر هذا إلى كلمة مرورك
 
         function handleLogin(event) {
             event.preventDefault();
-            const password = document.getElementById('password').value;
+            const password = document.getElementById('password').value.trim();
             const errorMessage = document.getElementById('errorMessage');
 
-            if (password === ADMIN_PASSWORD) {
-                // Marquer l'utilisateur comme connecté
+            if (password === ADMIN_PASSWORD_HASH) {
                 sessionStorage.setItem('adminLogged', 'true');
-                // Rediriger vers le dashboard
                 window.location.href = 'admin.html';
             } else {
                 errorMessage.textContent = '❌ Mot de passe incorrect';
                 errorMessage.style.display = 'block';
                 document.getElementById('password').value = '';
                 document.getElementById('password').focus();
+
+                // إخفاء الرسالة بعد 3 ثوانٍ
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
             }
         }
 
-        // Si déjà connecté, rediriger directement
+        // التحقق من تسجيل الدخول عند التحميل
         if (sessionStorage.getItem('adminLogged') === 'true') {
             window.location.href = 'admin.html';
         }
+
+        // ربط النموذج
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+        // السماح بالضغط على Enter
+        document.getElementById('password').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin(e);
+            }
+        });
     </script>
 </body>
 </html>
