@@ -140,7 +140,7 @@
             Veuillez entrer votre mot de passe administrateur
         </div>
 
-        <form id="loginForm">
+        <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="form-group">
                 <label for="password">Mot de passe</label>
                 <input type="password" id="password" placeholder="Entrez le mot de passe" autofocus>
@@ -150,45 +150,29 @@
     </div>
 
     <script>
-        // ⚠️ لا تضع كلمة المرور الحقيقية هنا في الإنتاج!
-        // هذا فقط لتجربة محلية.
-        const ADMIN_PASSWORD_HASH = 'amar2024'; // ← غيّر هذا إلى كلمة مرورك
+    const ADMIN_PASSWORD = 'amar2024'; // ← غيّرها إلى كلمتك السرية
 
-        function handleLogin(event) {
-            event.preventDefault();
-            const password = document.getElementById('password').value.trim();
-            const errorMessage = document.getElementById('errorMessage');
-
-            if (password === ADMIN_PASSWORD_HASH) {
-                sessionStorage.setItem('adminLogged', 'true');
-                window.location.href = 'admin.html';
-            } else {
-                errorMessage.textContent = '❌ Mot de passe incorrect';
-                errorMessage.style.display = 'block';
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
-
-                // إخفاء الرسالة بعد 3 ثوانٍ
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        // التحقق من تسجيل الدخول عند التحميل
-        if (sessionStorage.getItem('adminLogged') === 'true') {
+    function handleLogin(event) {
+        event.preventDefault();
+        const password = document.getElementById('password').value;
+        if (password === ADMIN_PASSWORD) {
+            sessionStorage.setItem('adminLogged', 'true');
             window.location.href = 'admin.html';
+        } else {
+            const error = document.getElementById('errorMessage');
+            error.textContent = '❌ Mot de passe incorrect';
+            error.style.display = 'block';
+            document.getElementById('password').value = '';
+            setTimeout(() => error.style.display = 'none', 3000);
         }
+    }
 
-        // ربط النموذج
-        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    // إذا كان مسجّل دخول، وجهه مباشرة إلى Dashboard
+    if (sessionStorage.getItem('adminLogged') === 'true') {
+        window.location.href = 'admin.html';
+    }
 
-        // السماح بالضغط على Enter
-        document.getElementById('password').addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') {
-                handleLogin(e);
-            }
-        });
-    </script>
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+</script>
 </body>
 </html>
