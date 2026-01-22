@@ -150,29 +150,31 @@
     </div>
 
     <script>
-    const ADMIN_PASSWORD = 'amar2024'; // ← غيّرها إلى كلمتك السرية
+        // Mot de passe admin (à changer!)
+        const ADMIN_PASSWORD = 'amar2024';
 
-    function handleLogin(event) {
-        event.preventDefault();
-        const password = document.getElementById('password').value;
-        if (password === ADMIN_PASSWORD) {
-            sessionStorage.setItem('adminLogged', 'true');
-            window.location.href = 'admin.html';
-        } else {
-            const error = document.getElementById('errorMessage');
-            error.textContent = '❌ Mot de passe incorrect';
-            error.style.display = 'block';
-            document.getElementById('password').value = '';
-            setTimeout(() => error.style.display = 'none', 3000);
+        function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (password === ADMIN_PASSWORD) {
+                // Marquer l'utilisateur comme connecté
+                sessionStorage.setItem('adminLogged', 'true');
+                // Rediriger vers le dashboard
+                window.location.href = 'admin.html';
+            } else {
+                errorMessage.textContent = '❌ Mot de passe incorrect';
+                errorMessage.style.display = 'block';
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
         }
-    }
 
-    // إذا كان مسجّل دخول، وجهه مباشرة إلى Dashboard
-    if (sessionStorage.getItem('adminLogged') === 'true') {
-        window.location.href = 'admin.html';
-    }
-
-    document.getElementById('loginForm').addEventListener('submit', handleLogin);
-</script>
+        // Si déjà connecté, rediriger directement
+        if (sessionStorage.getItem('adminLogged') === 'true') {
+            window.location.href = 'admin.html';
+        }
+    </script>
 </body>
 </html>
