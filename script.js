@@ -224,8 +224,8 @@ function filterProducts() {
   const searchTerm = document.getElementById('searchInput').value.toLowerCase();
   const selectedCategory = document.getElementById('categoryFilter').value;
   const filtered = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
-                          product.description.toLowerCase().includes(searchTerm);
+   const matchesSearch = (product.name || '').toLowerCase().includes(searchTerm) ||
+                      (product.description || '').toLowerCase().includes(searchTerm);
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -581,3 +581,4 @@ const stopDeskPrices = {
   "57 - El M'Ghair": 600,
   "58 - El Meniaa": 600
 };
+
