@@ -19,6 +19,113 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+// ========== SLIDER HÉROS ==========
+let sliderWrapper;
+let slides = [];
+let currentSlideIndex = 0;
+let sliderInterval;
+
+function initHeroSlider() {
+  const sliderContainer = document.getElementById('heroSlider');
+  if (!sliderContainer) return;
+
+  sliderWrapper = document.getElementById('sliderWrapper');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dotsContainer = document.getElementById('sliderDots');
+
+  // اختيار أول 5 منتجات كعروض (أو أقل)
+  const featuredProducts = products.slice(0, 5);
+
+  if (featuredProducts.length === 0) {
+    sliderContainer.style.display = 'none';
+    return;
+  }
+
+  // إنشاء السلايدات
+  sliderWrapper.innerHTML = '';
+  dotsContainer.innerHTML = '';
+
+  featuredProducts.forEach((product, index) => {
+    const slide = document.createElement('div');
+    slide.className = 'slider-slide';
+    slide.innerHTML = `
+      <img src="${product.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221200%22 height=%22400%22%3E%3Crect fill=%22%23ddd%22 width=%221200%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23666%22%3EImage non disponible%3C/text%3E%3C/svg%3E'}" alt="${product.name}">
+      <div class="slider-content">
+        <h2>${product.name}</h2>
+        <p>${product.description?.substring(0, 100) || 'Découvrez ce produit exceptionnel !'}</p>
+        <div class="price">${(parseFloat(product.price) || 0).toFixed(2)} DA</div>
+        <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart('${product.id}');">Ajouter au panier</button>
+      </div>
+    `;
+    sliderWrapper.appendChild(slide);
+    slides.push(slide);
+
+    // Dot
+    const dot = document.createElement('div');
+    dot.className = 'slider-dot';
+    dot.addEventListener('click', () => goToSlide(index));
+    dotsContainer.appendChild(dot);
+  });
+
+  updateSlider();
+  setupSliderButtons(prevBtn, nextBtn);
+  startAutoPlay();
+}
+
+function updateSlider() {
+  if (!sliderWrapper || slides.length === 0) return;
+  sliderWrapper.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+  document.querySelectorAll('.slider-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === currentSlideIndex);
+  });
+}
+
+function goToSlide(index) {
+  currentSlideIndex = index;
+  updateSlider();
+  resetAutoPlay();
+}
+
+function nextSlide() {
+  currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+  updateSlider();
+}
+
+function prevSlide() {
+  currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+  updateSlider();
+}
+
+function setupSliderButtons(prevBtn, nextBtn) {
+  prevBtn?.addEventListener('click', () => {
+    prevSlide();
+    resetAutoPlay();
+  });
+  nextBtn?.addEventListener('click', () => {
+    nextSlide();
+    resetAutoPlay();
+  });
+}
+
+function startAutoPlay() {
+  clearInterval(sliderInterval);
+  sliderInterval = setInterval(nextSlide, 5000); // كل 5 ثواني
+}
+
+function resetAutoPlay() {
+  clearInterval(sliderInterval);
+  startAutoPlay();
+}
+
+// تشغيل الـ Slider بعد تحميل المنتجات
+document.addEventListener('DOMContentLoaded', () => {
+  const originalLoadProducts = window.loadProducts;
+  window.loadProducts = function(...args) {
+    originalLoadProducts(...args);
+    setTimeout(initHeroSlider, 100); // تأجيل قصير لضمان التحميل
+  };
+});
 
 // ========== CHARGER LES PRODUITS DEPUIS FIREBASE ==========
 async function loadProductsFromFirebase() {
@@ -610,6 +717,7 @@ const stopDeskPrices = {
   "57 - El M'Ghair": 1800,
   "58 - El Meniaa": 600
 };
+
 
 
 
