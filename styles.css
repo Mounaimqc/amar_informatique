@@ -87,6 +87,15 @@ header {
     gap: 5px;
     border: none;
 }
+.add-to-cart-btn {
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.add-to-cart-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(39, 174, 96, 0.4);
+}
 
 .cart-btn:hover {
     background-color: #1c6ea4;
@@ -869,6 +878,7 @@ footer {
 .products-grid .product-card:nth-child(19) { animation-delay: 0.3s; }
 .products-grid .product-card:nth-child(20) { animation-delay: 0.3s; }
 /* ... حتى 20 مثلاً */
+
 
 
 
