@@ -864,11 +864,12 @@ footer {
 .products-grid .product-card:nth-child(14) { animation-delay: 0.2s; }
 .products-grid .product-card:nth-child(15) { animation-delay: 0.3s; }
 .products-grid .product-card:nth-child(16) { animation-delay: 0.3s; }
-.products-grid .product-card:nth-child(17) { animation-delay: 0.5s; }
+.products-grid .product-card:nth-child(17) { animation-delay: 1.5s; }
 .products-grid .product-card:nth-child(18) { animation-delay: 0.2s; }
 .products-grid .product-card:nth-child(19) { animation-delay: 0.3s; }
 .products-grid .product-card:nth-child(20) { animation-delay: 0.3s; }
 /* ... حتى 20 مثلاً */
+
 
 
 
