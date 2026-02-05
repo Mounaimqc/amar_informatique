@@ -1,4 +1,6 @@
-
+html {
+  scroll-behavior: smooth;
+}
 
 body {
     font-family: 'Arial', sans-serif;
@@ -847,6 +849,7 @@ footer {
   .slider-content .price { font-size: 1.3rem; }
   .slider-btn { width: 40px; height: 40px; font-size: 20px; }
 }
+
 
 
 
