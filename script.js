@@ -182,46 +182,26 @@ function initScrollAnimations() {
   });
 }
 
-// إعادة تشغيل الـ animations بعد كل تحميل منتجات (بحث/فلترة)
 function loadProducts(filteredProducts = null) {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
+  
   const productsToDisplay = filteredProducts || products;
   grid.innerHTML = '';
+
   if (productsToDisplay.length === 0) {
-    grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Aucun produit trouvé.</p>';
+    grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">لا يوجد منتجات.</p>';
     return;
   }
+
   productsToDisplay.forEach(product => {
     const card = document.createElement('div');
-    card.className = 'product-card'; // مبدئيًا بدون 'visible'
-    card.onclick = () => openProductDetail(product.id);
-    const img = document.createElement('img');
-    img.src = product.image || '';
-    img.alt = product.name;
-    img.className = 'product-image';
-    img.onerror = function () {
-      this.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage non disponible%3C/text%3E%3C/svg%3E';
-    };
-    const info = document.createElement('div');
-    info.className = 'product-info';
-    const price = parseFloat(product.price) || 0;
-    info.innerHTML = `
-      <h3 class="product-name">${product.name}</h3>
-      <p class="product-category">${product.category || ''}</p>
-      <p class="product-description">${product.description || ''}</p>
-      <div class="product-footer">
-        <span class="product-price">${price.toFixed(2)} DA</span>
-        <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart('${product.id}')">Ajouter</button>
-      </div>
-    `;
-    card.appendChild(img);
-    card.appendChild(info);
+    card.className = 'product-card visible'; // ← أضف 'visible' مباشرة
+    // ... باقي الكود كما هو ...
     grid.appendChild(card);
   });
 
-  // 👇 تشغيل الـ scroll animation بعد إضافة المنتجات
-  setTimeout(initScrollAnimations, 100);
+  // لا حاجة لـ setTimeout أو observer مؤقتًا
 }
 
 // ========== AFFICHAGE DES PRODUITS ==========
@@ -805,6 +785,7 @@ const stopDeskPrices = {
   "57 - El M'Ghair": 1800,
   "58 - El Meniaa": 600
 };
+
 
 
 
