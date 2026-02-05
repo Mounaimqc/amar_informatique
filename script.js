@@ -329,6 +329,21 @@ function loadCartFromStorage() {
     }
   }
 }
+// قبل تحميل المنتجات
+function showSkeleton() {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    grid.innerHTML += `
+      <div class="product-card skeleton">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-text"></div>
+        <div class="skeleton-text short"></div>
+        <div class="skeleton-btn"></div>
+      </div>
+    `;
+  }
+}
 
 // ========== ÉVÉNEMENTS ==========
 function setupEventListeners() {
@@ -727,6 +742,7 @@ const stopDeskPrices = {
   "57 - El M'Ghair": 1800,
   "58 - El Meniaa": 600
 };
+
 
 
 
