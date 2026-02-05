@@ -848,7 +848,7 @@ footer {
 }
 
 /* تأخير بسيط لكل كارت */
-.products-grid .product-card:nth-child(1) { animation-delay: 0.5s; }
+.products-grid .product-card:nth-child(1) { animation-delay: 1.5s; }
 .products-grid .product-card:nth-child(2) { animation-delay: 0.2s; }
 .products-grid .product-card:nth-child(3) { animation-delay: 0.3s; }
 .products-grid .product-card:nth-child(4) { animation-delay: 0.3s; }
@@ -869,6 +869,7 @@ footer {
 .products-grid .product-card:nth-child(19) { animation-delay: 0.3s; }
 .products-grid .product-card:nth-child(20) { animation-delay: 0.3s; }
 /* ... حتى 20 مثلاً */
+
 
 
 
