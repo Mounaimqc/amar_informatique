@@ -830,4 +830,26 @@ footer {
   .slider-content .price { font-size: 1.3rem; }
   .slider-btn { width: 40px; height: 40px; font-size: 20px; }
 }
+/* في style.css */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-card {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* تأخير بسيط لكل كارت */
+.products-grid .product-card:nth-child(1) { animation-delay: 0.1s; }
+.products-grid .product-card:nth-child(2) { animation-delay: 0.2s; }
+.products-grid .product-card:nth-child(3) { animation-delay: 0.3s; }
+/* ... حتى 20 مثلاً */
 
