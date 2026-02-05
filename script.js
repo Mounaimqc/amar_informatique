@@ -148,9 +148,19 @@ async function loadProductsFromFirebase() {
   } catch (error) {
     console.error("Erreur chargement produits:", error);
     document.getElementById('productsGrid').innerHTML = '<p style="text-align:center; grid-column:1/-1; color:red;">❌ Erreur de chargement des produits.</p>';
+    // ثم استدعيها داخل loadProducts بعد grid.innerHTML = '';
+animateProducts()
   }
 }
-
+function animateProducts() {
+  const cards = document.querySelectorAll('.product-card');
+  cards.forEach((card, i) => {
+    card.style.animationDelay = `${i * 0.1}s`;
+    card.style.opacity = '0';
+    setTimeout(() => card.style.opacity = '1', i * 100);
+  });
+}
+;
 // ========== AFFICHAGE DES PRODUITS ==========
 function loadProducts(filteredProducts = null) {
   const grid = document.getElementById('productsGrid');
@@ -717,6 +727,7 @@ const stopDeskPrices = {
   "57 - El M'Ghair": 1800,
   "58 - El Meniaa": 600
 };
+
 
 
 
