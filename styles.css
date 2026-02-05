@@ -161,9 +161,10 @@ header {
 
 /* Grille de produits */
 .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
 }
 
 .product-card {
@@ -861,6 +862,7 @@ footer {
   opacity: 1;
   transform: translateY(0);
 }
+
 
 
 
