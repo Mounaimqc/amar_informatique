@@ -489,7 +489,7 @@ const wilayasData = {
   "58 - El Meniaa": ["El Meniaa", "Hassi Gara", "Hassi Fehal"]
 };
 // ========== PRIX DE LIVRAISON home ==========
-const shippingPrice = {
+const shippingPrices = {
   "01 - Adrar": 1500,
   "02 - Chlef": 700,
   "03 - Laghouat": 900,
@@ -610,6 +610,7 @@ const stopDeskPrices = {
   "57 - El M'Ghair": 1800,
   "58 - El Meniaa": 600
 };
+
 
 
 
