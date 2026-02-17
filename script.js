@@ -92,11 +92,11 @@ function loadProducts(filteredProducts = null) {
     card.onclick = () => openProductDetail(product.id);
 
     const img = document.createElement('img');
-    img.src = product.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage+non+disponible%3C/text%3E%3C/svg%3E';
+    img.src = product.image || 'image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage+non+disponible%3C/text%3E%3C/svg%3E';
     img.alt = product.name;
     img.className = 'product-image';
     img.onerror = function () {
-      this.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage+non+disponible%3C/text%3E%3C/svg%3E';
+      this.src = 'image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage+non+disponible%3C/text%3E%3C/svg%3E';
     };
 
     const info = document.createElement('div');
@@ -178,7 +178,7 @@ function initHeroSlider() {
     const slide = document.createElement('div');
     slide.className = 'slider-slide';
     slide.innerHTML = `
-      <img src="${product.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221200%22 height=%22400%22%3E%3Crect fill=%22%23ddd%22 width=%221200%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23666%22%3EImage+non+disponible%3C/text%3E%3C/svg%3E'}" alt="${product.name}">
+      <img src="${product.image || 'image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221200%22 height=%22400%22%3E%3Crect fill=%22%23ddd%22 width=%221200%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23666%22%3EImage+non+disponible%3C/text%3E%3C/svg%3E'}" alt="${product.name}">
       <div class="slider-overlay">
         <div class="slider-content">
           <h2>${product.name}</h2>
