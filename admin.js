@@ -3,22 +3,12 @@ GESTION DES COMMANDES & PRODUITS (FIREBASE)
 ============================== */
 let allCommandes = [];
 
-// ========== جعل الدوال متاحة عالميًا ==========
-window.showDetail = showDetail;
-window.deleteCommande = deleteCommande;
-window.updateOrderStatus = updateOrderStatus;
-window.closeDetail = closeDetail;
-window.exportCommandes = exportCommandes;
-window.openAddProductModal = openAddProductModal;
-window.closeAddProductModal = closeAddProductModal;
-window.clearFilters = clearFilters;
-
 // ========== CHARGEMENT DES COMMANDES ==========
 function loadCommandes() {
   const tbody = document.getElementById('ordersTableBody');
   if (!tbody) return;
   
-  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Chargement des commandes...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9">Chargement...</td></tr>';
   
   db.collection("commandes")
     .orderBy("date", "desc")
@@ -34,7 +24,7 @@ function loadCommandes() {
     })
     .catch((error) => {
       console.error("❌ Erreur Firebase:", error);
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:#e74c3c;">❌ Erreur de chargement: ${error.message}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9">Erreur de chargement: ${error.message}</td></tr>`;
     });
 }
 
@@ -44,28 +34,21 @@ function displayCommandes(commandes) {
   if (!tbody) return;
   
   if (commandes.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:#999;">📭 Aucune commande trouvée</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9">Aucune commande trouvée</td></tr>`;
     return;
   }
   
   tbody.innerHTML = commandes.map(cmd => `
     <tr>
-      <td class="order-id">${cmd.orderNumber || 'N/A'}</td>
+      <td class="order-id">${cmd.orderNumber}</td>
+      <td>${cmd.firstName} ${cmd.lastName}</td>
       <td>
-        <div class="client-cell">
-          <div class="client-avatar">${(cmd.firstName || '?')[0]}${(cmd.lastName || '?')[0]}</div>
-          <div class="client-info">
-            <div class="client-name">${cmd.firstName || ''} ${cmd.lastName || ''}</div>
-          </div>
-        </div>
-      </td>
-      <td>
-        <span class="order-type ${cmd.orderType || ''}">
+        <span class="order-type ${cmd.orderType}">
           ${cmd.orderType === 'domicile' ? '🏠 Domicile' : '🏪 Stop Desk'}
         </span>
       </td>
-      <td>${cmd.wilaya || 'N/A'}</td>
-      <td>${cmd.phone1 || 'N/A'}</td>
+      <td>${cmd.wilaya}</td>
+      <td>${cmd.phone1}</td>
       <td class="total-price">${(cmd.grandTotal || 0).toFixed(2)} DA</td>
       <td>
         <span class="status-badge-table ${getStatusClass(cmd.status || 'pending')}">
@@ -73,14 +56,8 @@ function displayCommandes(commandes) {
         </span>
       </td>
       <td>
-        <div class="action-buttons">
-          <button class="btn-details" onclick="showDetail('${cmd.orderNumber}')">
-            <i class="fas fa-eye"></i> Détails
-          </button>
-          <button class="btn-delete" onclick="deleteCommande('${cmd.orderNumber}')">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
+        <button onclick="showDetail('${cmd.orderNumber}')">Détails</button>
+        <button class="delete-btn" onclick="deleteCommande('${cmd.orderNumber}')">🗑</button>
       </td>
     </tr>
   `).join('');
@@ -88,76 +65,44 @@ function displayCommandes(commandes) {
 
 // ========== MODAL DÉTAILS COMMANDE ==========
 function showDetail(orderNumber) {
-  console.log("🔍 showDetail:", orderNumber);
-  
   const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
-  if (!cmd) {
-    console.warn("⚠️ Commande non trouvée:", orderNumber);
-    return;
-  }
+  if (!cmd) return;
   
-  const modal = document.getElementById('detailModal');
-  if (!modal) {
-    console.error("❌ Modal #detailModal non trouvé!");
-    return;
-  }
+  document.getElementById('detailModal').dataset.firebaseId = cmd.id;
+  document.getElementById('detailModal').dataset.currentOrderNumber = orderNumber;
+  document.getElementById('detailOrderNumber').textContent = cmd.orderNumber;
+  document.getElementById('detailDate').textContent = formatDateTime(cmd.date);
+  document.getElementById('detailName').textContent = `${cmd.firstName} ${cmd.lastName}`;
+  document.getElementById('detailPhone1').textContent = cmd.phone1 || '—';
+  document.getElementById('detailPhone2').textContent = cmd.phone2 || '—';
+  document.getElementById('detailWilaya').textContent = cmd.wilaya || '—';
+  document.getElementById('detailCommune').textContent = cmd.commune || '—';
   
-  // تخزين البيانات في modal
-  modal.dataset.firebaseId = cmd.id;
-  modal.dataset.currentOrderNumber = orderNumber;
-  
-  // دالة مساعدة لتعيين النص بأمان
-  const setText = (id, value) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value ?? '—';
-    else console.warn(`⚠️ Élément #${id} non trouvé`);
-  };
-  
-  // تعبئة البيانات
-  setText('detailOrderNumber', cmd.orderNumber);
-  setText('detailDate', formatDateTime(cmd.date));
-  setText('detailName', `${cmd.firstName ?? ''} ${cmd.lastName ?? ''}`);
-  setText('detailPhone1', cmd.phone1);
-  setText('detailPhone2', cmd.phone2);
-  setText('detailWilaya', cmd.wilaya);
-  setText('detailCommune', cmd.commune);
-  setText('detailOrderType', cmd.orderType === 'domicile' ? '🏠 Domicile' : '🏪 Stop Desk');
-  
-  // Statut
   const status = cmd.status || 'pending';
   const badge = document.getElementById('detailStatusBadge');
-  if (badge) {
-    badge.textContent = getStatusLabel(status);
-    badge.className = 'status-badge-table ' + getStatusClass(status);
-  }
+  badge.textContent = getStatusLabel(status);
+  badge.className = 'status-badge-table ' + getStatusClass(status);
   
-  // Produits
   const itemsContainer = document.getElementById('detailItems');
-  if (itemsContainer) {
-    if (cmd.cartItems?.length) {
-      itemsContainer.innerHTML = cmd.cartItems.map(it => `
-        <div class="item-entry">
-          <div><strong>${it.name || 'Produit inconnu'}</strong><br>${it.price || 0} DA × ${it.quantity || 1}</div>
-          <div><strong>${((it.price || 0) * (it.quantity || 1)).toFixed(2)} DA</strong></div>
-        </div>
-      `).join('');
-    } else {
-      itemsContainer.innerHTML = '<p style="text-align:center;color:#999;">Aucun produit</p>';
-    }
+  if (cmd.cartItems && cmd.cartItems.length > 0) {
+    itemsContainer.innerHTML = cmd.cartItems.map(item => `
+      <div class="item-entry">
+        <div><strong>${item.name}</strong><br>${item.price} DA × ${item.quantity}</div>
+        <div><strong>${(item.price * item.quantity).toFixed(2)} DA</strong></div>
+      </div>
+    `).join('');
+  } else {
+    itemsContainer.innerHTML = '<p>Aucun produit</p>';
   }
   
-  // Totaux
-  setText('detailCartTotal', (cmd.cartTotal || 0).toFixed(2));
-  setText('detailShipping', (cmd.shippingPrice || 0).toFixed(2));
-  setText('detailTotal', (cmd.grandTotal || 0).toFixed(2));
-  
-  // إظهار المودال
-  modal.classList.add('active');
-  console.log("✅ Modal affiché avec succès");
+  document.getElementById('detailCartTotal').textContent = (cmd.cartTotal || 0).toFixed(2);
+  document.getElementById('detailShipping').textContent = (cmd.shippingPrice || 0).toFixed(2);
+  document.getElementById('detailTotal').textContent = (cmd.grandTotal || 0).toFixed(2);
+  document.getElementById('detailModal').classList.add('active');
 }
+
 function closeDetail() {
-  const modal = document.getElementById('detailModal');
-  if (modal) modal.classList.remove('active');
+  document.getElementById('detailModal').classList.remove('active');
 }
 
 // ========== GESTION STATUT ==========
@@ -182,16 +127,11 @@ function getStatusLabel(status) {
 }
 
 function updateOrderStatus(newStatus) {
-  const modal = document.getElementById('detailModal');
-  const firebaseId = modal?.dataset.firebaseId;
-  const orderNumber = modal?.dataset.currentOrderNumber;
+  const firebaseId = document.getElementById('detailModal').dataset.firebaseId;
+  const orderNumber = document.getElementById('detailModal').dataset.currentOrderNumber;
   
   if (!firebaseId) {
     alert("❌ Erreur: ID Firebase manquant");
-    return;
-  }
-  
-  if (!confirm(`Changer le statut de la commande ${orderNumber} à "${getStatusLabel(newStatus)}"?`)) {
     return;
   }
   
@@ -202,20 +142,17 @@ function updateOrderStatus(newStatus) {
     const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
     if (cmd) cmd.status = newStatus;
     showNotification('✅ Statut mis à jour');
-    displayCommandes(allCommandes);
-    showDetail(orderNumber); // تحديث النافذة
+    filterCommandes();
   })
   .catch((error) => {
     console.error("❌ Erreur mise à jour:", error);
-    alert("❌ Erreur lors de la mise à jour du statut");
+    alert("Erreur lors de la mise à jour du statut");
   });
 }
 
 // ========== SUPPRESSION COMMANDE ==========
 function deleteCommande(orderNumber) {
-  if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer la commande ${orderNumber}?\n\nCette action est irréversible!`)) {
-    return;
-  }
+  if (!confirm(`Supprimer la commande ${orderNumber} ?`)) return;
   
   const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
   if (!cmd || !cmd.id) {
@@ -226,33 +163,28 @@ function deleteCommande(orderNumber) {
   db.collection("commandes").doc(cmd.id).delete()
     .then(() => {
       allCommandes = allCommandes.filter(c => c.orderNumber !== orderNumber);
-      displayCommandes(allCommandes);
+      filterCommandes();
       updateStats();
-      initializeWilayaFilter();
-      showNotification('🗑️ Commande supprimée');
+      showNotification('✅ Commande supprimée');
     })
     .catch((error) => {
       console.error("❌ Erreur suppression:", error);
-      alert("❌ Erreur lors de la suppression: " + error.message);
+      alert("Erreur lors de la suppression");
     });
 }
 
 // ========== FILTRES COMMANDES ==========
 function filterCommandes() {
-  const searchInput = document.getElementById('searchInput');
-  const filterType = document.getElementById('filterType');
-  const filterWilaya = document.getElementById('filterWilaya');
-  
-  const search = (searchInput?.value || '').toLowerCase();
-  const type = filterType?.value || '';
-  const wilaya = filterWilaya?.value || '';
+  const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+  const type = document.getElementById('filterType')?.value || '';
+  const wilaya = document.getElementById('filterWilaya')?.value || '';
   
   const filtered = allCommandes.filter(c => {
     const matchSearch =
-      (c.orderNumber || '').toLowerCase().includes(search) ||
-      ((c.firstName || '').toLowerCase().includes(search)) ||
-      ((c.lastName || '').toLowerCase().includes(search)) ||
-      ((c.phone1 || '').includes(search));
+      c.orderNumber.toLowerCase().includes(search) ||
+      (c.firstName && c.firstName.toLowerCase().includes(search)) ||
+      (c.lastName && c.lastName.toLowerCase().includes(search)) ||
+      (c.phone1 && c.phone1.includes(search));
     const matchType = !type || c.orderType === type;
     const matchWilaya = !wilaya || c.wilaya === wilaya;
     return matchSearch && matchType && matchWilaya;
@@ -310,13 +242,13 @@ function initializeWilayaFilter() {
 // ========== EXPORT CSV ==========
 function exportCommandes() {
   if (allCommandes.length === 0) {
-    alert("⚠️ Aucune commande à exporter");
+    alert("Aucune commande à exporter");
     return;
   }
   
   let csv = 'N° Commande;Client;Téléphone;Wilaya;Commune;Type;Total (DA);Statut;Date\n';
   allCommandes.forEach(c => {
-    csv += `"${c.orderNumber || ''}";"${c.firstName || ''} ${c.lastName || ''}";"${c.phone1 || ''}";"${c.wilaya || ''}";"${c.commune || ''}";"${c.orderType || ''}";"${(c.grandTotal || 0).toFixed(2)}";"${c.status || 'pending'}";"${c.date || ''}"\n`;
+    csv += `"${c.orderNumber}";"${c.firstName} ${c.lastName}";"${c.phone1}";"${c.wilaya}";"${c.commune}";"${c.orderType}";"${(c.grandTotal || 0).toFixed(2)}";"${c.status || 'pending'}";"${c.date}"\n`;
   });
   
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -327,23 +259,18 @@ function exportCommandes() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  
-  showNotification('📥 Export CSV réussi!');
 }
 
 // ========== AJOUT PRODUIT ==========
 function openAddProductModal() {
-  const modal = document.getElementById('addProductModal');
-  if (modal) {
-    modal.classList.add('active');
-    document.getElementById('addProductForm')?.reset();
-    document.getElementById('imagePreview').innerHTML = '';
-  }
+  document.getElementById('addProductModal').classList.add('active');
+  document.getElementById('addProductForm').reset();
+  const preview = document.getElementById('imagePreview');
+  if (preview) preview.innerHTML = '';
 }
 
 function closeAddProductModal() {
-  const modal = document.getElementById('addProductModal');
-  if (modal) modal.classList.remove('active');
+  document.getElementById('addProductModal').classList.remove('active');
 }
 
 // معاينة الصورة
@@ -362,16 +289,17 @@ document.addEventListener('DOMContentLoaded', () => {
           img.src = event.target.result;
           img.style.maxWidth = '100%';
           img.style.maxHeight = '200px';
-          img.style.borderRadius = '8px';
-          img.style.marginTop = '10px';
+          img.style.borderRadius = '5px';
           preview.appendChild(img);
         };
         reader.readAsDataURL(this.files[0]);
       }
     });
   }
-  
-  // حفظ المنتج
+});
+
+// حفظ المنتج
+document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('addProductForm');
   if (form) {
     form.addEventListener('submit', async (e) => {
@@ -398,12 +326,14 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         showNotification('📤 Téléchargement de l\'image...');
         
+        // رفع الصورة إلى Firebase Storage
         const storageRef = storage.ref();
         const safeFileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
         const imageRef = storageRef.child(`produits/${safeFileName}`);
         await imageRef.put(file);
         const imageUrl = await imageRef.getDownloadURL();
         
+        // حفظ المنتج في Firestore
         const nouveauProduit = {
           name,
           image: imageUrl,
@@ -418,7 +348,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showNotification('✅ Produit ajouté avec succès!');
         closeAddProductModal();
         form.reset();
-        document.getElementById('imagePreview').innerHTML = '';
+        const preview = document.getElementById('imagePreview');
+        if (preview) preview.innerHTML = '';
         
       } catch (error) {
         console.error("❌ Erreur complète:", error);
@@ -432,127 +363,39 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-  
-  // Écouteurs filtres
-  document.getElementById('searchInput')?.addEventListener('input', filterCommandes);
-  document.getElementById('filterType')?.addEventListener('change', filterCommandes);
-  document.getElementById('filterWilaya')?.addEventListener('change', filterCommandes);
-  
-  // تحميل الطلبات
-  loadCommandes();
 });
 
 // ========== UTILITAIRES ==========
 function showNotification(msg) {
-  const existing = document.querySelector('.notification');
-  if (existing) existing.remove();
-  
   const n = document.createElement('div');
-  n.className = 'notification';
   n.textContent = msg;
   n.style.cssText = `
     position: fixed; top: 20px; right: 20px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white; padding: 15px 25px;
-    border-radius: 10px; z-index: 9999;
-    font-size: 0.95rem; font-weight: 600;
-    box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
-    animation: slideIn 0.3s ease;
+    background: #27ae60; color: white;
+    padding: 12px 18px; border-radius: 5px;
+    z-index: 9999; font-size: 1rem;
   `;
   document.body.appendChild(n);
-  setTimeout(() => {
-    n.style.animation = 'slideOut 0.3s ease';
-    setTimeout(() => n.remove(), 300);
-  }, 3000);
+  setTimeout(() => n.remove(), 3000);
 }
 
 function formatDateTime(d) {
   if (!d) return '—';
-  try {
-    return new Date(d).toLocaleString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  } catch (e) {
-    return '—';
-  }
+  return new Date(d).toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 
-// أنيميشن للإشعارات
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-  }
+// ========== INITIALISATION ==========
+document.addEventListener('DOMContentLoaded', () => {
+  loadCommandes();
   
-  .client-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .client-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: white;
-  }
-  
-  .client-info {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .client-name {
-    font-weight: 600;
-    color: #2c3e50;
-  }
-  
-  .item-entry {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .item-entry:last-child {
-    border-bottom: none;
-  }
-  
-  .item-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .item-info strong {
-    color: #2c3e50;
-  }
-  
-  .item-info small {
-    color: #999;
-    font-size: 0.85rem;
-  }
-  
-  .item-total {
-    font-weight: 700;
-    color: #e74c3c;
-  }
-`;
-document.head.appendChild(style);
-
+  document.getElementById('searchInput')?.addEventListener('input', filterCommandes);
+  document.getElementById('filterType')?.addEventListener('change', filterCommandes);
+  document.getElementById('filterWilaya')?.addEventListener('change', filterCommandes);
+  document.querySelector('.filters button')?.addEventListener('click', clearFilters);
+});
