@@ -2,20 +2,16 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-<meta name="theme-color" content="#0f172a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Amar Informatique - Premium Tech Store</title>
-<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Amar Informatique</title>
 <link rel="icon" href="logo.jpg" type="image/x-icon">
-<!-- Google Fonts: Outfit (Modern/Tech) - تم إصلاح الروابط -->
+<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<!-- Font Awesome - تم إصلاح الرابط -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Firebase (Compat Version) - تم إصلاح الروابط -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
@@ -31,183 +27,1347 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
-// جعل db و storage متاحين عالميًا
-window.db = db;
-window.storage = storage;
 </script>
+
+<style>
+/* ==================== VARIABLES ==================== */
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #818cf8;
+  --secondary: #ec4899;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  --bg-main: #0f172a;
+  --bg-card: #1e293b;
+  --bg-hover: #334155;
+  
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dark: #1e293b;
+  
+  --border: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.2);
+  
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+  --glow: 0 0 40px rgba(99, 102, 241, 0.3);
+  
+  --radius: 12px;
+  --radius-lg: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==================== BASE ==================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ==================== HEADER ==================== */
+header {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-items {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+}
+
+.btn-secondary {
+  background: var(--bg-hover);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--border-light);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success), #059669);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--danger), #dc2626);
+  color: white;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+/* ==================== MAIN CONTAINER ==================== */
+.admin-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ==================== PAGE HEADER ==================== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-title h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--text-main), var(--text-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ==================== STATS CARDS ==================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.stat-card.orders::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+.stat-card.revenue::before { background: linear-gradient(90deg, #10b981, #3b82f6); }
+.stat-card.domicile::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+.stat-card.stopdesk::before { background: linear-gradient(90deg, #ec4899, #f43f5e); }
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.stat-card.orders .stat-icon { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+.stat-card.revenue .stat-icon { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.stat-card.domicile .stat-icon { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+.stat-card.stopdesk .stat-icon { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.stat-change {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-change.positive { color: var(--success); }
+.stat-change.negative { color: var(--danger); }
+
+/* ==================== FILTERS ==================== */
+.filters-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-input {
+  padding: 0.75rem 1rem;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.filter-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ==================== TABLE ==================== */
+.table-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.table-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table thead {
+  background: var(--bg-main);
+}
+
+.orders-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+}
+
+.orders-table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.orders-table tbody tr {
+  transition: var(--transition);
+}
+
+.orders-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.orders-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table Cells */
+.order-id {
+  font-weight: 700;
+  color: var(--primary-light);
+  font-family: 'Courier New', monospace;
+}
+
+.client-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.client-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.client-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.client-name {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.client-phone {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Type Badge */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.type-badge.domicile {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.type-badge.stopdesk {
+  background: rgba(236, 72, 153, 0.2);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-accepted {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.status-shipped {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.status-arrived {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-returned {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.btn-icon.view {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+}
+
+.btn-icon.view:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-icon.delete {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.btn-icon.delete:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* ==================== MODAL ==================== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  max-width: 700px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.modal-close {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--danger);
+  color: white;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+/* Detail Sections */
+.detail-section {
+  margin-bottom: 2rem;
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title i {
+  color: var(--primary);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* Products List */
+.products-list {
+  background: var(--bg-main);
+  border-radius: var(--radius);
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.product-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.product-item:last-child {
+  border-bottom: none;
+}
+
+.product-item:hover {
+  background: var(--bg-hover);
+  border-radius: var(--radius);
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.product-name {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.product-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.product-price {
+  font-weight: 700;
+  color: var(--success);
+}
+
+/* Status Buttons */
+.status-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.status-btn {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.status-btn:hover {
+  transform: translateY(-2px);
+}
+
+.status-btn.accept {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+}
+
+.status-btn.accept:hover {
+  background: var(--info);
+  color: white;
+}
+
+.status-btn.ship {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(139, 92, 246, 0.1);
+  color: #a78bfa;
+}
+
+.status-btn.ship:hover {
+  background: #8b5cf6;
+  color: white;
+}
+
+.status-btn.deliver {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+}
+
+.status-btn.deliver:hover {
+  background: var(--success);
+  color: white;
+}
+
+.status-btn.return {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+
+.status-btn.return:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Total Section */
+.total-section {
+  background: var(--bg-main);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.total-row:last-child {
+  border-bottom: none;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 2px solid var(--border);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.total-label {
+  color: var(--text-muted);
+}
+
+.total-value {
+  color: var(--text-main);
+}
+
+.total-value.grand {
+  color: var(--success);
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.form-label .required {
+  color: var(--danger);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Image Preview */
+.image-preview {
+  margin-top: 1rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Notification */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  z-index: 9999;
+  animation: slideIn 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+.notification.success {
+  background: var(--success);
+  color: white;
+}
+
+.notification.error {
+  background: var(--danger);
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .admin-container {
+    padding: 1rem;
+  }
+  
+  .orders-table {
+    font-size: 0.85rem;
+  }
+  
+  .orders-table th,
+  .orders-table td {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .page-actions {
+    justify-content: stretch;
+  }
+  
+  .page-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .filters-bar {
+    flex-direction: column;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .orders-table {
+    min-width: 800px;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-hover);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-light);
+}
+</style>
 </head>
 <body>
-<!-- En-tête -->
+
+<!-- Header -->
 <header>
-<nav class="navbar">
-<div class="container">
-<div class="logo">
-<img src="logo.jpg" alt="Logo Amar Informatique">
-<h1>Amar Informatique</h1>
-</div>
-<div class="nav-items">
-<div class="contact-info">
-<span><i class="fas fa-phone-alt"></i> 0559 46 99 56</span>
-</div>
-<a href="tracking.html" class="btn-nav btn-track">
-<i class="fas fa-box-open"></i> Suivi Commande
-</a>
-<button class="cart-btn" id="cartBtn" aria-label="Panier">
-<i class="fas fa-shopping-cart"></i> Panier
-<span class="cart-count" id="cartCount">0</span>
-</button>
-</div>
-</div>
-</nav>
+  <nav class="navbar">
+    <div class="logo">
+      <h1><i class="fas fa-chart-line"></i> Amar Dashboard</h1>
+    </div>
+    <div class="nav-items">
+      <a href="index.html" class="btn btn-secondary btn-sm">
+        <i class="fas fa-store"></i> Boutique
+      </a>
+      <button class="btn btn-danger btn-sm" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Déconnexion
+      </button>
+    </div>
+  </nav>
 </header>
 
-<!-- Hero Slider -->
-<section class="hero-slider" id="heroSlider" aria-label="Produits en vedette">
-<div class="slider-wrapper" id="sliderWrapper" role="region" aria-live="polite"></div>
-<button class="slider-btn prev" id="prevBtn" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
-<button class="slider-btn next" id="nextBtn" aria-label="Suivant"><i class="fas fa-chevron-right"></i></button>
-<div class="slider-dots" id="sliderDots" role="tablist"></div>
-</section>
+<!-- Main Content -->
+<main class="admin-container">
+  
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <h1><i class="fas fa-shopping-bag"></i> Gestion des Commandes</h1>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-success" onclick="openAddProductModal()">
+        <i class="fas fa-plus"></i> Ajouter Produit
+      </button>
+      <button class="btn btn-primary" onclick="exportCommandes()">
+        <i class="fas fa-download"></i> Exporter CSV
+      </button>
+    </div>
+  </div>
 
-<main>
-<!-- Section des produits -->
-<section class="products-section">
-<div class="container">
-<h2>Nos Produits</h2>
-<div class="filters">
-<input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input" aria-label="Rechercher">
-<select id="categoryFilter" class="category-filter" aria-label="Filtrer par catégorie">
-<option value="">Toutes les catégories</option>
-<option value="laptop">Laptops</option>
-<option value="imprimantes">Imprimantes</option>
-<option value="accessoires">Accessoires</option>
-</select>
-</div>
-<div class="products-grid" id="productsGrid" role="list">
-<!-- Les produits seront affichés ici -->
-<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);" role="status">
-<i class="fas fa-spinner fa-spin fa-3x"></i><br><br>Chargement des produits...
-</div>
-</div>
-</div>
-</section>
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card orders">
+      <div class="stat-icon">
+        <i class="fas fa-shopping-cart"></i>
+      </div>
+      <div class="stat-number" id="totalCommandes">0</div>
+      <div class="stat-label">Commandes Totales</div>
+      <div class="stat-change positive">
+        <i class="fas fa-arrow-up"></i> Cette semaine
+      </div>
+    </div>
+    
+    <div class="stat-card revenue">
+      <div class="stat-icon">
+        <i class="fas fa-coins"></i>
+      </div>
+      <div class="stat-number" id="totalRevenu">0 DA</div>
+      <div class="stat-label">Revenu Total</div>
+      <div class="stat-change positive">
+        <i class="fas fa-arrow-up"></i> +12.5%
+      </div>
+    </div>
+    
+    <div class="stat-card domicile">
+      <div class="stat-icon">
+        <i class="fas fa-home"></i>
+      </div>
+      <div class="stat-number" id="totalDomicile">0</div>
+      <div class="stat-label">Livraison Domicile</div>
+    </div>
+    
+    <div class="stat-card stopdesk">
+      <div class="stat-icon">
+        <i class="fas fa-store-alt"></i>
+      </div>
+      <div class="stat-number" id="totalStopdesk">0</div>
+      <div class="stat-label">Stop Desk</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label><i class="fas fa-search"></i> Rechercher</label>
+      <input type="text" id="searchInput" class="filter-input" placeholder="N° commande, client, téléphone...">
+    </div>
+    <div class="filter-group">
+      <label><i class="fas fa-truck"></i> Type</label>
+      <select id="filterType" class="filter-input">
+        <option value="">Tous les types</option>
+        <option value="domicile">Livraison à domicile</option>
+        <option value="stopdesk">Stop Desk</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label><i class="fas fa-map-marker-alt"></i> Wilaya</label>
+      <select id="filterWilaya" class="filter-input">
+        <option value="">Toutes les wilayas</option>
+      </select>
+    </div>
+    <div class="filter-group" style="flex: 0; min-width: auto;">
+      <label>&nbsp;</label>
+      <button class="btn btn-secondary" onclick="clearFilters()">
+        <i class="fas fa-redo"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <div class="table-title">
+        <i class="fas fa-list"></i> Liste des Commandes
+      </div>
+    </div>
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>N° Commande</th>
+          <th>Client</th>
+          <th>Type</th>
+          <th>Wilaya</th>
+          <th>Total</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTableBody">
+        <tr>
+          <td colspan="7" class="loading-state">
+            <div class="loading-spinner"></div>
+            Chargement des commandes...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
 </main>
 
-<!-- Modal du panier -->
-<div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle">
-<div class="modal-content">
-<span class="close-modal" aria-label="Fermer">&times;</span>
-<h2 id="cartModalTitle"><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
-<div class="cart-items" id="cartItems" role="list"></div>
-<div class="cart-summary">
-<div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
-<span>Total:</span>
-<span><span id="totalPrice">0.00</span> DA</span>
-</div>
-<button class="btn-checkout" id="checkoutBtn">Passer la Commande <i class="fas fa-arrow-right"></i></button>
-</div>
-</div>
+<!-- Order Detail Modal -->
+<div class="modal" id="detailModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <i class="fas fa-receipt"></i> Détails Commande
+      </h2>
+      <button class="modal-close" onclick="closeDetail()">&times;</button>
+    </div>
+    <div class="modal-body">
+      
+      <!-- Status Section -->
+      <div class="detail-section">
+        <div class="section-title">
+          <i class="fas fa-tasks"></i> Statut de la Commande
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <span class="status-badge status-pending" id="detailStatusBadge">
+            <i class="fas fa-clock"></i> En attente
+          </span>
+        </div>
+        <div class="status-actions">
+          <button class="status-btn accept" onclick="updateOrderStatus('accepted')">
+            <i class="fas fa-check"></i> Accepter
+          </button>
+          <button class="status-btn ship" onclick="updateOrderStatus('shipped')">
+            <i class="fas fa-truck"></i> Expédier
+          </button>
+          <button class="status-btn deliver" onclick="updateOrderStatus('arrived')">
+            <i class="fas fa-box"></i> Livrée
+          </button>
+          <button class="status-btn return" onclick="updateOrderStatus('returned')">
+            <i class="fas fa-undo"></i> Retour
+          </button>
+        </div>
+      </div>
+
+      <!-- Client Info -->
+      <div class="detail-section">
+        <div class="section-title">
+          <i class="fas fa-user"></i> Informations Client
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Nom Complet</span>
+            <span class="detail-value" id="detailName">—</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Téléphone 1</span>
+            <span class="detail-value" id="detailPhone1">—</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Téléphone 2</span>
+            <span class="detail-value" id="detailPhone2">—</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Date</span>
+            <span class="detail-value" id="detailDate">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Info -->
+      <div class="detail-section">
+        <div class="section-title">
+          <i class="fas fa-map-marker-alt"></i> Adresse de Livraison
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Type</span>
+            <span class="detail-value" id="detailOrderType">—</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Wilaya</span>
+            <span class="detail-value" id="detailWilaya">—</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Commune</span>
+            <span class="detail-value" id="detailCommune">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div class="detail-section">
+        <div class="section-title">
+          <i class="fas fa-box-open"></i> Produits Commandés
+        </div>
+        <div class="products-list" id="detailItems">
+          <p style="text-align: center; color: var(--text-muted);">Aucun produit</p>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="total-section">
+        <div class="total-row">
+          <span class="total-label">Sous-total</span>
+          <span class="total-value" id="detailCartTotal">0 DA</span>
+        </div>
+        <div class="total-row">
+          <span class="total-label">Frais de Livraison</span>
+          <span class="total-value" id="detailShipping">0 DA</span>
+        </div>
+        <div class="total-row">
+          <span class="total-label">Total Général</span>
+          <span class="total-value grand" id="detailTotal">0 DA</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<!-- Modal du formulaire de commande -->
-<div class="modal" id="orderFormModal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
-<div class="modal-content order-form-content">
-<span class="close-modal" aria-label="Fermer">&times;</span>
-<h2 id="orderModalTitle"><i class="fas fa-truck-fast"></i> Finaliser la Commande</h2>
-<form id="orderForm">
-<div class="form-group">
-<label for="orderType"><i class="fas fa-map-marker-alt"></i> Type de Livraison *</label>
-<select id="orderType" required>
-<option value="">Sélectionner un type</option>
-<option value="domicile">Livraison à domicile</option>
-<option value="stopdesk">Stop Desk (Retrait au bureau)</option>
-</select>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="firstName">Prénom *</label>
-<input type="text" id="firstName" required placeholder="Votre prénom" autocomplete="given-name">
-</div>
-<div class="form-group">
-<label for="lastName">Nom *</label>
-<input type="text" id="lastName" required placeholder="Votre nom" autocomplete="family-name">
-</div>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="phone1">Numéro de téléphone *</label>
-<input type="tel" id="phone1" required placeholder="05XXXXXXXX" pattern="[0-9]{10}" autocomplete="tel">
-</div>
-<div class="form-group">
-<label for="phone2">Autre numéro (optionnel)</label>
-<input type="tel" id="phone2" placeholder="05XXXXXXXX" autocomplete="tel">
-</div>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="wilaya">Wilaya *</label>
-<select id="wilaya" required></select>
-</div>
-<div class="form-group">
-<label for="commune">Commune *</label>
-<select id="commune" required></select>
-</div>
-</div>
-<div class="shipping-info">
-<div class="shipping-price">
-<i class="fas fa-info-circle"></i> <span>Frais de livraison:</span>
-<strong id="shippingPrice">0 DA</strong>
-</div>
-</div>
-<div class="btn-actions">
-<button type="button" class="btn-cancel" onclick="closeOrderForm()">Annuler</button>
-<button type="submit" class="btn-submit">Confirmer la Commande</button>
-</div>
-</form>
-</div>
+<!-- Add Product Modal -->
+<div class="modal" id="addProductModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <i class="fas fa-plus-circle"></i> Ajouter un Produit
+      </h2>
+      <button class="modal-close" onclick="closeAddProductModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="addProductForm">
+        <div class="form-group">
+          <label class="form-label">Nom du produit <span class="required">*</span></label>
+          <input type="text" id="productName" class="form-input" required placeholder="Ex: Laptop Dell XPS 15">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Catégorie <span class="required">*</span></label>
+            <select id="productCategory" class="form-select" required>
+              <option value="">Sélectionner...</option>
+              <option value="laptop">Laptop</option>
+              <option value="imprimantes">Imprimantes</option>
+              <option value="accessoires">Accessoires</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Prix (DA) <span class="required">*</span></label>
+            <input type="number" id="productPrice" class="form-input" required min="0" step="0.01" placeholder="45000">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="productDescription" class="form-textarea" placeholder="Description du produit (optionnel)"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Image du produit <span class="required">*</span></label>
+          <input type="file" id="productImageFile" class="form-input" accept="image/*" required>
+          <div class="image-preview" id="imagePreview"></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeAddProductModal()">Annuler</button>
+      <button class="btn btn-success" type="submit" form="addProductForm">
+        <i class="fas fa-save"></i> Enregistrer
+      </button>
+    </div>
+  </div>
 </div>
 
-<!-- Modal de confirmation de commande -->
-<div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
-<div class="modal-content" style="text-align: center;">
-<span class="close-modal" aria-label="Fermer">&times;</span>
-<i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;" aria-hidden="true"></i>
-<h2 id="confirmModalTitle" style="border:none;">Commande Reçue!</h2>
-<p style="font-size: 1.1rem; margin-bottom: 20px;">Merci pour votre achat.</p>
-<div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-<p style="margin-bottom: 5px; font-size: 0.9rem;">Votre numéro de commande:</p>
-<strong id="orderNumber" style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
-</div>
-<p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-<i class="fas fa-camera" aria-hidden="true"></i> Prenez une capture d'écran de ce numéro.
-</p>
-<button class="btn-checkout" onclick="location.reload()">Continuer</button>
-</div>
-</div>
+<script src="admin.js"></script>
+<script>
+// Check admin session
+if (sessionStorage.getItem('adminLogged') !== 'true') {
+  window.location.href = 'login.html';
+}
 
-<!-- Modal Détails Produit -->
-<div class="modal" id="productDetailModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
-<div class="modal-content product-detail-content">
-<span class="close-modal" aria-label="Fermer">&times;</span>
-<div class="detail-layout">
-<img id="detailImage" src="" alt="" class="detail-image">
-<div class="detail-info">
-<h2 id="productModalTitle"></h2>
-<p id="detailCategory" class="product-category"></p>
-<p id="detailDescription" class="product-description"></p>
-<div class="detail-price"><span id="detailPrice"></span> DA</div>
-<button class="btn-checkout" id="modalAddToCartBtn">
-<i class="fas fa-cart-plus"></i> Ajouter au Panier
-</button>
-</div>
-</div>
-</div>
-</div>
+function logout() {
+  sessionStorage.removeItem('adminLogged');
+  window.location.href = 'login.html';
+}
+</script>
 
-<footer>
-<p>&copy; 2026 Amar Informatique. Premium Tech Store.</p>
-</footer>
-
-<script src="script.js"></script>
 </body>
 </html>
