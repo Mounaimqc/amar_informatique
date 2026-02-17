@@ -1,552 +1,294 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suivi de Commande - Amar Informatique</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="logo.jpg" type="image/x-icon">
-  <!-- Google Fonts: Outfit -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-  <style>
-    /* Tracking Specific Styles (Dark Tech) */
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-    }
-
-    .tracking-container {
-      max-width: 800px;
-      margin: 60px auto;
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      padding: 40px;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--neon-shadow);
-      border: var(--glass-border);
-      animation: fadeIn 0.8s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .tracking-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .tracking-header h2 {
-      font-size: 2.5rem;
-      color: var(--text-main);
-      margin-bottom: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .tracking-header p {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
-
-    .search-group {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 40px;
-    }
-
-    .search-input-tracking {
-      flex: 1;
-      padding: 18px 25px;
-      font-size: 1.1rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50px;
-      outline: none;
-      transition: var(--transition);
-      background: rgba(15, 23, 42, 0.6);
-      color: var(--text-main);
-    }
-
-    .search-input-tracking:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
-    }
-
-    .search-btn {
-      padding: 0 35px;
-      background: var(--primary-color);
-      color: var(--white);
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 1.1rem;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
-    }
-
-    .search-btn:hover {
-      background: var(--primary-glow);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
-    }
-
-    /* Result Box */
-    .result-box {
-      margin-top: 30px;
-      display: none;
-      animation: slideUp 0.5s ease-out;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .order-details {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 25px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      margin-bottom: 30px;
-    }
-
-    .order-info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .info-item label {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .info-item span {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    /* Timeline */
-    .timeline {
-      position: relative;
-      margin-top: 40px;
-      padding-left: 20px;
-    }
-
-    .timeline::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 29px;
-      height: 100%;
-      width: 2px;
-      background: rgba(255, 255, 255, 0.1);
-      z-index: 0;
-    }
-
-    .timeline-step {
-      position: relative;
-      margin-bottom: 30px;
-      display: flex;
-      align-items: flex-start;
-      opacity: 0.5;
-      transition: opacity 0.3s;
-    }
-
-    .timeline-step.active {
-      opacity: 1;
-    }
-
-    .timeline-dot {
-      width: 20px;
-      height: 20px;
-      background: var(--bg-dark);
-      border: 2px solid var(--text-muted);
-      border-radius: 50%;
-      margin-right: 20px;
-      z-index: 1;
-      position: relative;
-    }
-
-    .timeline-step.active .timeline-dot {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-      box-shadow: 0 0 15px var(--primary-color);
-    }
-
-    .timeline-step.completed .timeline-dot {
-      background: var(--success);
-      border-color: var(--success);
-      box-shadow: 0 0 10px var(--success);
-    }
-
-    .timeline-content h4 {
-      font-size: 1.1rem;
-      margin-bottom: 5px;
-      color: var(--text-main);
-    }
-
-    .timeline-content p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-top: 10px;
-    }
-
-    .status-pending {
-      background: rgba(245, 158, 11, 0.2);
-      color: #f59e0b;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-
-    .status-processing {
-      background: rgba(59, 130, 246, 0.2);
-      color: #3b82f6;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-
-    .status-shipped {
-      background: rgba(139, 92, 246, 0.2);
-      color: #8b5cf6;
-      border: 1px solid rgba(139, 92, 246, 0.3);
-    }
-
-    .status-delivered {
-      background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    /* Animated Progress Line */
-    .timeline::before {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .timeline::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 29px;
-      width: 2px;
-      height: 0%;
-      background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
-      z-index: 0;
-      transition: height 1.5s ease-out;
-      box-shadow: 0 0 10px var(--primary-color);
-    }
-
-    .timeline.progress-25::after {
-      height: 25%;
-    }
-
-    .timeline.progress-50::after {
-      height: 50%;
-    }
-
-    .timeline.progress-75::after {
-      height: 75%;
-    }
-
-    .timeline.progress-100::after {
-      height: 100%;
-    }
-
-    /* Pulsating Active Dot */
-    .timeline-step.active .timeline-dot {
-      animation: pulseDot 2s infinite;
-    }
-
-    @keyframes pulseDot {
-      0% {
-        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7);
-      }
-
-      70% {
-        box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
-      }
-
-      100% {
-        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
-      }
-    }
-
-    footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      margin-top: 80px;
-    }
-  </style>
-</head>
-
-<body>
-  <header>
-    <nav class="navbar">
-      <div class="container">
-        <div class="logo">
-          <img src="logo.jpg" alt="Logo">
-          <h1>Amar Informatique</h1>
-        </div>
-        <div class="nav-items">
-          <a href="index.html" class="btn-nav btn-track"
-            style="border: 1px solid rgba(255,255,255,0.2); color: var(--text-main);">
-            <i class="fas fa-arrow-left"></i> Retour au magasin
-          </a>
-        </div>
-      </div>
-    </nav>
-  </header>
-
-  <main>
-    <div class="container">
-      <div class="tracking-container">
-        <div class="tracking-header">
-          <h2><i class="fas fa-search-location"></i> Suivi de Commande</h2>
-          <p>Entrez votre numéro de commande pour connaître son statut.</p>
-        </div>
-
-        <div class="search-group">
-          <input type="text" id="orderIdInput" class="search-input-tracking" placeholder="Ex: CMD-123456789">
-          <button id="trackBtn" class="search-btn">Rechercher</button>
-        </div>
-
-        <div id="resultBox" class="result-box">
-          <div class="order-details">
-            <div class="order-info-grid">
-              <div class="info-item">
-                <label>Numéro de Commande</label>
-                <span id="displayOrderId"></span>
-              </div>
-              <div class="info-item">
-                <label>Date</label>
-                <span id="displayOrderDate"></span>
-              </div>
-              <div class="info-item">
-                <label>Total</label>
-                <span id="displayOrderTotal" style="color: var(--secondary-color);"></span>
-              </div>
-            </div>
-            <div style="margin-top: 20px; text-align: center;">
-              <span id="displayStatusBadge" class="status-badge"></span>
-            </div>
-          </div>
-
-          <div class="timeline">
-            <!-- Steps -->
-            <div class="timeline-step" id="step-pending">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Commande Reçue</h4>
-                <p>Nous avons bien reçu votre commande.</p>
-              </div>
-            </div>
-
-            <div class="timeline-step" id="step-confirmed">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Confirmée</h4>
-                <p>Votre commande a été vérifiée.</p>
-              </div>
-            </div>
-
-            <div class="timeline-step" id="step-processing">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>En Préparation</h4>
-                <p>Votre colis est en cours d'emballage.</p>
-              </div>
-            </div>
-
-            <div class="timeline-step" id="step-shipped">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Expédiée</h4>
-                <p>Votre colis est en route vers vous.</p>
-              </div>
-            </div>
-
-            <div class="timeline-step" id="step-delivered">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Livrée</h4>
-                <p>Commande livrée avec succès.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="noResultBox"
-          style="display:none; text-align:center; padding:30px; background:rgba(239, 68, 68, 0.1); border-radius:12px; border:1px solid rgba(239, 68, 68, 0.3); color:var(--text-main);">
-          <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger); margin-bottom: 10px;"></i>
-          <p>Commande introuvable. Veuillez vérifier le numéro.</p>
-        </div>
-
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    <div class="container">
-      <p>&copy; 2026 Amar Informatique. Tous droits réservés.</p>
-    </div>
-  </footer>
-
-  <script src="script.js"></script>
-  <script>
-    // Script spécifique pour la page de suivi (Light version of logic)
-    // On réutilise la connexion Firebase de script.js si possible ou on la redéfinit ici si nécessaire
-    // Mais script.js est inclus, donc on a accès à `db`.
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi de Commande - Amar Informatique</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="logo.jpg" type="image/x-icon">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
-            apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
-            authDomain: "amar-informatique.firebaseapp.com",
-            projectId: "amar-informatique",
-            storageBucket: "amar-informatique.firebasestorage.app",
-            messagingSenderId: "568367870390",
-            appId: "1:568367870390:web:e1583c182272ecbf141117"
-        };
+  apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
+  authDomain: "amar-informatique.firebaseapp.com",
+  projectId: "amar-informatique",
+  storageBucket: "amar-informatique.firebasestorage.app",
+  messagingSenderId: "568367870390",
+  appId: "1:568367870390:web:e1583c182272ecbf141117"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+window.db = db;
+</script>
+<style>
+/* Tracking Specific Styles */
+body { background-color: var(--bg-dark); color: var(--text-main); }
+.tracking-container {
+  max-width: 800px; margin: 60px auto; background: var(--bg-card);
+  backdrop-filter: blur(16px); padding: 40px; border-radius: var(--radius-lg);
+  box-shadow: var(--neon-shadow); border: var(--glass-border);
+  animation: fadeIn 0.8s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.tracking-header { text-align: center; margin-bottom: 40px; }
+.tracking-header h2 { font-size: 2.5rem; color: var(--text-main); margin-bottom: 10px; font-weight: 800; }
+.tracking-header p { color: var(--text-muted); font-size: 1.1rem; }
+.search-group { display: flex; gap: 15px; margin-bottom: 40px; }
+.search-input-tracking {
+  flex: 1; padding: 18px 25px; font-size: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50px;
+  outline: none; background: rgba(15, 23, 42, 0.6); color: var(--text-main);
+}
+.search-input-tracking:focus { border-color: var(--primary-color); box-shadow: 0 0 15px rgba(124, 58, 237, 0.2); }
+.search-btn {
+  padding: 0 35px; background: var(--primary-color); color: var(--white);
+  border: none; border-radius: 50px; cursor: pointer; font-weight: 700;
+  font-size: 1.1rem; display: flex; align-items: center; gap: 10px;
+}
+.search-btn:hover { background: var(--primary-glow); transform: translateY(-2px); }
+.result-box { margin-top: 30px; display: none; animation: slideUp 0.5s ease-out; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.order-details {
+  background: rgba(255, 255, 255, 0.03); padding: 25px;
+  border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 30px;
+}
+.order-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.info-item label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+.info-item span { font-size: 1.1rem; font-weight: 600; color: var(--text-main); }
+.timeline { position: relative; margin-top: 40px; padding-left: 20px; }
+.timeline::before {
+  content: ''; position: absolute; top: 0; left: 29px; height: 100%;
+  width: 2px; background: rgba(255, 255, 255, 0.1); z-index: 0;
+}
+.timeline-step {
+  position: relative; margin-bottom: 30px; display: flex;
+  align-items: flex-start; opacity: 0.5; transition: opacity 0.3s;
+}
+.timeline-step.active { opacity: 1; }
+.timeline-dot {
+  width: 20px; height: 20px; background: var(--bg-dark);
+  border: 2px solid var(--text-muted); border-radius: 50%;
+  margin-right: 20px; z-index: 1; position: relative;
+}
+.timeline-step.active .timeline-dot {
+  background: var(--primary-color); border-color: var(--primary-color);
+  box-shadow: 0 0 15px var(--primary-color);
+}
+.timeline-step.completed .timeline-dot {
+  background: var(--success); border-color: var(--success);
+  box-shadow: 0 0 10px var(--success);
+}
+.timeline-content h4 { font-size: 1.1rem; margin-bottom: 5px; color: var(--text-main); }
+.timeline-content p { font-size: 0.9rem; color: var(--text-muted); }
+.status-badge {
+  display: inline-block; padding: 6px 12px; border-radius: 20px;
+  font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-top: 10px;
+}
+.status-pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+.status-accepted { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.status-shipped { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+.status-arrived { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.status-returned { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+footer { border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 80px; }
+</style>
+</head>
+<body>
+<header>
+<nav class="navbar">
+<div class="container">
+<div class="logo">
+<img src="logo.jpg" alt="Logo">
+<h1>Amar Informatique</h1>
+</div>
+<div class="nav-items">
+<a href="index.html" class="btn-nav btn-track" style="border: 1px solid rgba(255,255,255,0.2); color: var(--text-main);">
+<i class="fas fa-arrow-left"></i> Retour au magasin
+</a>
+</div>
+</div>
+</nav>
+</header>
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-    document.addEventListener('DOMContentLoaded', () => {
-      const trackBtn = document.getElementById('trackBtn');
-      const orderIdInput = document.getElementById('orderIdInput');
+<main>
+<div class="container">
+<div class="tracking-container">
+<div class="tracking-header">
+<h2><i class="fas fa-search-location"></i> Suivi de Commande</h2>
+<p>Entrez votre numéro de commande pour connaître son statut.</p>
+</div>
+<div class="search-group">
+<input type="text" id="orderIdInput" class="search-input-tracking" placeholder="Ex: AM260101001">
+<button id="trackBtn" class="search-btn">Rechercher</button>
+</div>
+<div id="resultBox" class="result-box">
+<div class="order-details">
+<div class="order-info-grid">
+<div class="info-item">
+<label>Numéro de Commande</label>
+<span id="displayOrderId"></span>
+</div>
+<div class="info-item">
+<label>Date</label>
+<span id="displayOrderDate"></span>
+</div>
+<div class="info-item">
+<label>Total</label>
+<span id="displayOrderTotal" style="color: var(--secondary-color);"></span>
+</div>
+</div>
+<div style="margin-top: 20px; text-align: center;">
+<span id="displayStatusBadge" class="status-badge"></span>
+</div>
+</div>
+<div class="timeline">
+<div class="timeline-step" id="step-pending">
+<div class="timeline-dot"></div>
+<div class="timeline-content">
+<h4>Commande Reçue</h4>
+<p>Nous avons bien reçu votre commande.</p>
+</div>
+</div>
+<div class="timeline-step" id="step-accepted">
+<div class="timeline-dot"></div>
+<div class="timeline-content">
+<h4>Confirmée</h4>
+<p>Votre commande a été vérifiée.</p>
+</div>
+</div>
+<div class="timeline-step" id="step-shipped">
+<div class="timeline-dot"></div>
+<div class="timeline-content">
+<h4>Expédiée</h4>
+<p>Votre colis est en route vers vous.</p>
+</div>
+</div>
+<div class="timeline-step" id="step-arrived">
+<div class="timeline-dot"></div>
+<div class="timeline-content">
+<h4>Livrée</h4>
+<p>Commande livrée avec succès.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="noResultBox" style="display:none; text-align:center; padding:30px; background:rgba(239, 68, 68, 0.1); border-radius:12px; border:1px solid rgba(239, 68, 68, 0.3); color:var(--text-main);">
+<i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger); margin-bottom: 10px;"></i>
+<p>Commande introuvable. Veuillez vérifier le numéro.</p>
+</div>
+</div>
+</div>
+</main>
 
-      trackBtn.addEventListener('click', () => {
-        const orderId = orderIdInput.value.trim();
-        if (orderId) {
-          trackOrder(orderId);
-        }
-      });
+<footer>
+<div class="container">
+<p>&copy; 2026 Amar Informatique. Tous droits réservés.</p>
+</div>
+</footer>
 
-      async function trackOrder(orderId) {
-        const resultBox = document.getElementById('resultBox');
-        const noResultBox = document.getElementById('noResultBox');
-
-        // Reset UI
-        resultBox.style.display = 'none';
-        noResultBox.style.display = 'none';
-        document.querySelectorAll('.timeline-step').forEach(step => {
-          step.classList.remove('active', 'completed');
-          step.style.opacity = '0.5';
-        });
-
-        try {
-          // Try finding by ID first
-          let doc = await db.collection('orders').doc(orderId).get();
-
-          if (!doc.exists) {
-            // Try finding by custom 'orderNumber' field if you stored it that way
-            const snapshot = await db.collection('orders').where('orderNumber', '==', orderId).limit(1).get();
-            if (!snapshot.empty) {
-              doc = snapshot.docs[0];
-            }
-          }
-
-          if (doc && doc.exists) {
-            const data = doc.data();
-            displayOrder(doc.id, data);
-            resultBox.style.display = 'block';
-          } else {
-            noResultBox.style.display = 'block';
-          }
-        } catch (error) {
-          console.error("Error tracking:", error);
-          alert("Erreur de connexion. Veuillez réessayer.");
-        }
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const trackBtn = document.getElementById('trackBtn');
+  const orderIdInput = document.getElementById('orderIdInput');
+  
+  trackBtn.addEventListener('click', () => {
+    const orderId = orderIdInput.value.trim();
+    if (orderId) {
+      trackOrder(orderId);
+    }
+  });
+  
+  orderIdInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      const orderId = orderIdInput.value.trim();
+      if (orderId) trackOrder(orderId);
+    }
+  });
+  
+  async function trackOrder(orderId) {
+    const resultBox = document.getElementById('resultBox');
+    const noResultBox = document.getElementById('noResultBox');
+    
+    resultBox.style.display = 'none';
+    noResultBox.style.display = 'none';
+    
+    document.querySelectorAll('.timeline-step').forEach(step => {
+      step.classList.remove('active', 'completed');
+      step.style.opacity = '0.5';
+    });
+    
+    try {
+      // البحث في مجموعة "commandes" (نفس مجموعة الموقع الرئيسي)
+      const snapshot = await db.collection('commandes')
+        .where('orderNumber', '==', orderId)
+        .limit(1)
+        .get();
+      
+      if (!snapshot.empty) {
+        const doc = snapshot.docs[0];
+        const data = doc.data();
+        displayOrder(doc.id, data);
+        resultBox.style.display = 'block';
+      } else {
+        noResultBox.style.display = 'block';
       }
-
-      function displayOrder(id, data) {
-        document.getElementById('displayOrderId').textContent = id;
-        if (data.createdAt) {
-          document.getElementById('displayOrderDate').textContent = new Date(data.createdAt.seconds * 1000).toLocaleDateString();
-        }
-        document.getElementById('displayOrderTotal').textContent = (data.total || 0) + ' DA';
-
-        const badge = document.getElementById('displayStatusBadge');
-        badge.textContent = data.status || 'En attente';
-        badge.className = 'status-badge status-' + (data.status || 'pending').toLowerCase();
-
-        updateTimeline(data.status);
-      }
-
-      function updateTimeline(status) {
-        const steps = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
-        const statusMap = {
-          'en attente': 'pending',
-          'confirmée': 'confirmed',
-          'en préparation': 'processing',
-          'expédiée': 'shipped',
-          'livrée': 'delivered'
-        };
-
-        let currentStatus = statusMap[status?.toLowerCase()] || 'pending';
-        let foundActive = false;
-
-        steps.forEach(stepId => {
-          const stepEl = document.getElementById('step-' + stepId);
-          if (stepId === currentStatus) {
-            stepEl.classList.add('active');
-            stepEl.style.opacity = '1';
-            foundActive = true;
-          } else if (!foundActive) {
-            stepEl.classList.add('completed');
-            stepEl.style.opacity = '1';
-          }
-        });
-
-        // Animate Timeline Progress Line
-        const timelineEl = document.querySelector('.timeline');
-        // Reset classes
-        timelineEl.className = 'timeline';
-
-        // Timeout to allow CSS transition to trigger after display:block
-        setTimeout(() => {
-          if (status === 'confirmed' || status === 'accepted') timelineEl.classList.add('progress-25');
-          else if (status === 'processing') timelineEl.classList.add('progress-50');
-          else if (status === 'shipped') timelineEl.classList.add('progress-75');
-          else if (status === 'delivered' || status === 'arrived') timelineEl.classList.add('progress-100');
-        }, 100);
+    } catch (error) {
+      console.error("❌ Error tracking:", error);
+      alert("Erreur de connexion. Veuillez réessayer.");
+    }
+  }
+  
+  function displayOrder(id, data) {
+    document.getElementById('displayOrderId').textContent = data.orderNumber || id;
+    
+    if (data.date) {
+      document.getElementById('displayOrderDate').textContent = new Date(data.date).toLocaleDateString('fr-FR');
+    }
+    
+    document.getElementById('displayOrderTotal').textContent = (data.grandTotal || 0) + ' DA';
+    
+    const badge = document.getElementById('displayStatusBadge');
+    const status = data.status || 'pending';
+    badge.textContent = getStatusLabel(status);
+    badge.className = 'status-badge status-' + status;
+    
+    updateTimeline(status);
+  }
+  
+  function getStatusLabel(status) {
+    const labels = {
+      'pending': '⏳ En attente',
+      'accepted': '✓ Acceptée',
+      'shipped': '🚚 En route',
+      'arrived': '📦 Livrée',
+      'returned': '↩️ Retournée'
+    };
+    return labels[status] || '⏳ En attente';
+  }
+  
+  function updateTimeline(status) {
+    const steps = ['pending', 'accepted', 'shipped', 'arrived'];
+    let foundActive = false;
+    
+    steps.forEach(stepId => {
+      const stepEl = document.getElementById('step-' + stepId);
+      if (!stepEl) return;
+      
+      if (stepId === status) {
+        stepEl.classList.add('active');
+        stepEl.style.opacity = '1';
+        foundActive = true;
+      } else if (!foundActive) {
+        stepEl.classList.add('completed');
+        stepEl.style.opacity = '1';
       }
     });
-  </script>
+  }
+});
+</script>
 </body>
-
 </html>
