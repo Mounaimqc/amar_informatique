@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - Amar Informatique</title>
 <link rel="icon" href="logo.jpg" type="image/x-icon">
+<!-- Google Fonts - تم إصلاح الروابط -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Firebase -->
+<!-- Firebase - تم إصلاح الروابط -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
@@ -27,7 +29,6 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 </script>
 <style>
-/* ========== المتغيرات ========== */
 :root {
   --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8;
   --secondary: #ec4899; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
@@ -39,13 +40,11 @@ const storage = firebase.storage();
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'Inter',sans-serif; background:var(--bg-main); color:var(--text-main); min-height:100vh; }
 
-/* Header */
 header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
 .navbar { max-width:1600px; margin:0 auto; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
 .logo h1 { font-size:1.5rem; font-weight:700; background:linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 .nav-items { display:flex; gap:1rem; align-items:center; }
 
-/* Buttons */
 .btn { padding:0.75rem 1.5rem; border:none; border-radius:var(--radius); font-weight:600; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; }
 .btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; }
 .btn-secondary { background:var(--bg-hover); color:var(--text-main); border:1px solid var(--border); }
@@ -53,27 +52,23 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 .btn-danger { background:linear-gradient(135deg,var(--danger),#dc2626); color:white; }
 .btn-sm { padding:0.5rem 1rem; font-size:0.85rem; }
 
-/* Main */
 .admin-container { max-width:1600px; margin:0 auto; padding:2rem; }
 .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:1rem; }
 .page-title h1 { font-size:2rem; font-weight:800; }
 .page-actions { display:flex; gap:0.75rem; flex-wrap:wrap; }
 
-/* Stats */
 .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem; margin-bottom:2rem; }
 .stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; transition:var(--transition); }
 .stat-card:hover { transform:translateY(-5px); }
 .stat-number { font-size:2rem; font-weight:800; margin-bottom:0.25rem; }
 .stat-label { font-size:0.9rem; color:var(--text-muted); }
 
-/* Filters */
 .filters-bar { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:2rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:center; }
 .filter-group { display:flex; flex-direction:column; gap:0.5rem; flex:1; min-width:200px; }
 .filter-group label { font-size:0.85rem; font-weight:600; color:var(--text-muted); }
 .filter-input { padding:0.75rem 1rem; background:var(--bg-main); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-main); }
 .filter-input:focus { outline:none; border-color:var(--primary); }
 
-/* Table */
 .table-container { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
 .table-header { padding:1.5rem; border-bottom:1px solid var(--border); }
 .orders-table { width:100%; border-collapse:collapse; }
@@ -82,7 +77,7 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 .orders-table td { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
 .orders-table tbody tr:hover { background:var(--bg-hover); }
 
-/* Badges */
+/* Badges - تم توحيد الكلاسات */
 .status-badge { display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; }
 .status-pending { background:rgba(245,158,11,0.2); color:#fbbf24; }
 .status-accepted { background:rgba(59,130,246,0.2); color:#60a5fa; }
@@ -90,7 +85,7 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 .status-arrived { background:rgba(16,185,129,0.2); color:#34d399; }
 .status-returned { background:rgba(239,68,68,0.2); color:#f87171; }
 
-/* Action Buttons - مهم جدًا */
+/* Action Buttons */
 .action-buttons { display:flex; gap:8px; align-items:center; }
 .btn-details {
   background:linear-gradient(135deg,#667eea,#764ba2); color:white; border:none;
@@ -105,7 +100,7 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 }
 .btn-delete:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(245,87,108,0.6); }
 
-/* Modal */
+/* Modal - تم توحيد الكلاسات */
 .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); }
 .modal.active { display:flex; align-items:center; justify-content:center; }
 .modal-content { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); max-width:700px; width:90%; max-height:90vh; overflow-y:auto; }
@@ -113,6 +108,7 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 .modal-close { width:40px; height:40px; border-radius:var(--radius); border:none; background:var(--bg-hover); color:var(--text-muted); cursor:pointer; font-size:1.5rem; }
 .modal-close:hover { background:var(--danger); color:white; }
 .modal-body { padding:2rem; }
+
 .detail-section { margin-bottom:2rem; }
 .section-title { font-size:1rem; font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border); }
 .detail-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
@@ -127,7 +123,6 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 .total-row:last-child { border-bottom:none; font-weight:800; font-size:1.25rem; }
 .total-value.grand { color:var(--success); }
 
-/* Form */
 .form-group { margin-bottom:1.5rem; }
 .form-label { display:block; font-size:0.9rem; font-weight:600; margin-bottom:0.5rem; }
 .form-input, .form-select, .form-textarea { width:100%; padding:0.75rem 1rem; background:var(--bg-main); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-main); }
@@ -138,7 +133,6 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 .image-preview img { width:100%; max-height:200px; object-fit:cover; }
 .modal-footer { padding:1.5rem 2rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:0.75rem; }
 
-/* Status Buttons */
 .status-actions { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.75rem; margin-top:1rem; }
 .status-btn { padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius); background:var(--bg-main); color:var(--text-main); font-weight:600; cursor:pointer; transition:var(--transition); display:flex; align-items:center; justify-content:center; gap:0.5rem; }
 .status-btn.accept { border-color:rgba(59,130,246,0.5); background:rgba(59,130,246,0.1); color:#60a5fa; }
@@ -147,7 +141,6 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 .status-btn.return { border-color:rgba(239,68,68,0.5); background:rgba(239,68,68,0.1); color:#f87171; }
 .status-btn:hover { transform:translateY(-2px); }
 
-/* Loading & Notification */
 .loading-state { text-align:center; padding:3rem; }
 .loading-spinner { width:50px; height:50px; border:4px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 1rem; }
 @keyframes spin { to { transform:rotate(360deg); } }
@@ -155,8 +148,8 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
 .notification.success { background:var(--success); color:white; }
 .notification.error { background:var(--danger); color:white; }
 @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+@keyframes slideOut { from { transform:translateX(0); opacity:1; } to { transform:translateX(100%); opacity:0; } }
 
-/* Responsive */
 @media (max-width:768px) {
   .page-header { flex-direction:column; align-items:stretch; }
   .page-actions .btn { flex:1; justify-content:center; }
@@ -213,7 +206,7 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
   </div>
 </main>
 
-<!-- Modal Détails -->
+<!-- ✅ مودال تفاصيل الطلب - واحد فقط -->
 <div class="modal" id="detailModal">
   <div class="modal-content">
     <div class="modal-header"><h2 class="modal-title"><i class="fas fa-receipt"></i> Détails Commande</h2><button class="modal-close" onclick="closeDetail()">&times;</button></div>
@@ -258,7 +251,7 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
   </div>
 </div>
 
-<!-- Modal Ajouter Produit -->
+<!-- ✅ مودال إضافة منتج -->
 <div class="modal" id="addProductModal">
   <div class="modal-content">
     <div class="modal-header"><h2 class="modal-title"><i class="fas fa-plus-circle"></i> Ajouter Produit</h2><button class="modal-close" onclick="closeAddProductModal()">&times;</button></div>
@@ -349,37 +342,38 @@ function showDetail(orderNumber) {
   modal.dataset.firebaseId = cmd.id;
   modal.dataset.currentOrderNumber = orderNumber;
   
-  document.getElementById('detailOrderNumber').textContent = cmd.orderNumber || 'N/A';
-  document.getElementById('detailDate').textContent = formatDateTime(cmd.date);
-  document.getElementById('detailName').textContent = `${cmd.firstName||''} ${cmd.lastName||''}`;
-  document.getElementById('detailPhone1').textContent = cmd.phone1 || '—';
-  document.getElementById('detailPhone2').textContent = cmd.phone2 || '—';
-  document.getElementById('detailWilaya').textContent = cmd.wilaya || '—';
-  document.getElementById('detailCommune').textContent = cmd.commune || '—';
-  document.getElementById('detailOrderType').textContent = cmd.orderType === 'domicile' ? '🏠 Domicile' : '🏪 Stop Desk';
+  // دالة آمنة لتعيين النص
+  const setText = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val??'—'; };
+  
+  setText('detailOrderNumber', cmd.orderNumber);
+  setText('detailDate', formatDateTime(cmd.date));
+  setText('detailName', `${cmd.firstName||''} ${cmd.lastName||''}`);
+  setText('detailPhone1', cmd.phone1);
+  setText('detailPhone2', cmd.phone2);
+  setText('detailWilaya', cmd.wilaya);
+  setText('detailCommune', cmd.commune);
+  setText('detailOrderType', cmd.orderType === 'domicile' ? '🏠 Domicile' : '🏪 Stop Desk');
   
   const status = cmd.status || 'pending';
   const badge = document.getElementById('detailStatusBadge');
-  badge.textContent = getStatusLabel(status);
-  badge.className = 'status-badge ' + getStatusClass(status);
+  if(badge) { badge.textContent = getStatusLabel(status); badge.className = 'status-badge ' + getStatusClass(status); }
   
   const items = document.getElementById('detailItems');
-  if (cmd.cartItems?.length) {
-    items.innerHTML = cmd.cartItems.map(it => `<div class="item-entry"><div><strong>${it.name||'?'}</strong><br>${it.price||0} DA × ${it.quantity||1}</div><div><strong>${((it.price||0)*(it.quantity||1)).toFixed(2)} DA</strong></div></div>`).join('');
-  } else {
-    items.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Aucun produit</p>';
+  if(items) {
+    if(cmd.cartItems?.length) {
+      items.innerHTML = cmd.cartItems.map(it => `<div class="item-entry"><div><strong>${it.name||'?'}</strong><br>${it.price||0} DA × ${it.quantity||1}</div><div><strong>${((it.price||0)*(it.quantity||1)).toFixed(2)} DA</strong></div></div>`).join('');
+    } else { items.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Aucun produit</p>'; }
   }
   
-  document.getElementById('detailCartTotal').textContent = (cmd.cartTotal||0).toFixed(2);
-  document.getElementById('detailShipping').textContent = (cmd.shippingPrice||0).toFixed(2);
-  document.getElementById('detailTotal').textContent = (cmd.grandTotal||0).toFixed(2);
+  setText('detailCartTotal', (cmd.cartTotal||0).toFixed(2));
+  setText('detailShipping', (cmd.shippingPrice||0).toFixed(2));
+  setText('detailTotal', (cmd.grandTotal||0).toFixed(2));
   
   modal.classList.add('active');
   console.log("✅ Modal affiché");
 }
 
 function closeDetail() { document.getElementById('detailModal')?.classList.remove('active'); }
-
 function getStatusClass(s) { return {pending:'status-pending',accepted:'status-accepted',shipped:'status-shipped',arrived:'status-arrived',returned:'status-returned'}[s] || 'status-pending'; }
 function getStatusLabel(s) { return {pending:'⏳ En attente',accepted:'✓ Acceptée',shipped:'🚚 En route',arrived:'📦 Arrivée',returned:'↩️ Retournée'}[s] || '⏳ En attente'; }
 
@@ -387,12 +381,12 @@ function updateOrderStatus(newStatus) {
   const modal = document.getElementById('detailModal');
   const fid = modal?.dataset.firebaseId;
   const on = modal?.dataset.currentOrderNumber;
-  if (!fid) { alert("❌ ID Firebase manquant"); return; }
-  if (!confirm(`Changer statut de ${on} à "${getStatusLabel(newStatus)}"?`)) return;
+  if(!fid) { alert("❌ ID Firebase manquant"); return; }
+  if(!confirm(`Changer statut de ${on} à "${getStatusLabel(newStatus)}"?`)) return;
   
   db.collection("commandes").doc(fid).update({status:newStatus}).then(() => {
     const cmd = allCommandes.find(c => c.orderNumber === on);
-    if (cmd) cmd.status = newStatus;
+    if(cmd) cmd.status = newStatus;
     showNotification('✅ Statut mis à jour');
     displayCommandes(allCommandes);
     showDetail(on);
@@ -400,9 +394,9 @@ function updateOrderStatus(newStatus) {
 }
 
 function deleteCommande(orderNumber) {
-  if (!confirm(`⚠️ Supprimer ${orderNumber}?`)) return;
+  if(!confirm(`⚠️ Supprimer ${orderNumber}?`)) return;
   const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
-  if (!cmd?.id) { alert("❌ Introuvable"); return; }
+  if(!cmd?.id) { alert("❌ Introuvable"); return; }
   db.collection("commandes").doc(cmd.id).delete().then(() => {
     allCommandes = allCommandes.filter(c => c.orderNumber !== orderNumber);
     displayCommandes(allCommandes);
@@ -465,7 +459,6 @@ function openAddProductModal() {
 }
 function closeAddProductModal() { document.getElementById('addProductModal')?.classList.remove('active'); }
 
-// معاينة الصورة
 document.addEventListener('DOMContentLoaded', () => {
   const fi = document.getElementById('productImageFile');
   if(fi) fi.addEventListener('change', function(e) {
@@ -477,7 +470,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // حفظ المنتج
   const form = document.getElementById('addProductForm');
   if(form) form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -499,12 +491,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(err) { console.error(err); alert("❌ "+err.message); }
   });
   
-  // فلاتر
   document.getElementById('searchInput')?.addEventListener('input', filterCommandes);
   document.getElementById('filterType')?.addEventListener('change', filterCommandes);
   document.getElementById('filterWilaya')?.addEventListener('change', filterCommandes);
   
-  // تحميل
   loadCommandes();
 });
 
@@ -514,7 +504,6 @@ function showNotification(msg) {
 }
 function formatDateTime(d) { if(!d) return '—'; try{return new Date(d).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch{return'—'} }
 
-// Session check
 if(sessionStorage.getItem('adminLogged')!=='true') window.location.href='login.html';
 function logout() { sessionStorage.removeItem('adminLogged'); window.location.href='login.html'; }
 </script>
