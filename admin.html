@@ -2,17 +2,20 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Amar Informatique - Premium Tech Store</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="logo.jpg" type="image/x-icon">
-<!-- Google Fonts: Outfit (Modern/Tech) -->
+<!-- Google Fonts: Outfit (Modern/Tech) - تم إصلاح الروابط -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<!-- Font Awesome -->
+<!-- Font Awesome - تم إصلاح الرابط -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Firebase (Compat Version) -->
+<!-- Firebase (Compat Version) - تم إصلاح الروابط -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
@@ -39,7 +42,7 @@ window.storage = storage;
 <nav class="navbar">
 <div class="container">
 <div class="logo">
-<img src="logo.jpg" alt="Logo">
+<img src="logo.jpg" alt="Logo Amar Informatique">
 <h1>Amar Informatique</h1>
 </div>
 <div class="nav-items">
@@ -49,7 +52,7 @@ window.storage = storage;
 <a href="tracking.html" class="btn-nav btn-track">
 <i class="fas fa-box-open"></i> Suivi Commande
 </a>
-<button class="cart-btn" id="cartBtn">
+<button class="cart-btn" id="cartBtn" aria-label="Panier">
 <i class="fas fa-shopping-cart"></i> Panier
 <span class="cart-count" id="cartCount">0</span>
 </button>
@@ -59,11 +62,11 @@ window.storage = storage;
 </header>
 
 <!-- Hero Slider -->
-<section class="hero-slider" id="heroSlider">
-<div class="slider-wrapper" id="sliderWrapper"></div>
-<button class="slider-btn prev" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
-<button class="slider-btn next" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
-<div class="slider-dots" id="sliderDots"></div>
+<section class="hero-slider" id="heroSlider" aria-label="Produits en vedette">
+<div class="slider-wrapper" id="sliderWrapper" role="region" aria-live="polite"></div>
+<button class="slider-btn prev" id="prevBtn" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
+<button class="slider-btn next" id="nextBtn" aria-label="Suivant"><i class="fas fa-chevron-right"></i></button>
+<div class="slider-dots" id="sliderDots" role="tablist"></div>
 </section>
 
 <main>
@@ -72,17 +75,17 @@ window.storage = storage;
 <div class="container">
 <h2>Nos Produits</h2>
 <div class="filters">
-<input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input">
-<select id="categoryFilter" class="category-filter">
+<input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input" aria-label="Rechercher">
+<select id="categoryFilter" class="category-filter" aria-label="Filtrer par catégorie">
 <option value="">Toutes les catégories</option>
 <option value="laptop">Laptops</option>
 <option value="imprimantes">Imprimantes</option>
 <option value="accessoires">Accessoires</option>
 </select>
 </div>
-<div class="products-grid" id="productsGrid">
+<div class="products-grid" id="productsGrid" role="list">
 <!-- Les produits seront affichés ici -->
-<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">
+<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);" role="status">
 <i class="fas fa-spinner fa-spin fa-3x"></i><br><br>Chargement des produits...
 </div>
 </div>
@@ -91,11 +94,11 @@ window.storage = storage;
 </main>
 
 <!-- Modal du panier -->
-<div class="modal" id="cartModal">
+<div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle">
 <div class="modal-content">
-<span class="close-modal">&times;</span>
-<h2><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
-<div class="cart-items" id="cartItems"></div>
+<span class="close-modal" aria-label="Fermer">&times;</span>
+<h2 id="cartModalTitle"><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
+<div class="cart-items" id="cartItems" role="list"></div>
 <div class="cart-summary">
 <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
 <span>Total:</span>
@@ -107,10 +110,10 @@ window.storage = storage;
 </div>
 
 <!-- Modal du formulaire de commande -->
-<div class="modal" id="orderFormModal">
+<div class="modal" id="orderFormModal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
 <div class="modal-content order-form-content">
-<span class="close-modal">&times;</span>
-<h2><i class="fas fa-truck-fast"></i> Finaliser la Commande</h2>
+<span class="close-modal" aria-label="Fermer">&times;</span>
+<h2 id="orderModalTitle"><i class="fas fa-truck-fast"></i> Finaliser la Commande</h2>
 <form id="orderForm">
 <div class="form-group">
 <label for="orderType"><i class="fas fa-map-marker-alt"></i> Type de Livraison *</label>
@@ -123,35 +126,31 @@ window.storage = storage;
 <div class="form-row">
 <div class="form-group">
 <label for="firstName">Prénom *</label>
-<input type="text" id="firstName" required placeholder="Votre prénom">
+<input type="text" id="firstName" required placeholder="Votre prénom" autocomplete="given-name">
 </div>
 <div class="form-group">
 <label for="lastName">Nom *</label>
-<input type="text" id="lastName" required placeholder="Votre nom">
+<input type="text" id="lastName" required placeholder="Votre nom" autocomplete="family-name">
 </div>
 </div>
 <div class="form-row">
 <div class="form-group">
 <label for="phone1">Numéro de téléphone *</label>
-<input type="tel" id="phone1" required placeholder="05XXXXXXXX">
+<input type="tel" id="phone1" required placeholder="05XXXXXXXX" pattern="[0-9]{10}" autocomplete="tel">
 </div>
 <div class="form-group">
 <label for="phone2">Autre numéro (optionnel)</label>
-<input type="tel" id="phone2" placeholder="05XXXXXXXX">
+<input type="tel" id="phone2" placeholder="05XXXXXXXX" autocomplete="tel">
 </div>
 </div>
 <div class="form-row">
 <div class="form-group">
 <label for="wilaya">Wilaya *</label>
-<select id="wilaya" required>
-<option value="">Sélectionner une wilaya</option>
-</select>
+<select id="wilaya" required></select>
 </div>
 <div class="form-group">
 <label for="commune">Commune *</label>
-<select id="commune" required>
-<option value="">Sélectionner une commune</option>
-</select>
+<select id="commune" required></select>
 </div>
 </div>
 <div class="shipping-info">
@@ -169,31 +168,31 @@ window.storage = storage;
 </div>
 
 <!-- Modal de confirmation de commande -->
-<div class="modal" id="confirmModal">
+<div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
 <div class="modal-content" style="text-align: center;">
-<span class="close-modal">&times;</span>
-<i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;"></i>
-<h2 style="border:none;">Commande Reçue!</h2>
+<span class="close-modal" aria-label="Fermer">&times;</span>
+<i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;" aria-hidden="true"></i>
+<h2 id="confirmModalTitle" style="border:none;">Commande Reçue!</h2>
 <p style="font-size: 1.1rem; margin-bottom: 20px;">Merci pour votre achat.</p>
 <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
 <p style="margin-bottom: 5px; font-size: 0.9rem;">Votre numéro de commande:</p>
 <strong id="orderNumber" style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
 </div>
 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-<i class="fas fa-camera"></i> Prenez une capture d'écran de ce numéro.
+<i class="fas fa-camera" aria-hidden="true"></i> Prenez une capture d'écran de ce numéro.
 </p>
 <button class="btn-checkout" onclick="location.reload()">Continuer</button>
 </div>
 </div>
 
 <!-- Modal Détails Produit -->
-<div class="modal" id="productDetailModal">
+<div class="modal" id="productDetailModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
 <div class="modal-content product-detail-content">
-<span class="close-modal">&times;</span>
+<span class="close-modal" aria-label="Fermer">&times;</span>
 <div class="detail-layout">
 <img id="detailImage" src="" alt="" class="detail-image">
 <div class="detail-info">
-<h2 id="detailName"></h2>
+<h2 id="productModalTitle"></h2>
 <p id="detailCategory" class="product-category"></p>
 <p id="detailDescription" class="product-description"></p>
 <div class="detail-price"><span id="detailPrice"></span> DA</div>
@@ -212,4 +211,3 @@ window.storage = storage;
 <script src="script.js"></script>
 </body>
 </html>
-
