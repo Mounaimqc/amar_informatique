@@ -503,7 +503,7 @@ style.textContent = `
   
   .client-name {
     font-weight: 600;
-    color: #2c3e50;
+    color: #white;
   }
   
   .item-entry {
@@ -539,3 +539,4 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
