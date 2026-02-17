@@ -434,7 +434,17 @@
     // Script spécifique pour la page de suivi (Light version of logic)
     // On réutilise la connexion Firebase de script.js si possible ou on la redéfinit ici si nécessaire
     // Mais script.js est inclus, donc on a accès à `db`.
+const firebaseConfig = {
+            apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
+            authDomain: "amar-informatique.firebaseapp.com",
+            projectId: "amar-informatique",
+            storageBucket: "amar-informatique.firebasestorage.app",
+            messagingSenderId: "568367870390",
+            appId: "1:568367870390:web:e1583c182272ecbf141117"
+        };
 
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
     document.addEventListener('DOMContentLoaded', () => {
       const trackBtn = document.getElementById('trackBtn');
       const orderIdInput = document.getElementById('orderIdInput');
