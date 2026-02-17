@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // ========== CHARGER LES PRODUITS DEPUIS FIREBASE ==========
-// ========== CHARGER LES PRODUITS DEPUIS FIREBASE ==========
 async function loadProductsFromFirebase() {
   try {
     const snapshot = await db.collection("produits").get();
@@ -39,7 +38,7 @@ async function loadProductsFromFirebase() {
         image: data.image || ''
       });
     });
-    loadProducts(); // Afficher les produits
+    loadProducts(); // ← عرض المنتجات بعد التحميل
   } catch (error) {
     console.error("Erreur chargement produits:", error);
     document.getElementById('productsGrid').innerHTML = '<p style="text-align:center; grid-column:1/-1; color:red;">❌ Erreur de chargement des produits.</p>';
@@ -82,11 +81,8 @@ function loadProducts(filteredProducts = null) {
       <p class="product-description">${product.description || ''}</p>
       <div class="product-footer">
         <span class="product-price">${price.toFixed(2)} DA</span>
-        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${product.id}')" title="Ajouter au panier">
-          <i class="fas fa-cart-plus"></i>
-        </button>
+        <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart('${product.id}')">Ajouter</button>
       </div>
-
     `;
 
     card.appendChild(img);
@@ -153,17 +149,12 @@ function initHeroSlider() {
     slide.className = 'slider-slide';
     slide.innerHTML = `
       <img src="${product.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221200%22 height=%22400%22%3E%3Crect fill=%22%23ddd%22 width=%221200%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23666%22%3EImage non disponible%3C/text%3E%3C/svg%3E'}" alt="${product.name}">
-      <div class="slider-overlay">
-        <div class="slider-content">
-          <h2>${product.name}</h2>
-          <p>${product.description?.substring(0, 100) || 'Découvrez ce produit exceptionnel !'}</p>
-          <div class="price">${(parseFloat(product.price) || 0).toFixed(2)} DA</div>
-          <button class="btn-hero" onclick="event.stopPropagation(); addToCart('${product.id}');">
-            <i class="fas fa-shopping-cart"></i> Acheter maintenant
-          </button>
-        </div>
+      <div class="slider-content">
+        <h2>${product.name}</h2>
+        <p>${product.description?.substring(0, 100) || 'Découvrez ce produit exceptionnel !'}</p>
+        <div class="price">${(parseFloat(product.price) || 0).toFixed(2)} DA</div>
+        <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart('${product.id}');">Ajouter au panier</button>
       </div>
-
     `;
     sliderWrapper.appendChild(slide);
     slides.push(slide);
@@ -299,17 +290,14 @@ function displayCart() {
     cartItem.innerHTML = `
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name || 'Produit inconnu'}</div>
-        <div class="cart-item-price">${price.toFixed(2)} DA</div>
+        <div class="cart-item-price">${price.toFixed(2)} DA × ${quantity} = ${itemTotal.toFixed(2)} DA</div>
       </div>
-      <div class="quantity-controls">
-        <button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
-        <span class="qty-val">${quantity}</span>
-        <button class="qty-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+      <div class="cart-item-quantity">
+        <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+        <span>${quantity}</span>
+        <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
       </div>
-      <div class="cart-item-total" style="font-weight:bold; margin-left:10px;">${itemTotal.toFixed(2)} DA</div>
-      <button class="btn-remove" onclick="removeFromCart('${item.id}')" title="Supprimer">
-        <i class="fas fa-trash"></i>
-      </button>
+      <button class="remove-btn" onclick="removeFromCart('${item.id}')">Supprimer</button>
     `;
     cartItems.appendChild(cartItem);
   });
@@ -621,7 +609,7 @@ const shippingPrices = {
   "03 - Laghouat": 900,
   "04 - Oum El Bouaghi": 800,
   "05 - Batna": 700,
-  "06 - Béjaïa": 700,
+  "06 - Béjaïa":700,
   "07 - Biskra": 900,
   "08 - Béchar": 1200,
   "09 - Blida": 700,
@@ -695,7 +683,7 @@ const stopDeskPrices = {
   "16 - Alger": 400,
   "17 - Djelfa": 600,
   "18 - Jijel": 450,
-  "19 - Sétif": 300,
+  "19 - Sétif": 300,  
   "20 - Saïda": 500,
   "21 - Skikda": 500,
   "22 - Sidi Bel Abbès": 500,
@@ -738,27 +726,3 @@ const stopDeskPrices = {
 };
 
 
-
-// Scroll Reveal Animation (Ultra-Premium)
-document.addEventListener('DOMContentLoaded', () => {
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: "0px 0px -50px 0px"
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible'); // Changed to 'visible' to match CSS
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-
-  // Track elements requiring animation
-  const revealElements = document.querySelectorAll('.product-card, .hero-slider, .products-section h2, .filters');
-  revealElements.forEach(el => {
-    el.classList.add('reveal'); // Ensure CSS class exists
-    observer.observe(el);
-  });
-});
