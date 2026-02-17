@@ -1,552 +1,542 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suivi de Commande - Amar informatique</title>
-   <link rel="icon" href="logo.jpg" type="image/x-icon">
+  <title>Suivi de Commande - Amar Informatique</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo.jpg" type="image/x-icon">
+  <!-- Google Fonts: Outfit -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
   <style>
+    /* Tracking Specific Styles (Dark Tech) */
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+    }
+
     .tracking-container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
+      max-width: 800px;
+      margin: 60px auto;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      padding: 40px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--neon-shadow);
+      border: var(--glass-border);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .tracking-header {
       text-align: center;
       margin-bottom: 40px;
-      border-bottom: 2px solid #2c3e50;
-      padding-bottom: 20px;
     }
 
-    .tracking-header h1 {
-      color: #2c3e50;
-      font-size: 2rem;
+    .tracking-header h2 {
+      font-size: 2.5rem;
+      color: var(--text-main);
       margin-bottom: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .search-section {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      margin-bottom: 30px;
+    .tracking-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
     }
 
     .search-group {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 40px;
     }
 
-    .search-group input {
+    .search-input-tracking {
       flex: 1;
-      min-width: 200px;
-      padding: 12px 15px;
-      border: 2px solid #ddd;
-      border-radius: 5px;
-      font-size: 1rem;
+      padding: 18px 25px;
+      font-size: 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      outline: none;
+      transition: var(--transition);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text-main);
     }
 
-    .search-group input:focus {
-      outline: none;
-      border-color: #2c3e50;
-      box-shadow: 0 0 5px rgba(6, 1, 31, 0.3);
+    .search-input-tracking:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
     }
 
     .search-btn {
-      padding: 12px 30px;
-      background-color: #2c3e50;
-      color : white;
+      padding: 0 35px;
+      background: var(--primary-color);
+      color: var(--white);
       border: none;
-      border-radius: 5px;
+      border-radius: 50px;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 1rem;
-      transition: background-color 0.3s;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
     }
 
     .search-btn:hover {
-      background-color: transparent;
-      color: black;
+      background: var(--primary-glow);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
     }
 
-    .error-box {
+    /* Result Box */
+    .result-box {
+      margin-top: 30px;
       display: none;
-      background-color: #f8d7da;
-      color: #721c24;
-      padding: 15px;
-      border-radius: 5px;
-      border-left: 4px solid #f5c6cb;
-      margin-bottom: 20px;
+      animation: slideUp 0.5s ease-out;
     }
 
-    .tracking-result {
-      display: none;
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    .tracking-result.show {
-      display: block;
-    }
-
-    .order-status {
+    .order-details {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 25px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       margin-bottom: 30px;
-      padding-bottom: 30px;
-      border-bottom: 2px solid #eee;
+    }
+
+    .order-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .info-item label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-item span {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      margin-top: 40px;
+      padding-left: 20px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 29px;
+      height: 100%;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 0;
+    }
+
+    .timeline-step {
+      position: relative;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: flex-start;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+    }
+
+    .timeline-step.active {
+      opacity: 1;
+    }
+
+    .timeline-dot {
+      width: 20px;
+      height: 20px;
+      background: var(--bg-dark);
+      border: 2px solid var(--text-muted);
+      border-radius: 50%;
+      margin-right: 20px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .timeline-step.active .timeline-dot {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 15px var(--primary-color);
+    }
+
+    .timeline-step.completed .timeline-dot {
+      background: var(--success);
+      border-color: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    .timeline-content h4 {
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+      color: var(--text-main);
+    }
+
+    .timeline-content p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
     }
 
     .status-badge {
       display: inline-block;
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 20px;
-      font-weight: bold;
-      margin-bottom: 15px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 10px;
     }
 
-    .status-badge.pending { background-color: #fff3cd; color: #856404; }
-    .status-badge.accepted { background-color: #d1ecf1; color: #0c5460; }
-    .status-badge.shipped { background-color: #cfe2ff; color: #084298; }
-    .status-badge.arrived { background-color: #d4edda; color: #155724; }
-    .status-badge.returned { background-color: #f8d7da; color: #721c24; }
-
-    .status-timeline {
-      margin: 20px 0;
+    .status-pending {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
     }
 
-    .timeline-step {
-      display: flex;
-      margin-bottom: 20px;
-      align-items: flex-start;
+    .status-processing {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
-    .timeline-dot {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background-color: #ddd;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      margin-right: 20px;
-      flex-shrink: 0;
-      position: relative;
+    .status-shipped {
+      background: rgba(139, 92, 246, 0.2);
+      color: #8b5cf6;
+      border: 1px solid rgba(139, 92, 246, 0.3);
     }
 
-    .timeline-dot.active { background-color: #2c3e50; }
-    .timeline-dot.completed { background-color: #27ae60; }
+    .status-delivered {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
 
-    .timeline-dot::after {
+    /* Animated Progress Line */
+    .timeline::before {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .timeline::after {
       content: '';
       position: absolute;
-      left: 50%;
-      top: 30px;
+      top: 0;
+      left: 29px;
       width: 2px;
-      height: 50px;
-      background-color: #ddd;
-      transform: translateX(-50%);
+      height: 0%;
+      background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+      z-index: 0;
+      transition: height 1.5s ease-out;
+      box-shadow: 0 0 10px var(--primary-color);
     }
 
-    .timeline-dot:last-child::after {
-      display: none;
+    .timeline.progress-25::after {
+      height: 25%;
     }
 
-    .timeline-dot.completed::after {
-      background-color: #27ae60;
+    .timeline.progress-50::after {
+      height: 50%;
     }
 
-    .timeline-content {
-      flex: 1;
+    .timeline.progress-75::after {
+      height: 75%;
     }
 
-    .timeline-title {
-      font-weight: bold;
-      color: #2c3e50;
-      margin-bottom: 5px;
+    .timeline.progress-100::after {
+      height: 100%;
     }
 
-    .timeline-date {
-      color: #7f8c8d;
-      font-size: 0.9rem;
+    /* Pulsating Active Dot */
+    .timeline-step.active .timeline-dot {
+      animation: pulseDot 2s infinite;
     }
 
-    .order-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
+    @keyframes pulseDot {
+      0% {
+        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7);
+      }
 
-    .detail-card {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 5px;
-      border-left: 4px solid #2c3e50;
-    }
+      70% {
+        box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
+      }
 
-    .detail-label {
-      color: #7f8c8d;
-      font-size: 0.9rem;
-      margin-bottom: 5px;
-    }
-
-    .detail-value {
-      color: #2c3e50;
-      font-size: 1.1rem;
-      font-weight: bold;
-    }
-
-    .items-summary {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
-
-    .items-summary h3 {
-      color: #2c3e50;
-      margin-bottom: 15px;
-      border-bottom: 2px solid #2c3e50;
-      padding-bottom: 10px;
-    }
-
-    .item-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .item-row:last-child {
-      border-bottom: none;
-    }
-
-    .item-name {
-      color: #2c3e50;
-    }
-
-    .item-price {
-      color: #2c3e50;
-      font-weight: bold;
-    }
-
-    .total-section {
-      background: white;
-      padding: 20px;
-      border-radius: 5px;
-      border: 2px solid #2c3e50;
-    }
-
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .total-row:last-child {
-      border-bottom: none;
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-
-    .no-result-box {
-      text-align: center;
-      padding: 40px 20px;
-      color: #7f8c8d;
-      display: none;
+      100% {
+        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+      }
     }
 
     footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 20px;
-      color: #7f8c8d;
-      border-top: 1px solid #eee;
-    }
-
-    @media (max-width: 600px) {
-      .tracking-container { margin: 20px; }
-      .tracking-header h1 { font-size: 1.5rem; }
-      .search-group { flex-direction: column; }
-      .search-group input, .search-btn { width: 100%; }
-      .order-details { grid-template-columns: 1fr; }
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: 80px;
     }
   </style>
 </head>
+
 <body>
   <header>
     <nav class="navbar">
       <div class="container">
         <div class="logo">
-          <a href=""></a> <img   src="logo.jpg" alt="" srcset="">
-          <h1>Amar informatique</h1>
+          <img src="logo.jpg" alt="Logo">
+          <h1>Amar Informatique</h1>
         </div>
         <div class="nav-items">
-          <a href="index.html" style="color: white; text-decoration: none; padding: 10px 15px; background: #95a5a6; border-radius: 5px;">← Retour</a>
+          <a href="index.html" class="btn-nav btn-track"
+            style="border: 1px solid rgba(255,255,255,0.2); color: var(--text-main);">
+            <i class="fas fa-arrow-left"></i> Retour au magasin
+          </a>
         </div>
       </div>
     </nav>
   </header>
 
-  <main class="tracking-container">
-    <div class="tracking-header">
-      <h1>📦 Suivi de Commande</h1>
-      <p>Entrez votre numéro de commande pour suivre votre achat</p>
-    </div>
+  <main>
+    <div class="container">
+      <div class="tracking-container">
+        <div class="tracking-header">
+          <h2><i class="fas fa-search-location"></i> Suivi de Commande</h2>
+          <p>Entrez votre numéro de commande pour connaître son statut.</p>
+        </div>
 
-    <div class="search-section">
-      <div class="error-box" id="errorBox"></div>
-      
-      <div class="search-group">
-        <input type="text" id="orderNumberInput" placeholder="Exemple: AM260121001" autofocus>
-        <button class="search-btn" onclick="searchOrder()">🔍 Chercher</button>
+        <div class="search-group">
+          <input type="text" id="orderIdInput" class="search-input-tracking" placeholder="Ex: CMD-123456789">
+          <button id="trackBtn" class="search-btn">Rechercher</button>
+        </div>
+
+        <div id="resultBox" class="result-box">
+          <div class="order-details">
+            <div class="order-info-grid">
+              <div class="info-item">
+                <label>Numéro de Commande</label>
+                <span id="displayOrderId"></span>
+              </div>
+              <div class="info-item">
+                <label>Date</label>
+                <span id="displayOrderDate"></span>
+              </div>
+              <div class="info-item">
+                <label>Total</label>
+                <span id="displayOrderTotal" style="color: var(--secondary-color);"></span>
+              </div>
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+              <span id="displayStatusBadge" class="status-badge"></span>
+            </div>
+          </div>
+
+          <div class="timeline">
+            <!-- Steps -->
+            <div class="timeline-step" id="step-pending">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>Commande Reçue</h4>
+                <p>Nous avons bien reçu votre commande.</p>
+              </div>
+            </div>
+
+            <div class="timeline-step" id="step-confirmed">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>Confirmée</h4>
+                <p>Votre commande a été vérifiée.</p>
+              </div>
+            </div>
+
+            <div class="timeline-step" id="step-processing">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>En Préparation</h4>
+                <p>Votre colis est en cours d'emballage.</p>
+              </div>
+            </div>
+
+            <div class="timeline-step" id="step-shipped">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>Expédiée</h4>
+                <p>Votre colis est en route vers vous.</p>
+              </div>
+            </div>
+
+            <div class="timeline-step" id="step-delivered">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>Livrée</h4>
+                <p>Commande livrée avec succès.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="noResultBox"
+          style="display:none; text-align:center; padding:30px; background:rgba(239, 68, 68, 0.1); border-radius:12px; border:1px solid rgba(239, 68, 68, 0.3); color:var(--text-main);">
+          <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger); margin-bottom: 10px;"></i>
+          <p>Commande introuvable. Veuillez vérifier le numéro.</p>
+        </div>
+
       </div>
-      <p style="color: #7f8c8d; margin-top: 10px; font-size: 0.9rem;">
-        💡 Vous trouverez votre numéro de commande dans votre dans le cadre de commande
-      </p>
     </div>
-
-    <div class="tracking-result" id="trackingResult"></div>
-    <div class="no-result-box" id="noResultBox">😕 Commande non trouvée</div>
   </main>
 
   <footer>
-    <p>📞 Vous avez une question ? Appelez-nous: <strong>0559469956</strong> ou <strong>0558843789</strong></p>
+    <div class="container">
+      <p>&copy; 2026 Amar Informatique. Tous droits réservés.</p>
+    </div>
   </footer>
 
-  <!-- 🔥 Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="script.js"></script>
   <script>
-    // ⚠️ Configuration Firebase (محدثة من ملفك)
-    const firebaseConfig = {
-      apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
-      authDomain: "amar-informatique.firebaseapp.com",
-      projectId: "amar-informatique",
-      storageBucket: "amar-informatique.firebasestorage.app",
-      messagingSenderId: "568367870390",
-      appId: "1:568367870390:web:e1583c182272ecbf141117"
-    };
+    // Script spécifique pour la page de suivi (Light version of logic)
+    // On réutilise la connexion Firebase de script.js si possible ou on la redéfinit ici si nécessaire
+    // Mais script.js est inclus, donc on a accès à `db`.
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const trackBtn = document.getElementById('trackBtn');
+      const orderIdInput = document.getElementById('orderIdInput');
 
-  <script>
-    async function searchOrder() {
-      const input = document.getElementById('orderNumberInput').value.trim().toUpperCase();
-      const errorBox = document.getElementById('errorBox');
-      const trackingResult = document.getElementById('trackingResult');
-      const noResultBox = document.getElementById('noResultBox');
-
-      // إخفاء الرسائل السابقة
-      errorBox.style.display = 'none';
-      trackingResult.classList.remove('show');
-      noResultBox.style.display = 'none';
-
-      if (!input) {
-        errorBox.textContent = '❌ Veuillez entrer un numéro de commande';
-        errorBox.style.display = 'block';
-        return;
-      }
-
-      // 👇 عرض رسالة "البحث جارٍ..."
-      trackingResult.innerHTML = '<p style="text-align:center; color:#7f8c8d; font-size:1.2rem;">🔍 Recherche en cours... Veuillez patienter.</p>';
-      trackingResult.classList.add('show');
-
-      try {
-        const snapshot = await db.collection("commandes")
-          .where("orderNumber", "==", input)
-          .limit(1)
-          .get();
-
-        if (snapshot.empty) {
-          trackingResult.classList.remove('show');
-          noResultBox.style.display = 'block';
-          return;
+      trackBtn.addEventListener('click', () => {
+        const orderId = orderIdInput.value.trim();
+        if (orderId) {
+          trackOrder(orderId);
         }
-
-        const doc = snapshot.docs[0];
-        const cmd = doc.data();
-        displayTrackingInfo(cmd);
-      } catch (err) {
-        console.error("Erreur Firebase:", err);
-        trackingResult.classList.remove('show');
-        errorBox.textContent = '❌ Erreur de connexion. Vérifiez votre internet.';
-        errorBox.style.display = 'block';
-      }
-    }
-
-    function displayTrackingInfo(cmd) {
-      const date = new Date(cmd.date);
-      const formattedDate = date.toLocaleDateString('fr-FR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
       });
 
-      const status = cmd.status || 'pending';
-      const isAccepted = ['accepted', 'shipped', 'arrived'].includes(status);
-      const isShipped = ['shipped', 'arrived'].includes(status);
-      const isArrived = status === 'arrived';
-      const isReturned = status === 'returned';
+      async function trackOrder(orderId) {
+        const resultBox = document.getElementById('resultBox');
+        const noResultBox = document.getElementById('noResultBox');
 
-      document.getElementById('trackingResult').innerHTML = `
-        <div class="order-status">
-          <h2>${cmd.orderNumber}</h2>
-          <span class="status-badge ${getStatusBadgeClass(status)}">${getStatusLabel(status)}</span>
-          <p style="color: #7f8c8d; margin-top: 10px;">Commande passée le: ${formattedDate}</p>
+        // Reset UI
+        resultBox.style.display = 'none';
+        noResultBox.style.display = 'none';
+        document.querySelectorAll('.timeline-step').forEach(step => {
+          step.classList.remove('active', 'completed');
+          step.style.opacity = '0.5';
+        });
 
-          <div class="status-timeline" style="margin-top: 30px;">
-            <div class="timeline-step">
-              <div class="timeline-dot completed">✓</div>
-              <div class="timeline-content">
-                <div class="timeline-title">Commande Confirmée</div>
-                <div class="timeline-date">${formattedDate}</div>
-              </div>
-            </div>
-            
-            <div class="timeline-step">
-              <div class="timeline-dot ${isAccepted ? 'completed' : (status === 'pending' ? 'active' : '')}">
-                ${isAccepted ? '✓' : (status === 'pending' ? '◈' : '')}
-              </div>
-              <div class="timeline-content">
-                <div class="timeline-title">Commande Acceptée</div>
-                <div class="timeline-date">${isAccepted ? 'Validée par le vendeur' : 'En attente de validation'}</div>
-              </div>
-            </div>
-            
-            <div class="timeline-step">
-              <div class="timeline-dot ${isShipped ? 'completed' : (status === 'accepted' ? 'active' : '')}">
-                ${isShipped ? '✓' : (status === 'accepted' ? '◈' : '')}
-              </div>
-              <div class="timeline-content">
-                <div class="timeline-title">${cmd.orderType === 'domicile' ? 'En Cours de Livraison' : 'Prêt pour Retrait'}</div>
-                <div class="timeline-date">${isShipped ? 'Votre commande est en route' : 'À venir'}</div>
-              </div>
-            </div>
-            
-            <div class="timeline-step">
-              <div class="timeline-dot ${isArrived ? 'completed' : (status === 'shipped' ? 'active' : '')}">
-                ${isArrived ? '✓' : (status === 'shipped' ? '◈' : '')}
-              </div>
-              <div class="timeline-content">
-                <div class="timeline-title">Livraison Complétée</div>
-                <div class="timeline-date">${isArrived ? 'Commande reçue ✓' : 'À venir'}</div>
-              </div>
-            </div>
+        try {
+          // Try finding by ID first
+          let doc = await db.collection('orders').doc(orderId).get();
 
-            ${isReturned ? `
-            <div class="timeline-step">
-              <div class="timeline-dot completed" style="background-color: #f39c12;">↩️</div>
-              <div class="timeline-content">
-                <div class="timeline-title">Commande Retournée</div>
-                <div class="timeline-date">Votre commande a été retournée</div>
-              </div>
-            </div>
-            ` : ''}
-          </div>
-        </div>
+          if (!doc.exists) {
+            // Try finding by custom 'orderNumber' field if you stored it that way
+            const snapshot = await db.collection('orders').where('orderNumber', '==', orderId).limit(1).get();
+            if (!snapshot.empty) {
+              doc = snapshot.docs[0];
+            }
+          }
 
-        <div class="order-details">
-          <div class="detail-card">
-            <div class="detail-label">👤 CLIENT</div>
-            <div class="detail-value">${cmd.firstName} ${cmd.lastName}</div>
-          </div>
-          
-          <div class="detail-card">
-            <div class="detail-label">📍 TYPE DE LIVRAISON</div>
-            <div class="detail-value">${cmd.orderType === 'domicile' ? '🏠 À Domicile' : '🏪 Stop Desk'}</div>
-          </div>
-          
-          <div class="detail-card">
-            <div class="detail-label">📞 TÉLÉPHONE</div>
-            <div class="detail-value">${cmd.phone1}</div>
-          </div>
-          
-          <div class="detail-card">
-            <div class="detail-label">📍 WILAYA</div>
-            <div class="detail-value">${cmd.wilaya}</div>
-          </div>
-          
-          <div class="detail-card">
-            <div class="detail-label">🏘️ COMMUNE</div>
-            <div class="detail-value">${cmd.commune}</div>
-          </div>
-          
-          <div class="detail-card">
-            <div class="detail-label">💰 TOTAL</div>
-            <div class="detail-value" style="color: #e74c3c;">${(cmd.grandTotal || 0).toFixed(2)} DA</div>
-          </div>
-        </div>
+          if (doc && doc.exists) {
+            const data = doc.data();
+            displayOrder(doc.id, data);
+            resultBox.style.display = 'block';
+          } else {
+            noResultBox.style.display = 'block';
+          }
+        } catch (error) {
+          console.error("Error tracking:", error);
+          alert("Erreur de connexion. Veuillez réessayer.");
+        }
+      }
 
-        <div class="items-summary">
-          <h3>📦 Produits Commandés</h3>
-          ${(cmd.cartItems || []).map(item => `
-            <div class="item-row">
-              <span class="item-name">${item.name} <small>(x${item.quantity})</small></span>
-              <span class="item-price">${(item.price * item.quantity).toFixed(2)} DA</span>
-            </div>
-          `).join('')}
-        </div>
+      function displayOrder(id, data) {
+        document.getElementById('displayOrderId').textContent = id;
+        if (data.createdAt) {
+          document.getElementById('displayOrderDate').textContent = new Date(data.createdAt.seconds * 1000).toLocaleDateString();
+        }
+        document.getElementById('displayOrderTotal').textContent = (data.total || 0) + ' DA';
 
-        <div class="total-section">
-          <div class="total-row">
-            <span>Sous-total:</span>
-            <span>${(cmd.cartTotal || 0).toFixed(2)} DA</span>
-          </div>
-          <div class="total-row">
-            <span>Frais de livraison:</span>
-            <span>${(cmd.shippingPrice || 0).toFixed(2)} DA</span>
-          </div>
-          <div class="total-row">
-            <span>💰 TOTAL:</span>
-            <span>${(cmd.grandTotal || 0).toFixed(2)} DA</span>
-          </div>
-        </div>
-      `;
-      document.getElementById('trackingResult').classList.add('show');
-    }
+        const badge = document.getElementById('displayStatusBadge');
+        badge.textContent = data.status || 'En attente';
+        badge.className = 'status-badge status-' + (data.status || 'pending').toLowerCase();
 
-    function getStatusLabel(status) {
-      const map = {
-        'pending': '⏳ En Attente',
-        'accepted': '✓ Acceptée',
-        'shipped': '🚚 En Route',
-        'arrived': '📦 Arrivée',
-        'returned': '↩️ Retournée'
-      };
-      return map[status] || '⏳ En Attente';
-    }
+        updateTimeline(data.status);
+      }
 
-    function getStatusBadgeClass(status) {
-      const map = {
-        'pending': 'pending',
-        'accepted': 'accepted',
-        'shipped': 'shipped',
-        'arrived': 'arrived',
-        'returned': 'returned'
-      };
-      return map[status] || 'pending';
-    }
+      function updateTimeline(status) {
+        const steps = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
+        const statusMap = {
+          'en attente': 'pending',
+          'confirmée': 'confirmed',
+          'en préparation': 'processing',
+          'expédiée': 'shipped',
+          'livrée': 'delivered'
+        };
 
-    document.getElementById('orderNumberInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        searchOrder();
+        let currentStatus = statusMap[status?.toLowerCase()] || 'pending';
+        let foundActive = false;
+
+        steps.forEach(stepId => {
+          const stepEl = document.getElementById('step-' + stepId);
+          if (stepId === currentStatus) {
+            stepEl.classList.add('active');
+            stepEl.style.opacity = '1';
+            foundActive = true;
+          } else if (!foundActive) {
+            stepEl.classList.add('completed');
+            stepEl.style.opacity = '1';
+          }
+        });
+
+        // Animate Timeline Progress Line
+        const timelineEl = document.querySelector('.timeline');
+        // Reset classes
+        timelineEl.className = 'timeline';
+
+        // Timeout to allow CSS transition to trigger after display:block
+        setTimeout(() => {
+          if (status === 'confirmed' || status === 'accepted') timelineEl.classList.add('progress-25');
+          else if (status === 'processing') timelineEl.classList.add('progress-50');
+          else if (status === 'shipped') timelineEl.classList.add('progress-75');
+          else if (status === 'delivered' || status === 'arrived') timelineEl.classList.add('progress-100');
+        }, 100);
       }
     });
   </script>
 </body>
+
 </html>
-
-
