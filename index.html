@@ -1,214 +1,239 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Amar Informatique - Premium Tech Store</title>
-<link rel="stylesheet" href="styles.css">
-<link rel="icon" href="logo.jpeg" type="image/x-icon">
-<!-- Google Fonts: Outfit (Modern/Tech) -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Firebase (Compat Version) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
-  authDomain: "amar-informatique.firebaseapp.com",
-  projectId: "amar-informatique",
-  storageBucket: "amar-informatique.firebasestorage.app",
-  messagingSenderId: "568367870390",
-  appId: "1:568367870390:web:e1583c182272ecbf141117"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
-// جعل db و storage متاحين عالميًا
-window.db = db;
-window.storage = storage;
-</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amar Informatique - Premium Tech Store</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="logo.jpeg" type="image/x-icon">
+    <!-- Google Fonts: Outfit (Modern/Tech) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
+            authDomain: "amar-informatique.firebaseapp.com",
+            projectId: "amar-informatique",
+            storageBucket: "amar-informatique.firebasestorage.app",
+            messagingSenderId: "568367870390",
+            appId: "1:568367870390:web:e1583c182272ecbf141117"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
 </head>
+
 <body>
-<!-- En-tête -->
-<header>
-<nav class="navbar">
-<div class="container">
-<div class="logo">
-<img src="logo.jpg" alt="Logo">
-<h1>Amar Informatique</h1>
-</div>
-<div class="nav-items">
-<div class="contact-info">
-<span><i class="fas fa-phone-alt"></i> 0559 46 99 56</span>
-</div>
-<a href="tracking.html" class="btn-nav btn-track">
-<i class="fas fa-box-open"></i> Suivi Commande
-</a>
-<button class="cart-btn" id="cartBtn">
-<i class="fas fa-shopping-cart"></i> Panier
-<span class="cart-count" id="cartCount">0</span>
-</button>
-</div>
-</div>
-</nav>
-</header>
+    <!-- En-tête -->
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <img src="logo.jpg" alt="Logo">
+                    <h1>Amar Informatique</h1>
+                </div>
+                <div class="nav-items">
+                    <div class="contact-info">
+                        <span><i class="fas fa-phone-alt"></i> 0559 46 99 56</span>
+                    </div>
+                    <a href="tracking.html" class="btn-nav btn-track">
+                        <i class="fas fa-box-open"></i> Suivi Commande
+                    </a>
+                    <button class="cart-btn" id="cartBtn">
+                        <i class="fas fa-shopping-cart"></i> Panier
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-<!-- Hero Slider -->
-<section class="hero-slider" id="heroSlider">
-<div class="slider-wrapper" id="sliderWrapper"></div>
-<button class="slider-btn prev" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
-<button class="slider-btn next" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
-<div class="slider-dots" id="sliderDots"></div>
-</section>
+    <!-- Hero Slider -->
+    <section class="hero-slider" id="heroSlider">
+        <div class="slider-wrapper" id="sliderWrapper"></div>
+        <button class="slider-btn prev" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+        <button class="slider-btn next" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+        <div class="slider-dots" id="sliderDots"></div>
+    </section>
 
-<main>
-<!-- Section des produits -->
-<section class="products-section">
-<div class="container">
-<h2>Nos Produits</h2>
-<div class="filters">
-<input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input">
-<select id="categoryFilter" class="category-filter">
-<option value="">Toutes les catégories</option>
-<option value="laptop">Laptops</option>
-<option value="imprimantes">Imprimantes</option>
-<option value="accessoires">Accessoires</option>
-</select>
-</div>
-<div class="products-grid" id="productsGrid">
-<!-- Les produits seront affichés ici -->
-<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">
-<i class="fas fa-spinner fa-spin fa-3x"></i><br><br>Chargement des produits...
-</div>
-</div>
-</div>
-</section>
-</main>
+    <main>
+        <!-- Section des produits -->
+        <section class="products-section">
+            <div class="container">
+                <h2>Nos Produits</h2>
+                <div class="filters">
+                    <input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input">
+                    <select id="categoryFilter" class="category-filter">
+                        <option value="">Toutes les catégories</option>
+                        <option value="laptop">Laptops</option>
+                        <option value="imprimantes">Imprimantes</option>
+                        <option value="accessoires">Accessoires</option>
+                    </select>
+                </div>
+                <div class="products-grid" id="productsGrid">
+                    <!-- Les produits seront affichés ici -->
+                    <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">
+                        <i class="fas fa-spinner fa-spin fa-3x"></i><br><br>Chargement des produits...
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-<!-- Modal du panier -->
-<div class="modal" id="cartModal">
-<div class="modal-content">
-<span class="close-modal">&times;</span>
-<h2><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
-<div class="cart-items" id="cartItems"></div>
-<div class="cart-summary">
-<div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
-<span>Total:</span>
-<span><span id="totalPrice">0.00</span> DA</span>
-</div>
-<button class="btn-checkout" id="checkoutBtn">Passer la Commande <i class="fas fa-arrow-right"></i></button>
-</div>
-</div>
-</div>
+    <!-- Modal du panier -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
+            <div class="cart-items" id="cartItems">
+                <!-- Les articles du panier seront affichés ici -->
+            </div>
+            <div class="cart-summary">
+                <div
+                    style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
+                    <span>Total:</span>
+                    <span><span id="totalPrice">0.00</span> DA</span>
+                </div>
+                <button class="btn-checkout" id="checkoutBtn">Passer la Commande <i
+                        class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
 
-<!-- Modal du formulaire de commande -->
-<div class="modal" id="orderFormModal">
-<div class="modal-content order-form-content">
-<span class="close-modal">&times;</span>
-<h2><i class="fas fa-truck-fast"></i> Finaliser la Commande</h2>
-<form id="orderForm">
-<div class="form-group">
-<label for="orderType"><i class="fas fa-map-marker-alt"></i> Type de Livraison *</label>
-<select id="orderType" required>
-<option value="">Sélectionner un type</option>
-<option value="domicile">Livraison à domicile</option>
-<option value="stopdesk">Stop Desk (Retrait au bureau)</option>
-</select>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="firstName">Prénom *</label>
-<input type="text" id="firstName" required placeholder="Votre prénom">
-</div>
-<div class="form-group">
-<label for="lastName">Nom *</label>
-<input type="text" id="lastName" required placeholder="Votre nom">
-</div>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="phone1">Numéro de téléphone *</label>
-<input type="tel" id="phone1" required placeholder="05XXXXXXXX">
-</div>
-<div class="form-group">
-<label for="phone2">Autre numéro (optionnel)</label>
-<input type="tel" id="phone2" placeholder="05XXXXXXXX">
-</div>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="wilaya">Wilaya *</label>
-<select id="wilaya" required>
-<option value="">Sélectionner une wilaya</option>
-</select>
-</div>
-<div class="form-group">
-<label for="commune">Commune *</label>
-<select id="commune" required>
-<option value="">Sélectionner une commune</option>
-</select>
-</div>
-</div>
-<div class="shipping-info">
-<div class="shipping-price">
-<i class="fas fa-info-circle"></i> <span>Frais de livraison:</span>
-<strong id="shippingPrice">0 DA</strong>
-</div>
-</div>
-<div class="btn-actions">
-<button type="button" class="btn-cancel" onclick="closeOrderForm()">Annuler</button>
-<button type="submit" class="btn-submit">Confirmer la Commande</button>
-</div>
-</form>
-</div>
-</div>
+    <!-- Modal du formulaire de commande -->
+    <div class="modal" id="orderFormModal">
+        <div class="modal-content order-form-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-truck-fast"></i> Finaliser la Commande</h2>
+            <form id="orderForm">
+                <!-- Type de commande -->
+                <div class="form-group">
+                    <label for="orderType"><i class="fas fa-map-marker-alt"></i> Type de Livraison *</label>
+                    <select id="orderType" required>
+                        <option value="">Sélectionner un type</option>
+                        <option value="domicile">Livraison à domicile</option>
+                        <option value="stopdesk">Stop Desk (Retrait au bureau)</option>
+                    </select>
+                </div>
 
-<!-- Modal de confirmation de commande -->
-<div class="modal" id="confirmModal">
-<div class="modal-content" style="text-align: center;">
-<span class="close-modal">&times;</span>
-<i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;"></i>
-<h2 style="border:none;">Commande Reçue!</h2>
-<p style="font-size: 1.1rem; margin-bottom: 20px;">Merci pour votre achat.</p>
-<div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-<p style="margin-bottom: 5px; font-size: 0.9rem;">Votre numéro de commande:</p>
-<strong id="orderNumber" style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
-</div>
-<p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-<i class="fas fa-camera"></i> Prenez une capture d'écran de ce numéro.
-</p>
-<button class="btn-checkout" onclick="location.reload()">Continuer</button>
-</div>
-</div>
+                <!-- Nom et Prénom -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">Prénom *</label>
+                        <input type="text" id="firstName" required placeholder="Votre prénom">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Nom *</label>
+                        <input type="text" id="lastName" required placeholder="Votre nom">
+                    </div>
+                </div>
 
-<!-- Modal Détails Produit -->
-<div class="modal" id="productDetailModal">
-<div class="modal-content product-detail-content">
-<span class="close-modal">&times;</span>
-<div class="detail-layout">
-<img id="detailImage" src="" alt="" class="detail-image">
-<div class="detail-info">
-<h2 id="detailName"></h2>
-<p id="detailCategory" class="product-category"></p>
-<p id="detailDescription" class="product-description"></p>
-<div class="detail-price"><span id="detailPrice"></span> DA</div>
-<button class="btn-checkout" id="modalAddToCartBtn">
-<i class="fas fa-cart-plus"></i> Ajouter au Panier
-</button>
-</div>
-</div>
-</div>
-</div>
+                <!-- Numéros de téléphone -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone1">Numéro de téléphone *</label>
+                        <input type="tel" id="phone1" required placeholder="05XXXXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone2">Autre numéro (optionnel)</label>
+                        <input type="tel" id="phone2" placeholder="05XXXXXXXX">
+                    </div>
+                </div>
 
-<footer>
-<p>&copy; 2026 Amar Informatique. Premium Tech Store.</p>
-</footer>
+                <!-- Wilaya et Commune -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="wilaya">Wilaya *</label>
+                        <select id="wilaya" required>
+                            <option value="">Sélectionner une wilaya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="commune">Commune *</label>
+                        <select id="commune" required>
+                            <option value="">Sélectionner une commune</option>
+                        </select>
+                    </div>
+                </div>
 
-<script src="script.js"></script>
+                <!-- Affichage du prix de livraison -->
+                <div class="shipping-info">
+                    <div class="shipping-price">
+                        <i class="fas fa-info-circle"></i> <span>Frais de livraison:</span>
+                        <strong id="shippingPrice">0 DA</strong>
+                    </div>
+                </div>
+
+                <!-- Boutons -->
+                <div class="btn-actions">
+                    <button type="button" class="btn-cancel" onclick="closeOrderForm()">Annuler</button>
+                    <button type="submit" class="btn-submit">Confirmer la Commande</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de commande -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close-modal">&times;</span>
+            <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;"></i>
+            <h2 style="border:none;">Commande Reçue!</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 20px;">Merci pour votre achat.</p>
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <p style="margin-bottom: 5px; font-size: 0.9rem;">Votre numéro de commande:</p>
+                <strong id="orderNumber"
+                    style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+                <i class="fas fa-camera"></i> Prenez une capture d'écran de ce numéro.
+            </p>
+            <button class="btn-checkout" onclick="location.reload()">Continuer</button>
+        </div>
+    </div>
+
+    <!-- Modal Image -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content" style="background: transparent; box-shadow: none; border: none;">
+            <span class="close-modal" style="color: white; right: 0;">&times;</span>
+            <img id="modalImage" src="" alt="Zoom"
+                style="max-width: 90%; max-height: 85vh; border-radius: 12px; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+        </div>
+    </div>
+
+    <!-- Modal Détails Produit -->
+    <div class="modal" id="productDetailModal">
+        <div class="modal-content product-detail-content">
+            <span class="close-modal">&times;</span>
+            <div class="detail-layout">
+                <img id="detailImage" src="" alt="" class="detail-image">
+                <div class="detail-info">
+                    <h2 id="detailName"></h2>
+                    <p id="detailCategory" class="product-category"></p>
+                    <p id="detailDescription" class="product-description"></p>
+                    <div class="detail-price"><span id="detailPrice"></span> DA</div>
+                    <button class="btn-checkout" id="modalAddToCartBtn">
+                        <i class="fas fa-cart-plus"></i> Ajouter au Panier
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Amar Informatique. Premium Tech Store.</p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
+
 </html>
