@@ -3,7 +3,7 @@ GESTION DES COMMANDES & PRODUITS (FIREBASE)
 ============================== */
 let allCommandes = [];
 
-// ========== جعل الدوال متاحة عالميًا (مهم جدًا) ==========
+// ========== جعل الدوال متاحة عالميًا ==========
 window.showDetail = showDetail;
 window.deleteCommande = deleteCommande;
 window.updateOrderStatus = updateOrderStatus;
@@ -12,15 +12,11 @@ window.exportCommandes = exportCommandes;
 window.openAddProductModal = openAddProductModal;
 window.closeAddProductModal = closeAddProductModal;
 window.clearFilters = clearFilters;
-window.filterCommandes = filterCommandes;
 
 // ========== CHARGEMENT DES COMMANDES ==========
 function loadCommandes() {
   const tbody = document.getElementById('ordersTableBody');
-  if (!tbody) {
-    console.error("❌ ordersTableBody non trouvé");
-    return;
-  }
+  if (!tbody) return;
   
   tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Chargement des commandes...</td></tr>';
   
@@ -55,7 +51,14 @@ function displayCommandes(commandes) {
   tbody.innerHTML = commandes.map(cmd => `
     <tr>
       <td class="order-id">${cmd.orderNumber || 'N/A'}</td>
-      <td>${cmd.firstName || ''} ${cmd.lastName || ''}</td>
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar">${(cmd.firstName || '?')[0]}${(cmd.lastName || '?')[0]}</div>
+          <div class="client-info">
+            <div class="client-name">${cmd.firstName || ''} ${cmd.lastName || ''}</div>
+          </div>
+        </div>
+      </td>
       <td>
         <span class="order-type ${cmd.orderType || ''}">
           ${cmd.orderType === 'domicile' ? '🏠 Domicile' : '🏪 Stop Desk'}
@@ -70,12 +73,14 @@ function displayCommandes(commandes) {
         </span>
       </td>
       <td>
-        <button class="action-btn" onclick="showDetail('${cmd.orderNumber}')">
-          <i class="fas fa-eye"></i> Détails
-        </button>
-        <button class="delete-btn" onclick="deleteCommande('${cmd.orderNumber}')">
-          <i class="fas fa-trash"></i>
-        </button>
+        <div class="action-buttons">
+          <button class="btn-details" onclick="showDetail('${cmd.orderNumber}')">
+            <i class="fas fa-eye"></i> Détails
+          </button>
+          <button class="btn-delete" onclick="deleteCommande('${cmd.orderNumber}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -83,25 +88,21 @@ function displayCommandes(commandes) {
 
 // ========== MODAL DÉTAILS COMMANDE ==========
 function showDetail(orderNumber) {
-  console.log("🔍 showDetail appelé pour:", orderNumber);
-  
   const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
   if (!cmd) {
-    alert("❌ Commande introuvable: " + orderNumber);
+    alert("❌ Commande introuvable!");
     return;
   }
   
   const modal = document.getElementById('detailModal');
   if (!modal) {
-    alert("❌ Modal detailModal non trouvé!");
+    alert("❌ Modal non trouvé!");
     return;
   }
   
-  // Stocker les données dans le modal
   modal.dataset.firebaseId = cmd.id;
   modal.dataset.currentOrderNumber = orderNumber;
   
-  // Remplir les informations
   document.getElementById('detailOrderNumber').textContent = cmd.orderNumber || 'N/A';
   document.getElementById('detailDate').textContent = formatDateTime(cmd.date);
   document.getElementById('detailName').textContent = `${cmd.firstName || ''} ${cmd.lastName || ''}`;
@@ -111,40 +112,36 @@ function showDetail(orderNumber) {
   document.getElementById('detailCommune').textContent = cmd.commune || '—';
   document.getElementById('detailOrderType').textContent = cmd.orderType === 'domicile' ? '🏠 Livraison à domicile' : '🏪 Stop Desk';
   
-  // Statut
   const status = cmd.status || 'pending';
   const badge = document.getElementById('detailStatusBadge');
   badge.textContent = getStatusLabel(status);
   badge.className = 'status-badge-table ' + getStatusClass(status);
   
-  // Produits
   const itemsContainer = document.getElementById('detailItems');
   if (cmd.cartItems && cmd.cartItems.length > 0) {
     itemsContainer.innerHTML = cmd.cartItems.map(item => `
       <div class="item-entry">
-        <div><strong>${item.name || 'Produit inconnu'}</strong><br>${item.price || 0} DA × ${item.quantity || 1}</div>
-        <div><strong>${((item.price || 0) * (item.quantity || 1)).toFixed(2)} DA</strong></div>
+        <div class="item-info">
+          <strong>${item.name || 'Produit inconnu'}</strong>
+          <small>${item.price || 0} DA × ${item.quantity || 1}</small>
+        </div>
+        <div class="item-total">${((item.price || 0) * (item.quantity || 1)).toFixed(2)} DA</div>
       </div>
     `).join('');
   } else {
     itemsContainer.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">📭 Aucun produit</p>';
   }
   
-  // Totaux
   document.getElementById('detailCartTotal').textContent = (cmd.cartTotal || 0).toFixed(2);
   document.getElementById('detailShipping').textContent = (cmd.shippingPrice || 0).toFixed(2);
   document.getElementById('detailTotal').textContent = (cmd.grandTotal || 0).toFixed(2);
   
-  // Afficher le modal
   modal.classList.add('active');
-  console.log("✅ Modal affiché avec succès");
 }
 
 function closeDetail() {
   const modal = document.getElementById('detailModal');
-  if (modal) {
-    modal.classList.remove('active');
-  }
+  if (modal) modal.classList.remove('active');
 }
 
 // ========== GESTION STATUT ==========
@@ -190,7 +187,7 @@ function updateOrderStatus(newStatus) {
     if (cmd) cmd.status = newStatus;
     showNotification('✅ Statut mis à jour');
     displayCommandes(allCommandes);
-    showDetail(orderNumber);
+    showDetail(orderNumber); // تحديث النافذة
   })
   .catch((error) => {
     console.error("❌ Erreur mise à jour:", error);
@@ -323,10 +320,8 @@ function openAddProductModal() {
   const modal = document.getElementById('addProductModal');
   if (modal) {
     modal.classList.add('active');
-    const form = document.getElementById('addProductForm');
-    if (form) form.reset();
-    const preview = document.getElementById('imagePreview');
-    if (preview) preview.innerHTML = '';
+    document.getElementById('addProductForm')?.reset();
+    document.getElementById('imagePreview').innerHTML = '';
   }
 }
 
@@ -335,21 +330,32 @@ function closeAddProductModal() {
   if (modal) modal.classList.remove('active');
 }
 
-// ========== INITIALISATION ==========
+// معاينة الصورة
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("✅ DOMContentLoaded - Chargement des commandes...");
-  loadCommandes();
+  const fileInput = document.getElementById('productImageFile');
+  if (fileInput) {
+    fileInput.addEventListener('change', function(e) {
+      const preview = document.getElementById('imagePreview');
+      if (!preview) return;
+      
+      preview.innerHTML = '';
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          img.style.maxWidth = '100%';
+          img.style.maxHeight = '200px';
+          img.style.borderRadius = '8px';
+          img.style.marginTop = '10px';
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
   
-  // Écouteurs filtres
-  document.getElementById('searchInput')?.addEventListener('input', filterCommandes);
-  document.getElementById('filterType')?.addEventListener('change', filterCommandes);
-  document.getElementById('filterWilaya')?.addEventListener('change', filterCommandes);
-  
-  // Bouton reset
-  const resetBtn = document.querySelector('.filters button');
-  if (resetBtn) resetBtn.addEventListener('click', clearFilters);
-  
-  // Formulaire ajout produit
+  // حفظ المنتج
   const form = document.getElementById('addProductForm');
   if (form) {
     form.addEventListener('submit', async (e) => {
@@ -375,11 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       try {
         showNotification('📤 Téléchargement de l\'image...');
-        
-        // Vérifier que storage existe
-        if (typeof storage === 'undefined') {
-          throw new Error("Firebase Storage non initialisé");
-        }
         
         const storageRef = storage.ref();
         const safeFileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
@@ -415,6 +416,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+  
+  // Écouteurs filtres
+  document.getElementById('searchInput')?.addEventListener('input', filterCommandes);
+  document.getElementById('filterType')?.addEventListener('change', filterCommandes);
+  document.getElementById('filterWilaya')?.addEventListener('change', filterCommandes);
+  
+  // تحميل الطلبات
+  loadCommandes();
 });
 
 // ========== UTILITAIRES ==========
@@ -456,7 +465,7 @@ function formatDateTime(d) {
   }
 }
 
-// Styles pour les notifications
+// أنيميشن للإشعارات
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn {
@@ -466,6 +475,67 @@ style.textContent = `
   @keyframes slideOut {
     from { transform: translateX(0); opacity: 1; }
     to { transform: translateX(100%); opacity: 0; }
+  }
+  
+  .client-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .client-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+  }
+  
+  .client-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .client-name {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  .item-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .item-entry:last-child {
+    border-bottom: none;
+  }
+  
+  .item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .item-info strong {
+    color: #2c3e50;
+  }
+  
+  .item-info small {
+    color: #999;
+    font-size: 0.85rem;
+  }
+  
+  .item-total {
+    font-weight: 700;
+    color: #e74c3c;
   }
 `;
 document.head.appendChild(style);
