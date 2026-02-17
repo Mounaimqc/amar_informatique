@@ -88,57 +88,73 @@ function displayCommandes(commandes) {
 
 // ========== MODAL DÉTAILS COMMANDE ==========
 function showDetail(orderNumber) {
+  console.log("🔍 showDetail:", orderNumber);
+  
   const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
   if (!cmd) {
-    alert("❌ Commande introuvable!");
+    console.warn("⚠️ Commande non trouvée:", orderNumber);
     return;
   }
   
   const modal = document.getElementById('detailModal');
   if (!modal) {
-    alert("❌ Modal non trouvé!");
+    console.error("❌ Modal #detailModal non trouvé!");
     return;
   }
   
+  // تخزين البيانات في modal
   modal.dataset.firebaseId = cmd.id;
   modal.dataset.currentOrderNumber = orderNumber;
   
-  document.getElementById('detailOrderNumber').textContent = cmd.orderNumber || 'N/A';
-  document.getElementById('detailDate').textContent = formatDateTime(cmd.date);
-  document.getElementById('detailName').textContent = `${cmd.firstName || ''} ${cmd.lastName || ''}`;
-  document.getElementById('detailPhone1').textContent = cmd.phone1 || '—';
-  document.getElementById('detailPhone2').textContent = cmd.phone2 || '—';
-  document.getElementById('detailWilaya').textContent = cmd.wilaya || '—';
-  document.getElementById('detailCommune').textContent = cmd.commune || '—';
-  document.getElementById('detailOrderType').textContent = cmd.orderType === 'domicile' ? '🏠 Livraison à domicile' : '🏪 Stop Desk';
+  // دالة مساعدة لتعيين النص بأمان
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value ?? '—';
+    else console.warn(`⚠️ Élément #${id} non trouvé`);
+  };
   
+  // تعبئة البيانات
+  setText('detailOrderNumber', cmd.orderNumber);
+  setText('detailDate', formatDateTime(cmd.date));
+  setText('detailName', `${cmd.firstName ?? ''} ${cmd.lastName ?? ''}`);
+  setText('detailPhone1', cmd.phone1);
+  setText('detailPhone2', cmd.phone2);
+  setText('detailWilaya', cmd.wilaya);
+  setText('detailCommune', cmd.commune);
+  setText('detailOrderType', cmd.orderType === 'domicile' ? '🏠 Domicile' : '🏪 Stop Desk');
+  
+  // Statut
   const status = cmd.status || 'pending';
   const badge = document.getElementById('detailStatusBadge');
-  badge.textContent = getStatusLabel(status);
-  badge.className = 'status-badge-table ' + getStatusClass(status);
-  
-  const itemsContainer = document.getElementById('detailItems');
-  if (cmd.cartItems && cmd.cartItems.length > 0) {
-    itemsContainer.innerHTML = cmd.cartItems.map(item => `
-      <div class="item-entry">
-        <div class="item-info">
-          <strong>${item.name || 'Produit inconnu'}</strong>
-          <small>${item.price || 0} DA × ${item.quantity || 1}</small>
-        </div>
-        <div class="item-total">${((item.price || 0) * (item.quantity || 1)).toFixed(2)} DA</div>
-      </div>
-    `).join('');
-  } else {
-    itemsContainer.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">📭 Aucun produit</p>';
+  if (badge) {
+    badge.textContent = getStatusLabel(status);
+    badge.className = 'status-badge-table ' + getStatusClass(status);
   }
   
-  document.getElementById('detailCartTotal').textContent = (cmd.cartTotal || 0).toFixed(2);
-  document.getElementById('detailShipping').textContent = (cmd.shippingPrice || 0).toFixed(2);
-  document.getElementById('detailTotal').textContent = (cmd.grandTotal || 0).toFixed(2);
+  // Produits
+  const itemsContainer = document.getElementById('detailItems');
+  if (itemsContainer) {
+    if (cmd.cartItems?.length) {
+      itemsContainer.innerHTML = cmd.cartItems.map(it => `
+        <div class="item-entry">
+          <div><strong>${it.name || 'Produit inconnu'}</strong><br>${it.price || 0} DA × ${it.quantity || 1}</div>
+          <div><strong>${((it.price || 0) * (it.quantity || 1)).toFixed(2)} DA</strong></div>
+        </div>
+      `).join('');
+    } else {
+      itemsContainer.innerHTML = '<p style="text-align:center;color:#999;">Aucun produit</p>';
+    }
+  }
   
+  // Totaux
+  setText('detailCartTotal', (cmd.cartTotal || 0).toFixed(2));
+  setText('detailShipping', (cmd.shippingPrice || 0).toFixed(2));
+  setText('detailTotal', (cmd.grandTotal || 0).toFixed(2));
+  
+  // إظهار المودال
   modal.classList.add('active');
+  console.log("✅ Modal affiché avec succès");
 }
-
 function closeDetail() {
   const modal = document.getElementById('detailModal');
   if (modal) modal.classList.remove('active');
@@ -539,3 +555,4 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
