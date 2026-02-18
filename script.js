@@ -734,3 +734,82 @@ document.addEventListener('DOMContentLoaded', () => {
     submitOrderForm();
   });
 });
+
+// ========== RESPONSIVE ENHANCEMENTS ==========
+
+// منع التكبير على iOS عند التركيز على الحقول
+document.addEventListener('DOMContentLoaded', () => {
+  // تحسين تجربة اللمس
+  if ('ontouchstart' in window) {
+    document.body.classList.add('touch-device');
+  }
+  
+  // إغلاق المودال عند النقر خارج المحتوى
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+      }
+    });
+  });
+  
+  // تحسين التمرير السلس للعناوين
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+});
+
+// دالة لتحسين عرض الصور حسب حجم الشاشة
+function optimizeImages() {
+  const images = document.querySelectorAll('.product-image, .detail-image, .slider-slide img');
+  const screenWidth = window.innerWidth;
+  
+  images.forEach(img => {
+    if (screenWidth < 768) {
+      img.loading = 'eager'; // Mobile: load immediately
+    } else {
+      img.loading = 'lazy';  // Desktop: lazy load
+    }
+  });
+}
+
+// استدعاء الدالة عند التحميل وتغيير الحجم
+window.addEventListener('load', optimizeImages);
+window.addEventListener('resize', () => {
+  clearTimeout(window.resizeTimer);
+  window.resizeTimer = setTimeout(optimizeImages, 250);
+});
+
+// تحسين أداء السلايدر على الموبايل
+let touchStartX = 0;
+let touchEndX = 0;
+
+const slider = document.getElementById('heroSlider');
+if (slider) {
+  slider.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  
+  slider.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+}
+
+function handleSwipe() {
+  const swipeThreshold = 50;
+  if (touchEndX < touchStartX - swipeThreshold) {
+    // Swipe Left - Next Slide
+    document.getElementById('nextBtn')?.click();
+  }
+  if (touchEndX > touchStartX + swipeThreshold) {
+    // Swipe Right - Prev Slide
+    document.getElementById('prevBtn')?.click();
+  }
+}
