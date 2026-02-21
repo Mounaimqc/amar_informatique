@@ -889,3 +889,47 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// ========== Mobile Menu Toggle ==========
+document.addEventListener('DOMContentLoaded', () => {
+const mobileToggle = document.getElementById('mobileToggle');
+const navItems = document.getElementById('navItems');
+const navOverlay = document.getElementById('navOverlay');
+
+function toggleMenu() {
+const isActive = navItems.classList.toggle('active');
+mobileToggle.classList.toggle('active');
+navOverlay?.classList.toggle('active', isActive);
+mobileToggle.setAttribute('aria-expanded', isActive);
+document.body.classList.toggle('menu-open', isActive);
+}
+
+function closeMenu() {
+navItems.classList.remove('active');
+mobileToggle.classList.remove('active');
+navOverlay?.classList.remove('active');
+mobileToggle.setAttribute('aria-expanded', 'false');
+document.body.classList.remove('menu-open');
+}
+
+mobileToggle?.addEventListener('click', toggleMenu);
+navOverlay?.addEventListener('click', closeMenu);
+
+// إغلاق المنيو عند الضغط على Escape
+document.addEventListener('keydown', (e) => {
+if (e.key === 'Escape' && navItems?.classList.contains('active')) {
+closeMenu();
+}
+});
+
+// إغلاق المنيو عند النقر على رابط (للموبايل)
+navItems?.querySelectorAll('a, button').forEach(link => {
+link.addEventListener('click', () => {
+if (window.innerWidth <= 991) closeMenu();
+});
+});
+
+// إعادة تعيين المنيو عند تغيير حجم الشاشة
+window.addEventListener('resize', () => {
+if (window.innerWidth > 991) closeMenu();
+});
+});
