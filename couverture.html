@@ -2,248 +2,91 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Couverture - Amar Informatique</title>
+<title>Carte de Livraison - Amar Informatique</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-.coverage-section {
-  padding: 60px 20px;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  text-align: center;
-}
-
-.coverage-title {
-  font-size: 2.5rem;
-  color: #f8fafc;
-  margin-bottom: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
-.coverage-subtitle {
-  font-size: 1.1rem;
-  color: #94a3b8;
-  margin-bottom: 40px;
-}
-
-.map-container {
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-  background: rgba(30, 41, 59, 0.5);
+#map { 
+  height: 700px; 
+  width: 100%;
   border-radius: 20px;
-  padding: 30px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
-
-.algeria-map {
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+.coverage-section {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
-
-.wilaya {
-  fill: #3b82f6;
-  stroke: #1e40af;
-  stroke-width: 0.5;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.wilaya:hover {
-  fill: #8b5cf6;
-  stroke: #7c3aed;
-  stroke-width: 1;
-  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6));
-  transform: translateY(-2px);
-}
-
-/* Tooltip */
-.wilaya-tooltip {
-  position: absolute;
+.custom-popup .leaflet-popup-content-wrapper {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: #f8fafc;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  border-radius: 12px;
   border: 1px solid rgba(139, 92, 246, 0.3);
-  z-index: 1000;
-  min-width: 150px;
-  text-align: center;
 }
-
-.wilaya-tooltip.show {
-  opacity: 1;
+.custom-popup .leaflet-popup-tip {
+  background: #1e293b;
 }
-
-.wilaya-tooltip .wilaya-name {
-  display: block;
-  margin-bottom: 5px;
-  color: #f8fafc;
-  font-size: 1rem;
-}
-
-.wilaya-tooltip .delivery-time {
+.delivery-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  padding: 4px 12px;
+  padding: 6px 15px;
   border-radius: 20px;
-  font-size: 0.85rem;
   font-weight: 700;
-  margin-top: 5px;
-}
-
-/* Legend */
-.map-legend {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin-top: 30px;
-  flex-wrap: wrap;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #94a3b8;
-  font-size: 0.9rem;
-}
-
-.legend-color {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-}
-
-.legend-color.fast { background: #10b981; }
-.legend-color.medium { background: #3b82f6; }
-.legend-color.slow { background: #f59e0b; }
-
-@media (max-width: 768px) {
-  .coverage-title { font-size: 1.8rem; }
-  .map-container { padding: 15px; }
-  .wilaya-tooltip { font-size: 0.85rem; padding: 10px 15px; }
+  margin-top: 8px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 </style>
 </head>
 <body>
 
 <section class="coverage-section">
-  <h2 class="coverage-title">COUVERTURE</h2>
-  <p class="coverage-subtitle">Nous couvrons 58 Wilayas du territoire national algérien</p>
-  
-  <div class="map-container">
-    <!-- SVG Map of Algeria -->
-    <svg class="algeria-map" viewBox="0 0 800 900" xmlns="http://www.w3.org/2000/svg">
-      <!-- مثال: ولاية الجزائر (16) -->
-      <path id="wilaya-16" class="wilaya" 
-            d="M 420,280 L 440,285 L 445,300 L 430,310 L 415,305 L 410,290 Z"
-            data-name="Alger" 
-            data-time="24h à 48h"
-            data-code="16"/>
-      
-      <!-- مثال: ولاية وهران (31) -->
-      <path id="wilaya-31" class="wilaya" 
-            d="M 280,290 L 300,295 L 305,310 L 290,320 L 275,315 L 270,300 Z"
-            data-name="Oran" 
-            data-time="24h à 48h"
-            data-code="31"/>
-      
-      <!-- مثال: ولاية قسنطينة (25) -->
-      <path id="wilaya-25" class="wilaya" 
-            d="M 520,270 L 540,275 L 545,290 L 530,300 L 515,295 L 510,280 Z"
-            data-name="Constantine" 
-            data-time="24h à 48h"
-            data-code="25"/>
-      
-      <!-- مثال: ولاية المنيعة (58) -->
-      <path id="wilaya-58" class="wilaya" 
-            d="M 400,550 L 450,560 L 455,610 L 400,620 L 395,570 Z"
-            data-name="El Meniaa" 
-            data-time="24h à 96h"
-            data-code="58"/>
-      
-      <!-- ملاحظة: تحتاج إلى إحداثيات SVG دقيقة لكل ولاية -->
-      <!-- يمكنك الحصول عليها من ملفات SVG الجاهزة -->
-    </svg>
-    
-    <!-- Tooltip -->
-    <div class="wilaya-tooltip" id="wilayaTooltip">
-      <span class="wilaya-name"></span>
-      <span class="delivery-time"></span>
-    </div>
-    
-    <!-- Legend -->
-    <div class="map-legend">
-      <div class="legend-item">
-        <div class="legend-color fast"></div>
-        <span>24h - 48h</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color medium"></div>
-        <span>48h - 72h</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color slow"></div>
-        <span>72h - 96h</span>
-      </div>
-    </div>
-  </div>
+  <h2 style="text-align:center; color:#f8fafc; font-size:2.5rem; margin-bottom:10px;">COUVERTURE</h2>
+  <p style="text-align:center; color:#94a3b8; margin-bottom:30px;">
+    Nous couvrons 58 Wilayas du territoire national algérien
+  </p>
+  <div id="map"></div>
 </section>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// بيانات مدة التوصيل لكل ولاية
-const deliveryTimes = {
-  "16": { name: "Alger", time: "24h à 48h", color: "#10b981" },
-  "31": { name: "Oran", time: "24h à 48h", color: "#10b981" },
-  "25": { name: "Constantine", time: "24h à 48h", color: "#10b981" },
-  "58": { name: "El Meniaa", time: "24h à 96h", color: "#f59e0b" },
-  // ... أضف باقي الولايات
+// Initialize map centered on Algeria
+const map = L.map('map').setView([28, 3], 6);
+
+// Add tile layer (you can use different providers)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+// Delivery times data
+const wilayasData = {
+  "Alger": { coords: [36.7538, 3.0588], time: "24h à 48h", color: "#10b981" },
+  "Oran": { coords: [35.6969, -0.6331], time: "24h à 48h", color: "#10b981" },
+  "Constantine": { coords: [36.365, 6.6147], time: "24h à 48h", color: "#10b981" },
+  "El Meniaa": { coords: [30.5731, 2.8833], time: "24h à 96h", color: "#f59e0b" },
+  // ... Add all 58 wilayas
 };
 
-// Tooltip functionality
-const tooltip = document.getElementById('wilayaTooltip');
-const wilayas = document.querySelectorAll('.wilaya');
-
-wilayas.forEach(wilaya => {
-  wilaya.addEventListener('mouseenter', (e) => {
-    const code = wilaya.getAttribute('data-code');
-    const data = deliveryTimes[code];
-    
-    if (data) {
-      // Update tooltip content
-      tooltip.querySelector('.wilaya-name').textContent = `${data.name} (${code})`;
-      tooltip.querySelector('.delivery-time').textContent = data.time;
-      tooltip.querySelector('.delivery-time').style.background = 
-        data.time.includes('48h') ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' :
-        data.time.includes('72h') ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' :
-        'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-      
-      // Show tooltip
-      tooltip.classList.add('show');
-      
-      // Highlight wilaya
-      wilaya.style.fill = data.color;
-    }
-  });
+// Add markers for each wilaya
+Object.entries(wilayasData).forEach(([name, data]) => {
+  const marker = L.circleMarker(data.coords, {
+    radius: 8,
+    fillColor: data.color,
+    color: "#fff",
+    weight: 2,
+    opacity: 1,
+    fillOpacity: 0.8
+  }).addTo(map);
   
-  wilaya.addEventListener('mousemove', (e) => {
-    const container = document.querySelector('.map-container');
-    const rect = container.getBoundingClientRect();
-    
-    tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
-    tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
-  });
+  const popupContent = `
+    <div style="text-align:center; padding:5px;">
+      <strong style="font-size:1.1rem; display:block; margin-bottom:5px;">${name}</strong>
+      <span class="delivery-badge" style="background:${data.color}; color:#fff;">
+        ${data.time}
+      </span>
+    </div>
+  `;
   
-  wilaya.addEventListener('mouseleave', () => {
-    tooltip.classList.remove('show');
-    wilaya.style.fill = '';
+  marker.bindPopup(popupContent, { className: 'custom-popup' });
+  
+  marker.on('mouseover', function() {
+    this.openPopup();
   });
 });
 </script>
