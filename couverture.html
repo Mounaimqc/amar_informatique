@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f172a">
-<title>خريطة التوصيل - Amar Informatique</title>
+<title>مناطق التوصيل - Amar Informatique</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="logo.jpg" type="image/x-icon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,6 +38,7 @@ body {
   min-height: 100vh;
 }
 
+/* Header */
 header {
   background: rgba(15,23,42,0.9);
   backdrop-filter: blur(12px);
@@ -91,6 +92,7 @@ header {
   box-shadow: 0 0 15px rgba(124,58,237,0.4);
 }
 
+/* Main Content */
 .coverage-section {
   padding: 60px 20px;
   max-width: 1400px;
@@ -114,6 +116,7 @@ header {
   margin-bottom: 40px;
 }
 
+/* Stats Cards */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -141,6 +144,7 @@ header {
   opacity: 0.9;
 }
 
+/* Search */
 .search-container {
   margin-bottom: 30px;
   text-align: center;
@@ -164,44 +168,54 @@ header {
   box-shadow: 0 0 15px rgba(124,58,237,0.2);
 }
 
-.map-container {
+/* Wilayas Grid */
+.wilayas-container {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
   border-radius: var(--radius-lg);
   padding: 40px;
   box-shadow: var(--neon-shadow);
   border: var(--glass-border);
-  position: relative;
 }
 
-.map-info {
-  text-align: center;
-  margin-bottom: 20px;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-.wilaya-grid {
+.wilayas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 15px;
-  margin-top: 30px;
 }
 
 .wilaya-card {
   background: rgba(15,23,42,0.6);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
-  padding: 15px;
+  padding: 20px 15px;
   cursor: pointer;
   transition: var(--transition);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.wilaya-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  opacity: 0;
+  transition: var(--transition);
 }
 
 .wilaya-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
   border-color: var(--primary-color);
-  box-shadow: 0 10px 30px rgba(124,58,237,0.3);
+  box-shadow: 0 15px 40px rgba(124,58,237,0.4);
+}
+
+.wilaya-card:hover::before {
+  opacity: 1;
 }
 
 .wilaya-card.fast { border-left: 4px solid #10b981; }
@@ -211,21 +225,23 @@ header {
 .wilaya-code {
   display: inline-block;
   background: rgba(124,58,237,0.2);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 12px;
   font-size: 0.75rem;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  font-weight: 700;
 }
 
 .wilaya-name {
   font-weight: 700;
-  font-size: 0.95rem;
-  margin-bottom: 8px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: var(--text-main);
 }
 
 .wilaya-time {
   font-size: 0.85rem;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 20px;
   display: inline-block;
   font-weight: 600;
@@ -235,12 +251,63 @@ header {
 .wilaya-time.medium { background: rgba(59,130,246,0.2); color: #3b82f6; }
 .wilaya-time.slow { background: rgba(245,158,11,0.2); color: #f59e0b; }
 
-.wilaya-price {
+.wilaya-prices {
+  margin-top: 10px;
   font-size: 0.8rem;
   color: var(--text-muted);
-  margin-top: 5px;
 }
 
+.wilaya-prices span {
+  display: block;
+  margin: 3px 0;
+}
+
+/* Tooltip */
+.wilaya-tooltip {
+  position: absolute;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: var(--text-main);
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  border: 1px solid rgba(124,58,237,0.3);
+  z-index: 1000;
+  min-width: 250px;
+  transform: translate(-50%, -100%);
+  margin-top: -15px;
+}
+
+.wilaya-tooltip.show {
+  opacity: 1;
+}
+
+.wilaya-tooltip .wilaya-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.wilaya-tooltip .delivery-info {
+  margin: 10px 0;
+}
+
+.wilaya-tooltip .delivery-info div {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.wilaya-tooltip .delivery-info div:last-child {
+  border-bottom: none;
+}
+
+/* Legend */
 .map-legend {
   display: flex;
   justify-content: center;
@@ -267,87 +334,55 @@ header {
 .legend-color.medium { background: #3b82f6; }
 .legend-color.slow { background: #f59e0b; }
 
-.modal-detail {
-  display: none;
-  position: fixed;
-  z-index: 2000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
-}
-
-.modal-detail.active {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: var(--bg-card);
-  border: var(--glass-border);
-  border-radius: var(--radius-lg);
-  padding: 30px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: var(--neon-shadow);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.modal-close {
-  font-size: 2rem;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: var(--transition);
-}
-
-.modal-close:hover {
-  color: var(--danger);
-  transform: rotate(90deg);
-}
-
-.detail-section {
-  margin-bottom: 20px;
-}
-
-.detail-section h3 {
-  color: var(--primary-color);
-  margin-bottom: 10px;
-  font-size: 1.1rem;
-}
-
-.communes-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.commune-tag {
-  background: rgba(255,255,255,0.05);
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+/* Info Panel */
+.info-panel {
+  background: rgba(15,23,42,0.6);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 30px;
   border: 1px solid rgba(255,255,255,0.1);
 }
 
+.info-panel h3 {
+  color: var(--text-main);
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+}
+
+.info-item i {
+  font-size: 1.2rem;
+  width: 30px;
+  text-align: center;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .coverage-title { font-size: 1.8rem; }
-  .map-container { padding: 20px; }
-  .wilaya-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .wilayas-container { padding: 20px; }
+  .wilayas-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .legend-item { font-size: 0.8rem; }
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .wilayas-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .wilaya-card { padding: 15px 10px; }
+  .wilaya-name { font-size: 0.9rem; }
 }
 </style>
 </head>
@@ -374,7 +409,7 @@ header {
 
 <section class="coverage-section">
 <h1 class="coverage-title">📍 خريطة التوصيل - 58 ولاية</h1>
-<p class="coverage-subtitle">نحن نغطي جميع ولايات الوطن الجزائري</p>
+<p class="coverage-subtitle">مرر الفأرة على أي ولاية لعرض مدة التوصيل والأسعار</p>
 
 <div class="stats-grid">
 <div class="stat-card">
@@ -395,9 +430,14 @@ header {
 <input type="text" class="search-input" id="wilayaSearch" placeholder="🔍 ابحث عن ولاية...">
 </div>
 
-<div class="map-container">
-<p class="map-info">💡 انقر على أي ولاية لعرض التفاصيل والبلديات</p>
-<div class="wilaya-grid" id="wilayaGrid"></div>
+<div class="wilayas-container">
+<div class="wilayas-grid" id="wilayasGrid"></div>
+
+<!-- Tooltip -->
+<div class="wilaya-tooltip" id="wilayaTooltip">
+<div class="wilaya-title"></div>
+<div class="delivery-info"></div>
+</div>
 
 <div class="map-legend">
 <div class="legend-item">
@@ -413,33 +453,49 @@ header {
 <span>72h - 96h (بعيد)</span>
 </div>
 </div>
+
+<div class="info-panel">
+<h3><i class="fas fa-info-circle"></i> معلومات التوصيل</h3>
+<div class="info-grid">
+<div class="info-item">
+<i class="fas fa-truck" style="color: #10b981;"></i>
+<div>
+<strong>التوصيل للمنزل</strong><br>
+<span style="color: var(--text-muted); font-size: 0.9rem;">يصل لباب المنزل</span>
+</div>
+</div>
+<div class="info-item">
+<i class="fas fa-store" style="color: #3b82f6;"></i>
+<div>
+<strong>الاستلام من المكتب</strong><br>
+<span style="color: var(--text-muted); font-size: 0.9rem;">أرخص سعر</span>
+</div>
+</div>
+<div class="info-item">
+<i class="fas fa-clock" style="color: #f59e0b;"></i>
+<div>
+<strong>مدة التوصيل</strong><br>
+<span style="color: var(--text-muted); font-size: 0.9rem;">تختلف حسب الولاية</span>
+</div>
+</div>
+<div class="info-item">
+<i class="fas fa-phone" style="color: var(--primary-color);"></i>
+<div>
+<strong>خدمة العملاء</strong><br>
+<span style="color: var(--text-muted); font-size: 0.9rem;">0559 46 99 56</span>
+</div>
+</div>
+</div>
+</div>
 </div>
 </section>
-
-<!-- Modal التفاصيل -->
-<div class="modal-detail" id="wilayaModal">
-<div class="modal-content">
-<div class="modal-header">
-<h2 id="modalTitle">تفاصيل الولاية</h2>
-<span class="modal-close" onclick="closeModal()">&times;</span>
-</div>
-<div class="detail-section">
-<h3>معلومات التوصيل</h3>
-<div id="modalInfo"></div>
-</div>
-<div class="detail-section">
-<h3>البلديات</h3>
-<div class="communes-list" id="communesList"></div>
-</div>
-</div>
-</div>
 
 <footer style="text-align:center; padding:40px 20px; border-top:1px solid rgba(255,255,255,0.1); margin-top:60px; color:var(--text-muted);">
 <p>&copy; 2026 Amar Informatique. Premium Tech Store.</p>
 </footer>
 
 <script>
-// بيانات الولايات الـ 58
+// بيانات الولايات الـ 58 مع مدة التوصيل والأسعار
 const wilayasData = {
 "01": { name: "Adrar", time: "72h à 96h", type: "slow", home: 1500, desk: 1000 },
 "02": { name: "Chlef", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
@@ -498,92 +554,81 @@ const wilayasData = {
 "55": { name: "Touggourt", time: "72h à 96h", type: "slow", home: 1000, desk: 600 },
 "56": { name: "Djanet", time: "72h à 96h", type: "slow", home: 600, desk: 3500 },
 "57": { name: "El M'Ghair", time: "72h à 96h", type: "slow", home: 1000, desk: 1800 },
-"58": { name: "El Meniaa", time: "24h à 96h", type: "medium", home: 1000, desk: 600 }
-};
-
-// قائمة البلديات (مثال لبعض الولايات)
-const communesData = {
-"16": ["Alger Centre", "Bab El Oued", "Birkhadem", "Bouzareah", "Dar El Beida", "El Biar", "Hussein Dey", "Kouba", "Mohamed Belouizdad", "Oued Koriche", "Sidi M'Hamed"],
-"31": ["Oran", "Arzew", "Bethioua", "Bir El Djir", "Es Senia", "Gdyel", "Hassi Bounif", "Marsat El Hadjadj", "Mers El Kebir", "Misserghin", "Oued Tlelat", "Sidi Ben Yebka", "Sidi Chami"],
-"25": ["Constantine", "Ain Smara", "Didouche Mourad", "El Khroub", "Hamma Bouziane", "Ibn Ziad", "Messaouda", "Zighoud Youcef"]
+"58": { name: "El Meniaa", time: "72h à 96h", type: "slow", home: 1000, desk: 600 }
 };
 
 // عرض الولايات
 function renderWilayas(filter = '') {
-const grid = document.getElementById('wilayaGrid');
-grid.innerHTML = '';
+  const grid = document.getElementById('wilayasGrid');
+  grid.innerHTML = '';
 
-Object.entries(wilayasData).forEach(([code, data]) => {
-if (filter && !data.name.toLowerCase().includes(filter.toLowerCase()) && !code.includes(filter)) {
-return;
+  Object.entries(wilayasData).forEach(([code, data]) => {
+    if (filter && !data.name.toLowerCase().includes(filter.toLowerCase()) && !code.includes(filter)) {
+      return;
+    }
+
+    const card = document.createElement('div');
+    card.className = `wilaya-card ${data.type}`;
+    card.dataset.code = code;
+    card.dataset.name = data.name;
+    card.dataset.time = data.time;
+    card.dataset.type = data.type;
+    card.dataset.home = data.home;
+    card.dataset.desk = data.desk;
+
+    card.innerHTML = `
+      <div class="wilaya-code">ولاية ${code}</div>
+      <div class="wilaya-name">${data.name}</div>
+      <div class="wilaya-time ${data.type}">${data.time}</div>
+      <div class="wilaya-prices">
+        <span>🏠 ${data.home} DA</span>
+        <span>🏪 ${data.desk} DA</span>
+      </div>
+    `;
+
+    // Hover events for tooltip
+    card.addEventListener('mouseenter', (e) => showTooltip(e, data, code));
+    card.addEventListener('mousemove', (e) => moveTooltip(e));
+    card.addEventListener('mouseleave', hideTooltip);
+
+    grid.appendChild(card);
+  });
 }
 
-const card = document.createElement('div');
-card.className = `wilaya-card ${data.type}`;
-card.onclick = () => showWilayaDetails(code, data);
-
-card.innerHTML = `
-<div class="wilaya-code">ولاية ${code}</div>
-<div class="wilaya-name">${data.name}</div>
-<div class="wilaya-time ${data.type}">${data.time}</div>
-<div class="wilaya-price">🏠 ${data.home} DA | 🏪 ${data.desk} DA</div>
-`;
-
-grid.appendChild(card);
-});
+// إظهار Tooltip
+function showTooltip(e, data, code) {
+  const tooltip = document.getElementById('wilayaTooltip');
+  const typeLabel = data.type === 'fast' ? 'سريع' : data.type === 'medium' ? 'متوسط' : 'بعيد';
+  
+  tooltip.querySelector('.wilaya-title').textContent = `ولاية ${code} - ${data.name}`;
+  tooltip.querySelector('.delivery-info').innerHTML = `
+    <div><span>⏱️ مدة التوصيل:</span><span>${data.time}</span></div>
+    <div><span>📊 النوع:</span><span>${typeLabel}</span></div>
+    <div><span>🏠 للمنزل:</span><span>${data.home} DA</span></div>
+    <div><span>🏪 من المكتب:</span><span>${data.desk} DA</span></div>
+  `;
+  
+  tooltip.classList.add('show');
 }
 
-// عرض تفاصيل الولاية
-function showWilayaDetails(code, data) {
-const modal = document.getElementById('wilayaModal');
-const title = document.getElementById('modalTitle');
-const info = document.getElementById('modalInfo');
-const communes = document.getElementById('communesList');
-
-title.textContent = `ولاية ${code} - ${data.name}`;
-
-info.innerHTML = `
-<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
-<div style="background: rgba(16,185,129,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #10b981;">
-<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">⏱️ مدة التوصيل</div>
-<div style="font-size: 1.1rem; font-weight: 700; color: #10b981;">${data.time}</div>
-</div>
-<div style="background: rgba(124,58,237,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #7c3aed;">
-<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">📊 النوع</div>
-<div style="font-size: 1.1rem; font-weight: 700; color: #7c3aed;">${data.type === 'fast' ? 'سريع' : data.type === 'medium' ? 'متوسط' : 'بعيد'}</div>
-</div>
-</div>
-<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-<div style="background: rgba(6,182,212,0.1); padding: 15px; border-radius: 10px;">
-<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">🏠 التوصيل للمنزل</div>
-<div style="font-size: 1.3rem; font-weight: 800; color: var(--secondary-color);">${data.home} DA</div>
-</div>
-<div style="background: rgba(245,158,11,0.1); padding: 15px; border-radius: 10px;">
-<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">🏪 الاستلام من المكتب</div>
-<div style="font-size: 1.3rem; font-weight: 800; color: #f59e0b;">${data.desk} DA</div>
-</div>
-</div>
-`;
-
-// عرض البلديات
-const wilayaCommunes = communesData[code] || ['Commune 1', 'Commune 2', 'Commune 3'];
-communes.innerHTML = wilayaCommunes.map(c => `<span class="commune-tag">${c}</span>`).join('');
-
-modal.classList.add('active');
+// تحريك Tooltip
+function moveTooltip(e) {
+  const tooltip = document.getElementById('wilayaTooltip');
+  const container = document.querySelector('.wilayas-container');
+  const rect = container.getBoundingClientRect();
+  
+  tooltip.style.left = (e.clientX - rect.left) + 'px';
+  tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
 }
 
-function closeModal() {
-document.getElementById('wilayaModal').classList.remove('active');
+// إخفاء Tooltip
+function hideTooltip() {
+  document.getElementById('wilayaTooltip').classList.remove('show');
 }
 
 // البحث
 document.getElementById('wilayaSearch').addEventListener('input', (e) => {
-renderWilayas(e.target.value);
-});
-
-// إغلاق المودال عند النقر خارج المحتوى
-document.getElementById('wilayaModal').addEventListener('click', (e) => {
-if (e.target.id === 'wilayaModal') closeModal();
+  renderWilayas(e.target.value);
 });
 
 // العرض الأولي
