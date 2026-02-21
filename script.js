@@ -813,3 +813,79 @@ function handleSwipe() {
     document.getElementById('prevBtn')?.click();
   }
 }
+// ========== أسعار التوصيل - Modal Functions ==========
+
+// فتح مودال الأسعار
+function openShippingModal() {
+  const modal = document.getElementById('shippingModal');
+  if (modal) {
+    modal.classList.add('active');
+    renderShippingTable('domicile'); // العرض الافتراضي: التوصيل للمنزل
+    document.getElementById('shippingSearch').value = '';
+  }
+}
+
+// إغلاق المودال
+function closeShippingModal() {
+  const modal = document.getElementById('shippingModal');
+  if (modal) modal.classList.remove('active');
+}
+
+// تبديل نوع التوصيل
+function switchShippingType(type, btn) {
+  // تحديث الأزرار
+  document.querySelectorAll('.btn-shipping-type').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  // إعادة رسم الجدول
+  renderShippingTable(type);
+}
+
+// رسم جدول الأسعار
+function renderShippingTable(type) {
+  const tbody = document.getElementById('shippingTableBody');
+  if (!tbody) return;
+  
+  const prices = type === 'domicile' ? shippingPrices : stopDeskPrices;
+  const wilayas = Object.keys(prices).sort();
+  
+  tbody.innerHTML = wilayas.map((wilaya, index) => {
+    const code = wilaya.split(' - ')[0];
+    const name = wilaya.split(' - ')[1];
+    const price = prices[wilaya];
+    return `
+      <tr>
+        <td>${code}</td>
+        <td>${name}</td>
+        <td>${price} DA</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// فلترة الجدول حسب البحث
+function filterShippingTable() {
+  const search = document.getElementById('shippingSearch')?.value.toLowerCase() || '';
+  const rows = document.querySelectorAll('#shippingTableBody tr');
+  
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(search) ? '' : 'none';
+  });
+}
+
+// إغلاق المودال عند الضغط خارج المحتوى
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('shippingModal');
+  if (modal && e.target === modal) {
+    closeShippingModal();
+  }
+});
+
+// إغلاق المودال بمفتاح Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeShippingModal();
+  }
+});
+
