@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f172a">
-<title>Couverture de Livraison - Amar Informatique</title>
+<title>خريطة التوصيل - Amar Informatique</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="logo.jpg" type="image/x-icon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +38,6 @@ body {
   min-height: 100vh;
 }
 
-/* Header */
 header {
   background: rgba(15,23,42,0.9);
   backdrop-filter: blur(12px);
@@ -92,7 +91,6 @@ header {
   box-shadow: 0 0 15px rgba(124,58,237,0.4);
 }
 
-/* Main Content */
 .coverage-section {
   padding: 60px 20px;
   max-width: 1400px;
@@ -116,7 +114,6 @@ header {
   margin-bottom: 40px;
 }
 
-/* Stats Cards */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -144,7 +141,6 @@ header {
   opacity: 0.9;
 }
 
-/* Search */
 .search-container {
   margin-bottom: 30px;
   text-align: center;
@@ -168,7 +164,6 @@ header {
   box-shadow: 0 0 15px rgba(124,58,237,0.2);
 }
 
-/* Map Container */
 .map-container {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
@@ -177,7 +172,6 @@ header {
   box-shadow: var(--neon-shadow);
   border: var(--glass-border);
   position: relative;
-  overflow: hidden;
 }
 
 .map-info {
@@ -187,88 +181,66 @@ header {
   font-size: 0.9rem;
 }
 
-/* Algeria Map SVG */
-.algeria-map {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  display: block;
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+.wilaya-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 30px;
 }
 
-.wilaya {
-  fill: #3b82f6;
-  stroke: #1e40af;
-  stroke-width: 0.5;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.wilaya:hover {
-  fill: var(--primary-color);
-  stroke: var(--primary-glow);
-  stroke-width: 1;
-  filter: drop-shadow(0 0 10px rgba(124,58,237,0.6));
-}
-
-.wilaya-fast { fill: #10b981; stroke: #059669; }
-.wilaya-medium { fill: #3b82f6; stroke: #2563eb; }
-.wilaya-slow { fill: #f59e0b; stroke: #d97706; }
-
-/* Tooltip */
-.wilaya-tooltip {
-  position: absolute;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  color: var(--text-main);
-  padding: 15px 20px;
+.wilaya-card {
+  background: rgba(15,23,42,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  border: 1px solid rgba(124,58,237,0.3);
-  z-index: 1000;
-  min-width: 220px;
+  padding: 15px;
+  cursor: pointer;
+  transition: var(--transition);
   text-align: center;
-  transform: translate(-50%, -100%);
-  margin-top: -15px;
 }
 
-.wilaya-tooltip.show { opacity: 1; }
-
-.wilaya-tooltip .wilaya-name {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-  color: var(--text-main);
-  font-weight: 700;
+.wilaya-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-color);
+  box-shadow: 0 10px 30px rgba(124,58,237,0.3);
 }
 
-.wilaya-tooltip .wilaya-code {
+.wilaya-card.fast { border-left: 4px solid #10b981; }
+.wilaya-card.medium { border-left: 4px solid #3b82f6; }
+.wilaya-card.slow { border-left: 4px solid #f59e0b; }
+
+.wilaya-code {
   display: inline-block;
   background: rgba(124,58,237,0.2);
-  padding: 2px 10px;
+  padding: 2px 8px;
   border-radius: 12px;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  margin-bottom: 5px;
+}
+
+.wilaya-name {
+  font-weight: 700;
+  font-size: 0.95rem;
   margin-bottom: 8px;
 }
 
-.wilaya-tooltip .delivery-time {
-  display: inline-block;
-  padding: 6px 15px;
+.wilaya-time {
+  font-size: 0.85rem;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 700;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.wilaya-time.fast { background: rgba(16,185,129,0.2); color: #10b981; }
+.wilaya-time.medium { background: rgba(59,130,246,0.2); color: #3b82f6; }
+.wilaya-time.slow { background: rgba(245,158,11,0.2); color: #f59e0b; }
+
+.wilaya-price {
+  font-size: 0.8rem;
+  color: var(--text-muted);
   margin-top: 5px;
 }
 
-.delivery-fast { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-.delivery-medium { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-.delivery-slow { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-
-/* Legend */
 .map-legend {
   display: flex;
   justify-content: center;
@@ -295,53 +267,87 @@ header {
 .legend-color.medium { background: #3b82f6; }
 .legend-color.slow { background: #f59e0b; }
 
-/* Info Panel */
-.info-panel {
-  background: rgba(15,23,42,0.6);
-  border-radius: 12px;
-  padding: 20px;
-  margin-top: 30px;
+.modal-detail {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+}
+
+.modal-detail.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--neon-shadow);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.modal-close {
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  color: var(--danger);
+  transform: rotate(90deg);
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-section h3 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.communes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.commune-tag {
+  background: rgba(255,255,255,0.05);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
   border: 1px solid rgba(255,255,255,0.1);
 }
 
-.info-panel h3 {
-  color: var(--text-main);
-  margin-bottom: 15px;
-  font-size: 1.2rem;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 8px;
-}
-
-.info-item i {
-  font-size: 1.2rem;
-  width: 30px;
-  text-align: center;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
   .coverage-title { font-size: 1.8rem; }
   .map-container { padding: 20px; }
-  .legend-item { font-size: 0.8rem; }
-  .stats-grid { grid-template-columns: 1fr; }
-  .wilaya-tooltip { 
-    font-size: 0.85rem; 
-    padding: 10px 15px;
-    min-width: 180px;
-  }
+  .wilaya-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
 }
 </style>
 </head>
@@ -367,301 +373,221 @@ header {
 </header>
 
 <section class="coverage-section">
-<h1 class="coverage-title">📍 COUVERTURE DE LIVRAISON</h1>
-<p class="coverage-subtitle">Nous couvrons les 58 Wilayas du territoire national algérien</p>
+<h1 class="coverage-title">📍 خريطة التوصيل - 58 ولاية</h1>
+<p class="coverage-subtitle">نحن نغطي جميع ولايات الوطن الجزائري</p>
 
 <div class="stats-grid">
 <div class="stat-card">
 <div class="stat-number">58</div>
-<div class="stat-label">Wilayas Couvertes</div>
+<div class="stat-label">ولاية مغطاة</div>
 </div>
 <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
 <div class="stat-number">24-48h</div>
-<div class="stat-label">Livraison Rapide</div>
+<div class="stat-label">توصيل سريع</div>
 </div>
 <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
 <div class="stat-number">72-96h</div>
-<div class="stat-label">Zones Éloignées</div>
+<div class="stat-label">المناطق النائية</div>
 </div>
 </div>
 
 <div class="search-container">
-<input type="text" class="search-input" id="wilayaSearch" placeholder="🔍 Rechercher une wilaya...">
+<input type="text" class="search-input" id="wilayaSearch" placeholder="🔍 ابحث عن ولاية...">
 </div>
 
 <div class="map-container">
-<p class="map-info">💡 Passez la souris sur une wilaya pour voir le délai de livraison</p>
+<p class="map-info">💡 انقر على أي ولاية لعرض التفاصيل والبلديات</p>
+<div class="wilaya-grid" id="wilayaGrid"></div>
 
-<!-- SVG Map of Algeria -->
-<svg class="algeria-map" viewBox="0 0 800 900" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<filter id="glow">
-<feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-<feMerge>
-<feMergeNode in="coloredBlur"/>
-<feMergeNode in="SourceGraphic"/>
-</feMerge>
-</filter>
-</defs>
-
-<!-- Nord - Wilayas principales -->
-<path id="w16" class="wilaya wilaya-fast" data-code="16" data-name="Alger" data-time="24h à 48h" d="M 420,280 L 440,285 L 445,300 L 430,310 L 415,305 L 410,290 Z"/>
-<path id="w31" class="wilaya wilaya-fast" data-code="31" data-name="Oran" data-time="24h à 48h" d="M 280,290 L 300,295 L 305,310 L 290,320 L 275,315 L 270,300 Z"/>
-<path id="w25" class="wilaya wilaya-fast" data-code="25" data-name="Constantine" data-time="24h à 48h" d="M 520,270 L 540,275 L 545,290 L 530,300 L 515,295 L 510,280 Z"/>
-<path id="w15" class="wilaya wilaya-fast" data-code="15" data-name="Tizi Ouzou" data-time="24h à 48h" d="M 445,275 L 460,278 L 463,290 L 450,295 L 442,288 Z"/>
-<path id="w06" class="wilaya wilaya-fast" data-code="06" data-name="Béjaïa" data-time="24h à 48h" d="M 465,270 L 480,273 L 483,285 L 470,290 L 462,283 Z"/>
-<path id="w35" class="wilaya wilaya-fast" data-code="35" data-name="Boumerdès" data-time="24h à 48h" d="M 435,265 L 448,268 L 450,278 L 440,282 L 432,275 Z"/>
-<path id="w09" class="wilaya wilaya-fast" data-code="09" data-name="Blida" data-time="24h à 48h" d="M 410,295 L 425,298 L 428,310 L 415,315 L 407,308 Z"/>
-<path id="w42" class="wilaya wilaya-fast" data-code="42" data-name="Tipaza" data-time="24h à 48h" d="M 395,290 L 408,293 L 410,305 L 400,310 L 392,303 Z"/>
-<path id="w48" class="wilaya wilaya-fast" data-code="48" data-name="Relizane" data-time="24h à 48h" d="M 340,300 L 355,303 L 358,318 L 345,323 L 337,313 Z"/>
-<path id="w27" class="wilaya wilaya-fast" data-code="27" data-name="Mostaganem" data-time="24h à 48h" d="M 320,295 L 335,298 L 338,313 L 325,318 L 317,308 Z"/>
-<path id="w22" class="wilaya wilaya-fast" data-code="22" data-name="Sidi Bel Abbès" data-time="24h à 48h" d="M 260,300 L 275,303 L 278,318 L 265,323 L 257,313 Z"/>
-<path id="w13" class="wilaya wilaya-fast" data-code="13" data-name="Tlemcen" data-time="24h à 48h" d="M 240,290 L 255,293 L 258,308 L 245,313 L 237,303 Z"/>
-<path id="w46" class="wilaya wilaya-fast" data-code="46" data-name="Aïn Témouchent" data-time="24h à 48h" d="M 265,315 L 278,318 L 280,330 L 270,335 L 262,328 Z"/>
-<path id="w29" class="wilaya wilaya-fast" data-code="29" data-name="Mascara" data-time="24h à 48h" d="M 300,310 L 315,313 L 318,328 L 305,333 L 297,323 Z"/>
-<path id="w20" class="wilaya wilaya-medium" data-code="20" data-name="Saïda" data-time="48h à 72h" d="M 285,325 L 300,328 L 303,343 L 290,348 L 282,338 Z"/>
-<path id="w14" class="wilaya wilaya-medium" data-code="14" data-name="Tiaret" data-time="48h à 72h" d="M 320,330 L 340,333 L 343,350 L 325,355 L 317,343 Z"/>
-<path id="w38" class="wilaya wilaya-medium" data-code="38" data-name="Tissemsilt" data-time="48h à 72h" d="M 345,320 L 358,323 L 360,335 L 350,340 L 342,333 Z"/>
-<path id="w02" class="wilaya wilaya-fast" data-code="02" data-name="Chlef" data-time="24h à 48h" d="M 360,285 L 375,288 L 378,300 L 365,305 L 357,298 Z"/>
-<path id="w44" class="wilaya wilaya-medium" data-code="44" data-name="Aïn Defla" data-time="48h à 72h" d="M 380,305 L 393,308 L 395,320 L 385,325 L 377,318 Z"/>
-<path id="w45" class="wilaya wilaya-slow" data-code="45" data-name="Naâma" data-time="72h à 96h" d="M 220,340 L 245,343 L 248,365 L 225,370 L 217,353 Z"/>
-<path id="w32" class="wilaya wilaya-slow" data-code="32" data-name="El Bayadh" data-time="72h à 96h" d="M 260,360 L 290,363 L 293,385 L 265,390 L 257,373 Z"/>
-<path id="w03" class="wilaya wilaya-medium" data-code="03" data-name="Laghouat" data-time="48h à 72h" d="M 380,450 L 430,460 L 435,510 L 380,520 L 375,470 Z"/>
-<path id="w33" class="wilaya wilaya-slow" data-code="33" data-name="Illizi" data-time="72h à 96h" d="M 650,550 L 720,560 L 725,650 L 655,660 L 650,570 Z"/>
-<path id="w11" class="wilaya wilaya-slow" data-code="11" data-name="Tamanrasset" data-time="72h à 96h" d="M 500,700 L 650,710 L 655,850 L 500,860 L 495,720 Z"/>
-<path id="w01" class="wilaya wilaya-slow" data-code="01" data-name="Adrar" data-time="72h à 96h" d="M 200,600 L 280,610 L 285,700 L 200,710 L 195,620 Z"/>
-<path id="w08" class="wilaya wilaya-slow" data-code="08" data-name="Béchar" data-time="72h à 96h" d="M 120,450 L 200,460 L 205,550 L 125,560 L 120,470 Z"/>
-<path id="w37" class="wilaya wilaya-slow" data-code="37" data-name="Tindouf" data-time="72h à 96h" d="M 80,550 L 150,560 L 155,620 L 85,630 L 80,570 Z"/>
-<path id="w58" class="wilaya wilaya-medium" data-code="58" data-name="El Meniaa" data-time="24h à 96h" d="M 400,550 L 450,560 L 455,610 L 400,620 L 395,570 Z"/>
-
-<!-- Hauts Plateaux & Est -->
-<path id="w19" class="wilaya wilaya-fast" data-code="19" data-name="Sétif" data-time="24h à 48h" d="M 485,285 L 505,288 L 508,303 L 490,308 L 482,298 Z"/>
-<path id="w34" class="wilaya wilaya-fast" data-code="34" data-name="Bordj Bou Arréridj" data-time="24h à 48h" d="M 475,295 L 488,298 L 490,310 L 480,315 L 472,308 Z"/>
-<path id="w43" class="wilaya wilaya-fast" data-code="43" data-name="Mila" data-time="24h à 48h" d="M 500,280 L 515,283 L 518,295 L 505,300 L 497,293 Z"/>
-<path id="w05" class="wilaya wilaya-fast" data-code="05" data-name="Batna" data-time="24h à 48h" d="M 490,310 L 515,313 L 518,330 L 495,335 L 487,323 Z"/>
-<path id="w04" class="wilaya wilaya-fast" data-code="04" data-name="Oum El Bouaghi" data-time="24h à 48h" d="M 530,300 L 550,303 L 553,318 L 535,323 L 527,313 Z"/>
-<path id="w18" class="wilaya wilaya-fast" data-code="18" data-name="Jijel" data-time="24h à 48h" d="M 505,265 L 520,268 L 523,280 L 510,285 L 502,278 Z"/>
-<path id="w21" class="wilaya wilaya-fast" data-code="21" data-name="Skikda" data-time="24h à 48h" d="M 525,260 L 540,263 L 543,275 L 530,280 L 522,273 Z"/>
-<path id="w23" class="wilaya wilaya-fast" data-code="23" data-name="Annaba" data-time="24h à 48h" d="M 550,255 L 565,258 L 568,270 L 555,275 L 547,268 Z"/>
-<path id="w24" class="wilaya wilaya-fast" data-code="24" data-name="Guelma" data-time="24h à 48h" d="M 540,270 L 555,273 L 558,285 L 545,290 L 537,283 Z"/>
-<path id="w41" class="wilaya wilaya-fast" data-code="41" data-name="Souk Ahras" data-time="24h à 48h" d="M 555,285 L 570,288 L 573,300 L 560,305 L 552,298 Z"/>
-<path id="w36" class="wilaya wilaya-fast" data-code="36" data-name="El Tarf" data-time="24h à 48h" d="M 565,250 L 578,253 L 580,265 L 570,270 L 562,263 Z"/>
-<path id="w12" class="wilaya wilaya-medium" data-code="12" data-name="Tébessa" data-time="48h à 72h" d="M 570,300 L 595,303 L 598,325 L 575,330 L 567,313 Z"/>
-<path id="w40" class="wilaya wilaya-medium" data-code="40" data-name="Khenchela" data-time="48h à 72h" d="M 550,315 L 570,318 L 573,335 L 555,340 L 547,328 Z"/>
-<path id="w07" class="wilaya wilaya-medium" data-code="07" data-name="Biskra" data-time="48h à 72h" d="M 520,350 L 555,355 L 560,390 L 525,395 L 520,360 Z"/>
-<path id="w28" class="wilaya wilaya-medium" data-code="28" data-name="M'Sila" data-time="48h à 72h" d="M 450,370 L 485,375 L 490,410 L 455,415 L 450,380 Z"/>
-<path id="w17" class="wilaya wilaya-medium" data-code="17" data-name="Djelfa" data-time="48h à 72h" d="M 400,400 L 445,405 L 450,445 L 405,450 L 400,410 Z"/>
-<path id="w26" class="wilaya wilaya-medium" data-code="26" data-name="Médéa" data-time="48h à 72h" d="M 405,330 L 425,333 L 428,350 L 410,355 L 402,343 Z"/>
-<path id="w10" class="wilaya wilaya-fast" data-code="10" data-name="Bouira" data-time="24h à 48h" d="M 445,300 L 460,303 L 463,318 L 450,323 L 442,313 Z"/>
-<path id="w30" class="wilaya wilaya-slow" data-code="30" data-name="Ouargla" data-time="72h à 96h" d="M 550,450 L 620,460 L 625,540 L 555,550 L 550,470 Z"/>
-<path id="w39" class="wilaya wilaya-slow" data-code="39" data-name="El Oued" data-time="72h à 96h" d="M 580,400 L 640,410 L 645,470 L 585,480 L 580,420 Z"/>
-<path id="w47" class="wilaya wilaya-slow" data-code="47" data-name="Ghardaïa" data-time="72h à 96h" d="M 450,500 L 510,510 L 515,580 L 455,590 L 450,520 Z"/>
-<path id="w57" class="wilaya wilaya-slow" data-code="57" data-name="El M'Ghair" data-time="72h à 96h" d="M 560,520 L 600,525 L 605,570 L 565,575 L 560,530 Z"/>
-<path id="w55" class="wilaya wilaya-slow" data-code="55" data-name="Touggourt" data-time="72h à 96h" d="M 580,480 L 620,485 L 625,530 L 585,535 L 580,490 Z"/>
-<path id="w51" class="wilaya wilaya-slow" data-code="51" data-name="Ouled Djellal" data-time="72h à 96h" d="M 530,420 L 565,425 L 570,465 L 535,470 L 530,430 Z"/>
-<path id="w52" class="wilaya wilaya-slow" data-code="52" data-name="Béni Abbès" data-time="72h à 96h" d="M 280,500 L 340,510 L 345,580 L 285,590 L 280,520 Z"/>
-<path id="w49" class="wilaya wilaya-slow" data-code="49" data-name="Timimoun" data-time="72h à 96h" d="M 320,550 L 380,560 L 385,630 L 325,640 L 320,570 Z"/>
-<path id="w53" class="wilaya wilaya-slow" data-code="53" data-name="In Salah" data-time="72h à 96h" d="M 380,600 L 460,610 L 465,700 L 385,710 L 380,620 Z"/>
-<path id="w54" class="wilaya wilaya-slow" data-code="54" data-name="In Guezzam" data-time="72h à 96h" d="M 520,800 L 580,810 L 585,870 L 525,880 L 520,820 Z"/>
-<path id="w50" class="wilaya wilaya-slow" data-code="50" data-name="Bordj Badji Mokhtar" data-time="72h à 96h" d="M 280,700 L 350,710 L 355,780 L 285,790 L 280,720 Z"/>
-<path id="w56" class="wilaya wilaya-slow" data-code="56" data-name="Djanet" data-time="72h à 96h" d="M 680,750 L 730,760 L 735,820 L 685,830 L 680,770 Z"/>
-
-</svg>
-
-<!-- Tooltip -->
-<div class="wilaya-tooltip" id="wilayaTooltip">
-<span class="wilaya-code"></span>
-<span class="wilaya-name"></span>
-<span class="delivery-time"></span>
-</div>
-
-<!-- Legend -->
 <div class="map-legend">
 <div class="legend-item">
 <div class="legend-color fast"></div>
-<span>24h - 48h (Rapide)</span>
+<span>24h - 48h (سريع)</span>
 </div>
 <div class="legend-item">
 <div class="legend-color medium"></div>
-<span>48h - 72h (Moyen)</span>
+<span>48h - 72h (متوسط)</span>
 </div>
 <div class="legend-item">
 <div class="legend-color slow"></div>
-<span>72h - 96h (Éloigné)</span>
-</div>
-</div>
-
-<!-- Info Panel -->
-<div class="info-panel">
-<h3><i class="fas fa-info-circle"></i> Informations sur la Livraison</h3>
-<div class="info-grid">
-<div class="info-item">
-<i class="fas fa-truck" style="color: #10b981;"></i>
-<div>
-<strong>Livraison Rapide (24-48h)</strong><br>
-<span style="color: var(--text-muted); font-size: 0.9rem;">Nord du pays - Grandes villes</span>
-</div>
-</div>
-<div class="info-item">
-<i class="fas fa-shipping-fast" style="color: #3b82f6;"></i>
-<div>
-<strong>Livraison Moyenne (48-72h)</strong><br>
-<span style="color: var(--text-muted); font-size: 0.9rem;">Hauts plateaux et régions intermédiaires</span>
-</div>
-</div>
-<div class="info-item">
-<i class="fas fa-plane" style="color: #f59e0b;"></i>
-<div>
-<strong>Livraison Éloignée (72-96h)</strong><br>
-<span style="color: var(--text-muted); font-size: 0.9rem;">Sud et zones désertiques</span>
-</div>
-</div>
-<div class="info-item">
-<i class="fas fa-phone" style="color: var(--primary-color);"></i>
-<div>
-<strong>Service Client</strong><br>
-<span style="color: var(--text-muted); font-size: 0.9rem;">0559 46 99 56</span>
-</div>
-</div>
+<span>72h - 96h (بعيد)</span>
 </div>
 </div>
 </div>
 </section>
+
+<!-- Modal التفاصيل -->
+<div class="modal-detail" id="wilayaModal">
+<div class="modal-content">
+<div class="modal-header">
+<h2 id="modalTitle">تفاصيل الولاية</h2>
+<span class="modal-close" onclick="closeModal()">&times;</span>
+</div>
+<div class="detail-section">
+<h3>معلومات التوصيل</h3>
+<div id="modalInfo"></div>
+</div>
+<div class="detail-section">
+<h3>البلديات</h3>
+<div class="communes-list" id="communesList"></div>
+</div>
+</div>
+</div>
 
 <footer style="text-align:center; padding:40px 20px; border-top:1px solid rgba(255,255,255,0.1); margin-top:60px; color:var(--text-muted);">
 <p>&copy; 2026 Amar Informatique. Premium Tech Store.</p>
 </footer>
 
 <script>
-// Données de livraison pour les 58 wilayas
-const deliveryData = {
-"01": { name: "Adrar", time: "72h à 96h", type: "slow" },
-"02": { name: "Chlef", time: "24h à 48h", type: "fast" },
-"03": { name: "Laghouat", time: "48h à 72h", type: "medium" },
-"04": { name: "Oum El Bouaghi", time: "24h à 48h", type: "fast" },
-"05": { name: "Batna", time: "24h à 48h", type: "fast" },
-"06": { name: "Béjaïa", time: "24h à 48h", type: "fast" },
-"07": { name: "Biskra", time: "48h à 72h", type: "medium" },
-"08": { name: "Béchar", time: "72h à 96h", type: "slow" },
-"09": { name: "Blida", time: "24h à 48h", type: "fast" },
-"10": { name: "Bouira", time: "24h à 48h", type: "fast" },
-"11": { name: "Tamanrasset", time: "72h à 96h", type: "slow" },
-"12": { name: "Tébessa", time: "48h à 72h", type: "medium" },
-"13": { name: "Tlemcen", time: "24h à 48h", type: "fast" },
-"14": { name: "Tiaret", time: "48h à 72h", type: "medium" },
-"15": { name: "Tizi Ouzou", time: "24h à 48h", type: "fast" },
-"16": { name: "Alger", time: "24h à 48h", type: "fast" },
-"17": { name: "Djelfa", time: "48h à 72h", type: "medium" },
-"18": { name: "Jijel", time: "24h à 48h", type: "fast" },
-"19": { name: "Sétif", time: "24h à 48h", type: "fast" },
-"20": { name: "Saïda", time: "48h à 72h", type: "medium" },
-"21": { name: "Skikda", time: "24h à 48h", type: "fast" },
-"22": { name: "Sidi Bel Abbès", time: "24h à 48h", type: "fast" },
-"23": { name: "Annaba", time: "24h à 48h", type: "fast" },
-"24": { name: "Guelma", time: "24h à 48h", type: "fast" },
-"25": { name: "Constantine", time: "24h à 48h", type: "fast" },
-"26": { name: "Médéa", time: "48h à 72h", type: "medium" },
-"27": { name: "Mostaganem", time: "24h à 48h", type: "fast" },
-"28": { name: "M'Sila", time: "48h à 72h", type: "medium" },
-"29": { name: "Mascara", time: "24h à 48h", type: "fast" },
-"30": { name: "Ouargla", time: "72h à 96h", type: "slow" },
-"31": { name: "Oran", time: "24h à 48h", type: "fast" },
-"32": { name: "El Bayadh", time: "72h à 96h", type: "slow" },
-"33": { name: "Illizi", time: "72h à 96h", type: "slow" },
-"34": { name: "Bordj Bou Arréridj", time: "24h à 48h", type: "fast" },
-"35": { name: "Boumerdès", time: "24h à 48h", type: "fast" },
-"36": { name: "El Tarf", time: "24h à 48h", type: "fast" },
-"37": { name: "Tindouf", time: "72h à 96h", type: "slow" },
-"38": { name: "Tissemsilt", time: "48h à 72h", type: "medium" },
-"39": { name: "El Oued", time: "72h à 96h", type: "slow" },
-"40": { name: "Khenchela", time: "48h à 72h", type: "medium" },
-"41": { name: "Souk Ahras", time: "24h à 48h", type: "fast" },
-"42": { name: "Tipaza", time: "24h à 48h", type: "fast" },
-"43": { name: "Mila", time: "24h à 48h", type: "fast" },
-"44": { name: "Aïn Defla", time: "48h à 72h", type: "medium" },
-"45": { name: "Naâma", time: "72h à 96h", type: "slow" },
-"46": { name: "Aïn Témouchent", time: "24h à 48h", type: "fast" },
-"47": { name: "Ghardaïa", time: "72h à 96h", type: "slow" },
-"48": { name: "Relizane", time: "24h à 48h", type: "fast" },
-"49": { name: "Timimoun", time: "72h à 96h", type: "slow" },
-"50": { name: "Bordj Badji Mokhtar", time: "72h à 96h", type: "slow" },
-"51": { name: "Ouled Djellal", time: "72h à 96h", type: "slow" },
-"52": { name: "Béni Abbès", time: "72h à 96h", type: "slow" },
-"53": { name: "In Salah", time: "72h à 96h", type: "slow" },
-"54": { name: "In Guezzam", time: "72h à 96h", type: "slow" },
-"55": { name: "Touggourt", time: "72h à 96h", type: "slow" },
-"56": { name: "Djanet", time: "72h à 96h", type: "slow" },
-"57": { name: "El M'Ghair", time: "72h à 96h", type: "slow" },
-"58": { name: "El Meniaa", time: "24h à 96h", type: "medium" }
+// بيانات الولايات الـ 58
+const wilayasData = {
+"01": { name: "Adrar", time: "72h à 96h", type: "slow", home: 1500, desk: 1000 },
+"02": { name: "Chlef", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"03": { name: "Laghouat", time: "48h à 72h", type: "medium", home: 900, desk: 600 },
+"04": { name: "Oum El Bouaghi", time: "24h à 48h", type: "fast", home: 800, desk: 500 },
+"05": { name: "Batna", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"06": { name: "Béjaïa", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"07": { name: "Biskra", time: "48h à 72h", type: "medium", home: 900, desk: 500 },
+"08": { name: "Béchar", time: "72h à 96h", type: "slow", home: 1200, desk: 800 },
+"09": { name: "Blida", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"10": { name: "Bouira", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"11": { name: "Tamanrasset", time: "72h à 96h", type: "slow", home: 2000, desk: 1500 },
+"12": { name: "Tébessa", time: "48h à 72h", type: "medium", home: 850, desk: 500 },
+"13": { name: "Tlemcen", time: "24h à 48h", type: "fast", home: 800, desk: 500 },
+"14": { name: "Tiaret", time: "48h à 72h", type: "medium", home: 800, desk: 500 },
+"15": { name: "Tizi Ouzou", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"16": { name: "Alger", time: "24h à 48h", type: "fast", home: 600, desk: 400 },
+"17": { name: "Djelfa", time: "48h à 72h", type: "medium", home: 900, desk: 600 },
+"18": { name: "Jijel", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"19": { name: "Sétif", time: "24h à 48h", type: "fast", home: 550, desk: 300 },
+"20": { name: "Saïda", time: "48h à 72h", type: "medium", home: 900, desk: 500 },
+"21": { name: "Skikda", time: "24h à 48h", type: "fast", home: 800, desk: 500 },
+"22": { name: "Sidi Bel Abbès", time: "24h à 48h", type: "fast", home: 800, desk: 500 },
+"23": { name: "Annaba", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"24": { name: "Guelma", time: "24h à 48h", type: "fast", home: 850, desk: 500 },
+"25": { name: "Constantine", time: "24h à 48h", type: "fast", home: 650, desk: 400 },
+"26": { name: "Médéa", time: "48h à 72h", type: "medium", home: 800, desk: 500 },
+"27": { name: "Mostaganem", time: "24h à 48h", type: "fast", home: 800, desk: 500 },
+"28": { name: "M'Sila", time: "48h à 72h", type: "medium", home: 700, desk: 450 },
+"29": { name: "Mascara", time: "24h à 48h", type: "fast", home: 800, desk: 500 },
+"30": { name: "Ouargla", time: "72h à 96h", type: "slow", home: 1000, desk: 600 },
+"31": { name: "Oran", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"32": { name: "El Bayadh", time: "72h à 96h", type: "slow", home: 1200, desk: 800 },
+"33": { name: "Illizi", time: "72h à 96h", type: "slow", home: 1900, desk: 1500 },
+"34": { name: "Bordj Bou Arréridj", time: "24h à 48h", type: "fast", home: 600, desk: 400 },
+"35": { name: "Boumerdès", time: "24h à 48h", type: "fast", home: 700, desk: 450 },
+"36": { name: "El Tarf", time: "24h à 48h", type: "fast", home: 850, desk: 500 },
+"37": { name: "Tindouf", time: "72h à 96h", type: "slow", home: 1700, desk: 1000 },
+"38": { name: "Tissemsilt", time: "48h à 72h", type: "medium", home: 850, desk: 500 },
+"39": { name: "El Oued", time: "72h à 96h", type: "slow", home: 1000, desk: 600 },
+"40": { name: "Khenchela", time: "48h à 72h", type: "medium", home: 600, desk: 500 },
+"41": { name: "Souk Ahras", time: "24h à 48h", type: "fast", home: 850, desk: 500 },
+"42": { name: "Tipaza", time: "24h à 48h", type: "fast", home: 600, desk: 450 },
+"43": { name: "Mila", time: "24h à 48h", type: "fast", home: 600, desk: 500 },
+"44": { name: "Aïn Defla", time: "48h à 72h", type: "medium", home: 800, desk: 500 },
+"45": { name: "Naâma", time: "72h à 96h", type: "slow", home: 1200, desk: 800 },
+"46": { name: "Aïn Témouchent", time: "24h à 48h", type: "fast", home: 800, desk: 500 },
+"47": { name: "Ghardaïa", time: "72h à 96h", type: "slow", home: 1000, desk: 600 },
+"48": { name: "Relizane", time: "24h à 48h", type: "fast", home: 800, desk: 500 },
+"49": { name: "Timimoun", time: "72h à 96h", type: "slow", home: 1500, desk: 1000 },
+"50": { name: "Bordj Badji Mokhtar", time: "72h à 96h", type: "slow", home: 600, desk: 1500 },
+"51": { name: "Ouled Djellal", time: "72h à 96h", type: "slow", home: 900, desk: 500 },
+"52": { name: "Béni Abbès", time: "72h à 96h", type: "slow", home: 1200, desk: 800 },
+"53": { name: "In Salah", time: "72h à 96h", type: "slow", home: 1800, desk: 1200 },
+"54": { name: "In Guezzam", time: "72h à 96h", type: "slow", home: 600, desk: 3500 },
+"55": { name: "Touggourt", time: "72h à 96h", type: "slow", home: 1000, desk: 600 },
+"56": { name: "Djanet", time: "72h à 96h", type: "slow", home: 600, desk: 3500 },
+"57": { name: "El M'Ghair", time: "72h à 96h", type: "slow", home: 1000, desk: 1800 },
+"58": { name: "El Meniaa", time: "24h à 96h", type: "medium", home: 1000, desk: 600 }
 };
 
-// Tooltip functionality
-const tooltip = document.getElementById('wilayaTooltip');
-const wilayas = document.querySelectorAll('.wilaya');
+// قائمة البلديات (مثال لبعض الولايات)
+const communesData = {
+"16": ["Alger Centre", "Bab El Oued", "Birkhadem", "Bouzareah", "Dar El Beida", "El Biar", "Hussein Dey", "Kouba", "Mohamed Belouizdad", "Oued Koriche", "Sidi M'Hamed"],
+"31": ["Oran", "Arzew", "Bethioua", "Bir El Djir", "Es Senia", "Gdyel", "Hassi Bounif", "Marsat El Hadjadj", "Mers El Kebir", "Misserghin", "Oued Tlelat", "Sidi Ben Yebka", "Sidi Chami"],
+"25": ["Constantine", "Ain Smara", "Didouche Mourad", "El Khroub", "Hamma Bouziane", "Ibn Ziad", "Messaouda", "Zighoud Youcef"]
+};
 
-wilayas.forEach(wilaya => {
-wilaya.addEventListener('mouseenter', (e) => {
-const code = wilaya.getAttribute('data-code');
-const data = deliveryData[code];
+// عرض الولايات
+function renderWilayas(filter = '') {
+const grid = document.getElementById('wilayaGrid');
+grid.innerHTML = '';
 
-if (data) {
-tooltip.querySelector('.wilaya-code').textContent = `Wilaya ${code}`;
-tooltip.querySelector('.wilaya-name').textContent = data.name;
-tooltip.querySelector('.delivery-time').textContent = data.time;
-tooltip.querySelector('.delivery-time').className = `delivery-time delivery-${data.type}`;
-tooltip.classList.add('show');
+Object.entries(wilayasData).forEach(([code, data]) => {
+if (filter && !data.name.toLowerCase().includes(filter.toLowerCase()) && !code.includes(filter)) {
+return;
 }
-});
 
-wilaya.addEventListener('mousemove', (e) => {
-const container = document.querySelector('.map-container');
-const rect = container.getBoundingClientRect();
-const x = e.clientX - rect.left;
-const y = e.clientY - rect.top;
+const card = document.createElement('div');
+card.className = `wilaya-card ${data.type}`;
+card.onclick = () => showWilayaDetails(code, data);
 
-tooltip.style.left = x + 'px';
-tooltip.style.top = (y - 10) + 'px';
-});
+card.innerHTML = `
+<div class="wilaya-code">ولاية ${code}</div>
+<div class="wilaya-name">${data.name}</div>
+<div class="wilaya-time ${data.type}">${data.time}</div>
+<div class="wilaya-price">🏠 ${data.home} DA | 🏪 ${data.desk} DA</div>
+`;
 
-wilaya.addEventListener('mouseleave', () => {
-tooltip.classList.remove('show');
-});
-
-wilaya.addEventListener('click', () => {
-const code = wilaya.getAttribute('data-code');
-const data = deliveryData[code];
-if (data) {
-alert(`${data.name} (Wilaya ${code})\n⏱️ Durée de livraison: ${data.time}`);
-}
-});
-});
-
-// Search functionality
-const searchInput = document.getElementById('wilayaSearch');
-searchInput.addEventListener('input', (e) => {
-const searchTerm = e.target.value.toLowerCase();
-
-wilayas.forEach(wilaya => {
-const code = wilaya.getAttribute('data-code');
-const data = deliveryData[code];
-
-if (data && data.name.toLowerCase().includes(searchTerm)) {
-wilaya.style.opacity = '1';
-wilaya.style.filter = 'drop-shadow(0 0 10px rgba(124,58,237,0.8))';
-wilaya.scrollIntoView({ behavior: 'smooth', block: 'center' });
-} else {
-wilaya.style.opacity = '0.3';
-wilaya.style.filter = '';
-}
-});
-
-if (searchTerm === '') {
-wilayas.forEach(w => {
-w.style.opacity = '1';
-w.style.filter = '';
+grid.appendChild(card);
 });
 }
+
+// عرض تفاصيل الولاية
+function showWilayaDetails(code, data) {
+const modal = document.getElementById('wilayaModal');
+const title = document.getElementById('modalTitle');
+const info = document.getElementById('modalInfo');
+const communes = document.getElementById('communesList');
+
+title.textContent = `ولاية ${code} - ${data.name}`;
+
+info.innerHTML = `
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+<div style="background: rgba(16,185,129,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #10b981;">
+<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">⏱️ مدة التوصيل</div>
+<div style="font-size: 1.1rem; font-weight: 700; color: #10b981;">${data.time}</div>
+</div>
+<div style="background: rgba(124,58,237,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #7c3aed;">
+<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">📊 النوع</div>
+<div style="font-size: 1.1rem; font-weight: 700; color: #7c3aed;">${data.type === 'fast' ? 'سريع' : data.type === 'medium' ? 'متوسط' : 'بعيد'}</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+<div style="background: rgba(6,182,212,0.1); padding: 15px; border-radius: 10px;">
+<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">🏠 التوصيل للمنزل</div>
+<div style="font-size: 1.3rem; font-weight: 800; color: var(--secondary-color);">${data.home} DA</div>
+</div>
+<div style="background: rgba(245,158,11,0.1); padding: 15px; border-radius: 10px;">
+<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">🏪 الاستلام من المكتب</div>
+<div style="font-size: 1.3rem; font-weight: 800; color: #f59e0b;">${data.desk} DA</div>
+</div>
+</div>
+`;
+
+// عرض البلديات
+const wilayaCommunes = communesData[code] || ['Commune 1', 'Commune 2', 'Commune 3'];
+communes.innerHTML = wilayaCommunes.map(c => `<span class="commune-tag">${c}</span>`).join('');
+
+modal.classList.add('active');
+}
+
+function closeModal() {
+document.getElementById('wilayaModal').classList.remove('active');
+}
+
+// البحث
+document.getElementById('wilayaSearch').addEventListener('input', (e) => {
+renderWilayas(e.target.value);
 });
+
+// إغلاق المودال عند النقر خارج المحتوى
+document.getElementById('wilayaModal').addEventListener('click', (e) => {
+if (e.target.id === 'wilayaModal') closeModal();
+});
+
+// العرض الأولي
+renderWilayas();
 </script>
 
 </body>
