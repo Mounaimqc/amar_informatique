@@ -1407,3 +1407,78 @@ footer {
     box-shadow: none;
   }
 }
+
+/* ========== أسعار التوصيل - Modal Styles ========== */
+#shippingModal .modal-content {
+  max-width: 800px !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+}
+
+.btn-shipping-type {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px 20px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-main);
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-shipping-type.active,
+.btn-shipping-type:hover {
+  border-color: var(--primary-color);
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
+}
+
+#shippingTableBody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+#shippingTableBody tr:hover {
+  background: var(--bg-hover);
+}
+
+#shippingTableBody td {
+  padding: 12px;
+}
+
+#shippingTableBody td:first-child {
+  font-weight: 600;
+  color: var(--primary-light);
+  width: 50px;
+}
+
+#shippingTableBody td:last-child {
+  text-align: center;
+  font-weight: 700;
+  color: var(--secondary-color);
+}
+
+/* Responsive for shipping modal */
+@media (max-width: 768px) {
+  #shippingModal .modal-content {
+    width: 95% !important;
+    margin: 1rem !important;
+  }
+  
+  .btn-shipping-type {
+    min-width: 100%;
+  }
+  
+  #shippingTableBody td,
+  #shippingTableBody th {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+}
