@@ -180,6 +180,13 @@ header {
   overflow: hidden;
 }
 
+.map-info {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
 /* Algeria Map SVG */
 .algeria-map {
   width: 100%;
@@ -383,6 +390,8 @@ header {
 </div>
 
 <div class="map-container">
+<p class="map-info">💡 Passez la souris sur une wilaya pour voir le délai de livraison</p>
+
 <!-- SVG Map of Algeria -->
 <svg class="algeria-map" viewBox="0 0 800 900" xmlns="http://www.w3.org/2000/svg">
 <defs>
@@ -639,7 +648,6 @@ const data = deliveryData[code];
 if (data && data.name.toLowerCase().includes(searchTerm)) {
 wilaya.style.opacity = '1';
 wilaya.style.filter = 'drop-shadow(0 0 10px rgba(124,58,237,0.8))';
-// Scroll to wilaya
 wilaya.scrollIntoView({ behavior: 'smooth', block: 'center' });
 } else {
 wilaya.style.opacity = '0.3';
@@ -647,7 +655,6 @@ wilaya.style.filter = '';
 }
 });
 
-// Reset if empty
 if (searchTerm === '') {
 wilayas.forEach(w => {
 w.style.opacity = '1';
