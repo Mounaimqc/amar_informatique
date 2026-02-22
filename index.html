@@ -1,315 +1,324 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-<meta name="theme-color" content="#0f172a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="format-detection" content="telephone=no">
-<title>Amar Informatique - Premium Tech Store</title>
-<link rel="stylesheet" href="styles.css">
-<link rel="icon" href="logo.jpg" type="image/x-icon">
-<!-- Google Fonts: Outfit (Modern/Tech) -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Firebase (Compat Version) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
-  authDomain: "amar-informatique.firebaseapp.com",
-  projectId: "amar-informatique",
-  storageBucket: "amar-informatique.firebasestorage.app",
-  messagingSenderId: "568367870390",
-  appId: "1:568367870390:web:e1583c182272ecbf141117"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
-// جعل db و storage متاحين عالميًا
-window.db = db;
-window.storage = storage;
-</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <title>Amar Informatique - Premium Tech Store</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo.jpg" type="image/x-icon">
+  <!-- Google Fonts: Outfit (Modern/Tech) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Firebase (Compat Version) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
+      authDomain: "amar-informatique.firebaseapp.com",
+      projectId: "amar-informatique",
+      storageBucket: "amar-informatique.firebasestorage.app",
+      messagingSenderId: "568367870390",
+      appId: "1:568367870390:web:e1583c182272ecbf141117"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+    // جعل db و storage متاحين عالميًا
+    window.db = db;
+    window.storage = storage;
+  </script>
 </head>
+
 <body>
 
-<!-- En-tête -->
-<header>
-<nav class="navbar">
-<div class="container">
-<div class="logo">
-<img src="logo.jpg" alt="Logo Amar Informatique">
-<h1>Amar Informatique</h1>
-</div>
-<div class="nav-items">
-<div class="contact-info">
-<span><i class="fas fa-phone-alt"></i> 0559 46 99 56</span>
-</div>
-<!-- ✅ زر أسعار التوصيل الجديد -->
-<button class="btn-nav btn-track" onclick="openShippingModal()" title= "Prix de Livraison ">
-<i class="fas fa-truck"></i> Prix de Livraison
-</button>
-<a href="tracking.html" class="btn-nav btn-track">
-<i class="fas fa-box-open"></i> Suivi Commande
-</a>
-<button class="cart-btn" id="cartBtn" aria-label="Panier">
-<i class="fas fa-shopping-cart"></i> Panier
-<span class="cart-count" id="cartCount">0</span>
-</button>
-</div>
-</div>
-</nav>
-</header>
+  <!-- En-tête -->
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <div class="logo">
+          <img src="logo.jpg" alt="Logo Amar Informatique">
+          <h1>Amar Informatique</h1>
+        </div>
+        <div class="nav-items">
+          <div class="contact-info">
+            <span><i class="fas fa-phone-alt"></i> 0559 46 99 56</span>
+          </div>
+          <!-- ✅ زر خريطة التوصيل الجديد -->
+          <a href="couverture.html" class="btn-nav btn-track" title="Zones de Livraison">
+            <i class="fas fa-map-marked-alt"></i> <span>Zones de Livraison</span>
+          </a>
+          <a href="tracking.html" class="btn-nav btn-track">
+            <i class="fas fa-box-open"></i> <span>Suivi Commande</span>
+          </a>
+          <button class="cart-btn" id="cartBtn" aria-label="Panier">
+            <i class="fas fa-shopping-cart"></i> <span>Panier</span>
+            <span class="cart-count" id="cartCount">0</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
 
-<!-- Hero Slider -->
-<section class="hero-slider" id="heroSlider" aria-label="Produits en vedette">
-<div class="slider-wrapper" id="sliderWrapper" role="region" aria-live="polite"></div>
-<button class="slider-btn prev" id="prevBtn" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
-<button class="slider-btn next" id="nextBtn" aria-label="Suivant"><i class="fas fa-chevron-right"></i></button>
-<div class="slider-dots" id="sliderDots" role="tablist"></div>
-</section>
+  <!-- Hero Slider -->
+  <section class="hero-slider" id="heroSlider" aria-label="Produits en vedette">
+    <div class="slider-wrapper" id="sliderWrapper" role="region" aria-live="polite"></div>
+    <button class="slider-btn prev" id="prevBtn" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
+    <button class="slider-btn next" id="nextBtn" aria-label="Suivant"><i class="fas fa-chevron-right"></i></button>
+    <div class="slider-dots" id="sliderDots" role="tablist"></div>
+  </section>
 
-<main>
-<!-- Section des produits -->
-<section class="products-section">
-<div class="container">
-<h2>Nos Produits</h2>
-<div class="filters">
-<input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input" aria-label="Rechercher">
-<select id="categoryFilter" class="category-filter" aria-label="Filtrer par catégorie">
-<option value="">Toutes les catégories</option>
-<option value="laptop">Laptops</option>
-<option value="imprimantes">Imprimantes</option>
-<option value="accessoires">Accessoires</option>
-</select>
-</div>
-<div class="products-grid" id="productsGrid" role="list">
-<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);" role="status">
-<i class="fas fa-spinner fa-spin fa-3x"></i><br><br>Chargement des produits...
-</div>
-</div>
-</div>
-</section>
-</main>
+  <main>
+    <!-- Section des produits -->
+    <section class="products-section">
+      <div class="container">
+        <h2>Nos Produits</h2>
+        <div class="filters">
+          <input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input"
+            aria-label="Rechercher">
+          <select id="categoryFilter" class="category-filter" aria-label="Filtrer par catégorie">
+            <option value="">Toutes les catégories</option>
+            <option value="laptop">Laptops</option>
+            <option value="imprimantes">Imprimantes</option>
+            <option value="accessoires">Accessoires</option>
+          </select>
+        </div>
+        <div class="products-grid" id="productsGrid" role="list">
+          <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);" role="status">
+            <i class="fas fa-spinner fa-spin fa-3x"></i><br><br>Chargement des produits...
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<!-- Modal du panier -->
-<div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle">
-<div class="modal-content">
-<span class="close-modal" aria-label="Fermer">&times;</span>
-<h2 id="cartModalTitle"><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
-<div class="cart-items" id="cartItems" role="list"></div>
-<div class="cart-summary">
-<div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
-<span>Total:</span>
-<span><span id="totalPrice">0.00</span> DA</span>
-</div>
-<button class="btn-checkout" id="checkoutBtn">Passer la Commande <i class="fas fa-arrow-right"></i></button>
-</div>
-</div>
-</div>
+  <!-- Modal du panier -->
+  <div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle">
+    <div class="modal-content">
+      <span class="close-modal" aria-label="Fermer">&times;</span>
+      <h2 id="cartModalTitle"><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
+      <div class="cart-items" id="cartItems" role="list"></div>
+      <div class="cart-summary">
+        <div
+          style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
+          <span>Total:</span>
+          <span><span id="totalPrice">0.00</span> DA</span>
+        </div>
+        <button class="btn-checkout" id="checkoutBtn">Passer la Commande <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
 
-<!-- Modal du formulaire de commande -->
-<div class="modal" id="orderFormModal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
-<div class="modal-content order-form-content">
-<span class="close-modal" aria-label="Fermer">&times;</span>
-<h2 id="orderModalTitle"><i class="fas fa-truck-fast"></i> Finaliser la Commande</h2>
-<form id="orderForm">
-<div class="form-group">
-<label for="orderType"><i class="fas fa-map-marker-alt"></i> Type de Livraison *</label>
-<select id="orderType" required>
-<option value="">Sélectionner un type</option>
-<option value="domicile">Livraison à domicile</option>
-<option value="stopdesk">Stop Desk (Retrait au bureau)</option>
-</select>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="firstName">Prénom *</label>
-<input type="text" id="firstName" required placeholder="Votre prénom" autocomplete="given-name">
-</div>
-<div class="form-group">
-<label for="lastName">Nom *</label>
-<input type="text" id="lastName" required placeholder="Votre nom" autocomplete="family-name">
-</div>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="phone1">Numéro de téléphone *</label>
-<input type="tel" id="phone1" required placeholder="05XXXXXXXX" pattern="[0-9]{10}" autocomplete="tel">
-</div>
-<div class="form-group">
-<label for="phone2">Autre numéro (optionnel)</label>
-<input type="tel" id="phone2" placeholder="05XXXXXXXX" autocomplete="tel">
-</div>
-</div>
-<div class="form-row">
-<div class="form-group">
-<label for="wilaya">Wilaya *</label>
-<select id="wilaya" required></select>
-</div>
-<div class="form-group">
-<label for="commune">Commune *</label>
-<select id="commune" required></select>
-</div>
-</div>
-<div class="shipping-info">
-<div class="shipping-price">
-<i class="fas fa-info-circle"></i> <span>Frais de livraison:</span>
-<strong id="shippingPrice">0 DA</strong>
-</div>
-</div>
-<div class="btn-actions">
-<button type="button" class="btn-cancel" onclick="closeOrderForm()">Annuler</button>
-<button type="submit" class="btn-submit">Confirmer la Commande</button>
-</div>
-</form>
-</div>
-</div>
+  <!-- Modal du formulaire de commande -->
+  <div class="modal" id="orderFormModal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+    <div class="modal-content order-form-content">
+      <span class="close-modal" aria-label="Fermer">&times;</span>
+      <h2 id="orderModalTitle"><i class="fas fa-truck-fast"></i> Finaliser la Commande</h2>
+      <form id="orderForm">
+        <div class="form-group">
+          <label for="orderType"><i class="fas fa-map-marker-alt"></i> Type de Livraison *</label>
+          <select id="orderType" required>
+            <option value="">Sélectionner un type</option>
+            <option value="domicile">Livraison à domicile</option>
+            <option value="stopdesk">Stop Desk (Retrait au bureau)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">Prénom *</label>
+            <input type="text" id="firstName" required placeholder="Votre prénom" autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label for="lastName">Nom *</label>
+            <input type="text" id="lastName" required placeholder="Votre nom" autocomplete="family-name">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone1">Numéro de téléphone *</label>
+            <input type="tel" id="phone1" required placeholder="05XXXXXXXX" pattern="[0-9]{10}" autocomplete="tel">
+          </div>
+          <div class="form-group">
+            <label for="phone2">Autre numéro (optionnel)</label>
+            <input type="tel" id="phone2" placeholder="05XXXXXXXX" autocomplete="tel">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="wilaya">Wilaya *</label>
+            <select id="wilaya" required></select>
+          </div>
+          <div class="form-group">
+            <label for="commune">Commune *</label>
+            <select id="commune" required></select>
+          </div>
+        </div>
+        <div class="shipping-info">
+          <div class="shipping-price">
+            <i class="fas fa-info-circle"></i> <span>Frais de livraison:</span>
+            <strong id="shippingPrice">0 DA</strong>
+          </div>
+        </div>
+        <div class="btn-actions">
+          <button type="button" class="btn-cancel" onclick="closeOrderForm()">Annuler</button>
+          <button type="submit" class="btn-submit">Confirmer la Commande</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-<!-- Modal de confirmation de commande -->
-<div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
-<div class="modal-content" style="text-align: center;">
-<span class="close-modal" aria-label="Fermer">&times;</span>
-<i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;" aria-hidden="true"></i>
-<h2 id="confirmModalTitle" style="border:none;">Commande Reçue!</h2>
-<p style="font-size: 1.1rem; margin-bottom: 20px;">Merci pour votre achat.</p>
-<div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-<p style="margin-bottom: 5px; font-size: 0.9rem;">Votre numéro de commande:</p>
-<strong id="orderNumber" style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
-</div>
-<p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-<i class="fas fa-camera" aria-hidden="true"></i> Prenez une capture d'écran de ce numéro.
-</p>
-<button class="btn-checkout" onclick="location.reload()">Continuer</button>
-</div>
-</div>
+  <!-- Modal de confirmation de commande -->
+  <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-content" style="text-align: center;">
+      <span class="close-modal" aria-label="Fermer">&times;</span>
+      <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;"
+        aria-hidden="true"></i>
+      <h2 id="confirmModalTitle" style="border:none;">Commande Reçue!</h2>
+      <p style="font-size: 1.1rem; margin-bottom: 20px;">Merci pour votre achat.</p>
+      <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+        <p style="margin-bottom: 5px; font-size: 0.9rem;">Votre numéro de commande:</p>
+        <strong id="orderNumber"
+          style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
+      </div>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+        <i class="fas fa-camera" aria-hidden="true"></i> Prenez une capture d'écran de ce numéro.
+      </p>
+      <button class="btn-checkout" onclick="location.reload()">Continuer</button>
+    </div>
+  </div>
 
-<!-- Modal Détails Produit -->
-<div class="modal" id="productDetailModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
-<div class="modal-content product-detail-content">
-<span class="close-modal" aria-label="Fermer">&times;</span>
-<div class="detail-layout">
-<img id="detailImage" src="" alt="" class="detail-image">
-<div class="detail-info">
-<h2 id="productModalTitle"></h2>
-<p id="detailCategory" class="product-category"></p>
-<p id="detailDescription" class="product-description"></p>
-<div class="detail-price"><span id="detailPrice"></span> DA</div>
-<button class="btn-checkout" id="modalAddToCartBtn">
-<i class="fas fa-cart-plus"></i> Ajouter au Panier
-</button>
-</div>
-</div>
-</div>
-</div>
+  <!-- Modal Détails Produit -->
+  <div class="modal" id="productDetailModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+    <div class="modal-content product-detail-content">
+      <span class="close-modal" aria-label="Fermer">&times;</span>
+      <div class="detail-layout">
+        <div class="detail-image-container">
+          <img id="detailImage" src="" alt="" class="detail-image" loading="lazy">
+        </div>
+        <div class="detail-info">
+          <h2 id="productModalTitle"></h2>
+          <p id="detailCategory" class="product-category"></p>
+          <p id="detailDescription" class="product-description detail-description"></p>
+          <div class="detail-price"><span id="detailPrice"></span></div>
+          <button class="btn-modal-cart" id="modalAddToCartBtn">
+            <i class="fas fa-shopping-cart"></i> Ajouter au Panier
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- ✅ Modal أسعار التوصيل لجميع الولايات -->
-<div class="modal" id="shippingModal" role="dialog" aria-modal="true" aria-labelledby="shippingModalTitle">
-<div class="modal-content" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
-<span class="close-modal" onclick="closeShippingModal()" aria-label="Fermer">&times;</span>
-<h2 id="shippingModalTitle"><i class="fas fa-truck-fast"></i> Prix ​​de livraison pour tous les états</h2>
-<div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-<button class="btn-shipping-type active" onclick="switchShippingType('domicile', this)">
-<i class="fas fa-home"></i> Livraison à Domicil
-</button>
-<button class="btn-shipping-type" onclick="switchShippingType('stopdesk', this)">
-<i class="fas fa-store"></i>   Stop Desk (Bureau)
-</button>
-</div>
-<div style="margin-bottom: 20px;">
-<input type="text" id="shippingSearch" placeholder="🔍 Chercher ..." 
-style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-main);"
-oninput="filterShippingTable()">
-</div>
-<div style="overflow-x: auto;">
-<table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
-<thead>
-<tr style="background: var(--bg-hover);">
-<th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border);">#</th>
-<th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border);">Wilaya</th>
-<th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border);">Prix de Livraison </th>
-</tr>
-</thead>
-<tbody id="shippingTableBody"></tbody>
-</table>
-</div>
-<p style="margin-top: 20px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
-<i class="fas fa-info-circle"></i> الأسعار قابلة للتغيير. يرجى التواصل لتأكيد السعر النهائي.
-</p>
-</div>
-</div>
+  <!-- ✅ Modal أسعار التوصيل لجميع الولايات -->
+  <div class="modal" id="shippingModal" role="dialog" aria-modal="true" aria-labelledby="shippingModalTitle">
+    <div class="modal-content" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
+      <span class="close-modal" onclick="closeShippingModal()" aria-label="Fermer">&times;</span>
+      <h2 id="shippingModalTitle"><i class="fas fa-truck-fast"></i> Prix ​​de livraison pour tous les états</h2>
+      <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <button class="btn-shipping-type active" onclick="switchShippingType('domicile', this)">
+          <i class="fas fa-home"></i> Livraison à Domicil
+        </button>
+        <button class="btn-shipping-type" onclick="switchShippingType('stopdesk', this)">
+          <i class="fas fa-store"></i> Stop Desk (Bureau)
+        </button>
+      </div>
+      <div style="margin-bottom: 20px;">
+        <input type="text" id="shippingSearch" placeholder="🔍 Chercher ..."
+          style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-main);"
+          oninput="filterShippingTable()">
+      </div>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+          <thead>
+            <tr style="background: var(--bg-hover);">
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border);">#</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border);">Wilaya</th>
+              <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border);">Prix de Livraison
+              </th>
+            </tr>
+          </thead>
+          <tbody id="shippingTableBody"></tbody>
+        </table>
+      </div>
+      <p style="margin-top: 20px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+        <i class="fas fa-info-circle"></i> الأسعار قابلة للتغيير. يرجى التواصل لتأكيد السعر النهائي.
+      </p>
+    </div>
+  </div>
 
-<footer>
-<p>&copy; 2026 Amar Informatique. Premium Tech Store.</p>
-</footer>
+  <footer>
+    <p>&copy; 2026 Amar Informatique. Premium Tech Store.</p>
+  </footer>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 
-<!-- ✅ JavaScript لوظائف مودال أسعار التوصيل -->
-<script>
-// ========== وظائف مودال أسعار التوصيل ==========
-function openShippingModal() {
-  const modal = document.getElementById('shippingModal');
-  if (modal) {
-    modal.classList.add('active');
-    renderShippingTable('domicile');
-    document.getElementById('shippingSearch').value = '';
-  }
-}
+  <!-- ✅ JavaScript لوظائف مودال أسعار التوصيل -->
+  <script>
+    // ========== وظائف مودال أسعار التوصيل ==========
+    function openShippingModal() {
+      const modal = document.getElementById('shippingModal');
+      if (modal) {
+        modal.classList.add('active');
+        renderShippingTable('domicile');
+        document.getElementById('shippingSearch').value = '';
+      }
+    }
 
-function closeShippingModal() {
-  const modal = document.getElementById('shippingModal');
-  if (modal) modal.classList.remove('active');
-}
+    function closeShippingModal() {
+      const modal = document.getElementById('shippingModal');
+      if (modal) modal.classList.remove('active');
+    }
 
-function switchShippingType(type, btn) {
-  document.querySelectorAll('.btn-shipping-type').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderShippingTable(type);
-}
+    function switchShippingType(type, btn) {
+      document.querySelectorAll('.btn-shipping-type').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderShippingTable(type);
+    }
 
-function renderShippingTable(type) {
-  const tbody = document.getElementById('shippingTableBody');
-  if (!tbody || typeof shippingPrices === 'undefined' || typeof stopDeskPrices === 'undefined') return;
-  
-  const prices = type === 'domicile' ? shippingPrices : stopDeskPrices;
-  const wilayas = Object.keys(prices).sort();
-  
-  tbody.innerHTML = wilayas.map((wilaya, index) => {
-    const code = wilaya.split(' - ')[0];
-    const name = wilaya.split(' - ')[1];
-    const price = prices[wilaya];
-    return `<tr><td>${code}</td><td>${name}</td><td style="text-align:center;font-weight:700;color:var(--secondary-color);">${price} DA</td></tr>`;
-  }).join('');
-}
+    function renderShippingTable(type) {
+      const tbody = document.getElementById('shippingTableBody');
+      if (!tbody || typeof shippingPrices === 'undefined' || typeof stopDeskPrices === 'undefined') return;
 
-function filterShippingTable() {
-  const search = document.getElementById('shippingSearch')?.value.toLowerCase() || '';
-  const rows = document.querySelectorAll('#shippingTableBody tr');
-  rows.forEach(row => {
-    const text = row.textContent.toLowerCase();
-    row.style.display = text.includes(search) ? '' : 'none';
-  });
-}
+      const prices = type === 'domicile' ? shippingPrices : stopDeskPrices;
+      const wilayas = Object.keys(prices).sort();
 
-// إغلاق المودال عند النقر خارجه
-document.addEventListener('click', (e) => {
-  const modal = document.getElementById('shippingModal');
-  if (modal && e.target === modal) closeShippingModal();
-});
+      tbody.innerHTML = wilayas.map((wilaya, index) => {
+        const code = wilaya.split(' - ')[0];
+        const name = wilaya.split(' - ')[1];
+        const price = prices[wilaya];
+        return `<tr><td>${code}</td><td>${name}</td><td style="text-align:center;font-weight:700;color:var(--secondary-color);">${price} DA</td></tr>`;
+      }).join('');
+    }
 
-// إغلاق المودال بمفتاح Escape
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeShippingModal();
-});
-</script>
+    function filterShippingTable() {
+      const search = document.getElementById('shippingSearch')?.value.toLowerCase() || '';
+      const rows = document.querySelectorAll('#shippingTableBody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(search) ? '' : 'none';
+      });
+    }
+
+    // إغلاق المودال عند النقر خارجه
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('shippingModal');
+      if (modal && e.target === modal) closeShippingModal();
+    });
+
+    // إغلاق المودال بمفتاح Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeShippingModal();
+    });
+  </script>
 
 </body>
-</html>
 
+</html>

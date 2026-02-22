@@ -44,7 +44,7 @@ async function loadProductsFromFirebase() {
 
     const snapshot = await db.collection("produits").get();
     products = [];
-    
+
     snapshot.forEach(doc => {
       const data = doc.data();
       products.push({
@@ -56,9 +56,9 @@ async function loadProductsFromFirebase() {
         image: data.image || ''
       });
     });
-    
+
     loadProducts();
-    
+
   } catch (error) {
     console.error("❌ Erreur chargement produits:", error);
     const grid = document.getElementById('productsGrid');
@@ -102,14 +102,26 @@ function loadProducts(filteredProducts = null) {
     const info = document.createElement('div');
     info.className = 'product-info';
     const price = parseFloat(product.price) || 0;
+    const isNew = Math.random() > 0.7; // Simulate "New" badge
+    const isPopular = !isNew && Math.random() > 0.5; // Simulate "Popular" badge
+
     info.innerHTML = `
+      <div class="product-badges">
+        ${isNew ? '<span class="badge badge-new">NOUVEAU</span>' : ''}
+        ${isPopular ? '<span class="badge badge-hot">POPULAIRE</span>' : ''}
+      </div>
       <h3 class="product-name">${product.name}</h3>
-      <p class="product-category">${product.category || ''}</p>
+      <div class="product-meta">
+        <span class="product-category">${product.category || ''}</span>
+      </div>
       <p class="product-description">${product.description || ''}</p>
       <div class="product-footer">
-        <span class="product-price">${price.toFixed(2)} DA</span>
+        <div class="price-container">
+            <span class="price-label">Prix</span>
+            <span class="product-price">${price.toFixed(0)} DA</span>
+        </div>
         <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${product.id}')" title="Ajouter au panier">
-          <i class="fas fa-cart-plus"></i>
+          <i class="fas fa-shopping-cart"></i>
         </button>
       </div>
     `;
@@ -249,16 +261,16 @@ function resetAutoPlay(slides, wrapper, dotsContainer) {
 function openProductDetail(productId) {
   const product = products.find(p => p.id === productId);
   if (!product) return;
-  
+
   currentProductId = productId;
-  
+
   const detailImage = document.getElementById('detailImage');
   const detailName = document.getElementById('detailName');
   const detailCategory = document.getElementById('detailCategory');
   const detailDescription = document.getElementById('detailDescription');
   const detailPrice = document.getElementById('detailPrice');
   const modal = document.getElementById('productDetailModal');
-  
+
   if (detailImage) detailImage.src = product.image || '';
   if (detailName) detailName.textContent = product.name;
   if (detailCategory) detailCategory.textContent = product.category || '';
@@ -277,14 +289,14 @@ function addToCart(productId) {
     showNotification("Produit non trouvé.");
     return;
   }
-  
+
   const existingItem = cart.find(item => item.id === productId);
   if (existingItem) {
     existingItem.quantity += 1;
   } else {
     cart.push({ ...product, quantity: 1, price: parseFloat(product.price) || 0 });
   }
-  
+
   saveCartToStorage();
   updateCartCount();
   showNotification(`✅ ${product.name} ajouté au panier!`);
@@ -314,25 +326,25 @@ function displayCart() {
   const cartItems = document.getElementById('cartItems');
   const totalPriceEl = document.getElementById('totalPrice');
   const checkoutBtn = document.getElementById('checkoutBtn');
-  
+
   if (!cartItems) return;
-  
+
   let total = 0;
-  
+
   if (cart.length === 0) {
     cartItems.innerHTML = '<div class="cart-empty">Votre panier est vide</div>';
     if (totalPriceEl) totalPriceEl.textContent = '0.00';
     if (checkoutBtn) checkoutBtn.disabled = true;
     return;
   }
-  
+
   cartItems.innerHTML = '';
   cart.forEach(item => {
     const price = parseFloat(item.price) || 0;
     const quantity = parseInt(item.quantity) || 0;
     const itemTotal = price * quantity;
     total += itemTotal;
-    
+
     const cartItem = document.createElement('div');
     cartItem.className = 'cart-item';
     cartItem.innerHTML = `
@@ -352,7 +364,7 @@ function displayCart() {
     `;
     cartItems.appendChild(cartItem);
   });
-  
+
   if (totalPriceEl) totalPriceEl.textContent = total.toFixed(2);
   if (checkoutBtn) checkoutBtn.disabled = false;
 }
@@ -360,7 +372,7 @@ function displayCart() {
 function updateCartCount() {
   const countEl = document.getElementById('cartCount');
   if (!countEl) return;
-  
+
   const count = cart.reduce((sum, item) => sum + (parseInt(item.quantity) || 0), 0);
   countEl.textContent = count;
 }
@@ -432,10 +444,10 @@ function setupEventListeners() {
 function filterProducts() {
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
-  
+
   const searchTerm = (searchInput?.value || '').toLowerCase();
   const selectedCategory = categoryFilter?.value || '';
-  
+
   const filtered = products.filter(product => {
     const name = (product.name || '').toLowerCase();
     const description = (product.description || '').toLowerCase();
@@ -443,7 +455,7 @@ function filterProducts() {
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-  
+
   loadProducts(filtered);
 }
 
@@ -473,7 +485,7 @@ function closeOrderForm() {
 function initializeWilayaSelect() {
   const select = document.getElementById('wilaya');
   if (!select) return;
-  
+
   select.innerHTML = '<option value="">Sélectionner une wilaya</option>';
   Object.keys(wilayasData).forEach(wilaya => {
     const opt = document.createElement('option');
@@ -488,17 +500,17 @@ function updateShippingPrice() {
   const wilaya = document.getElementById('wilaya')?.value || '';
   const priceEl = document.getElementById('shippingPrice');
   const info = document.querySelector('.shipping-info');
-  
+
   if (!wilaya) {
     if (priceEl) priceEl.textContent = '0 DA';
     if (info) info.classList.remove('active');
     return;
   }
-  
+
   let price = 0;
   if (type === 'domicile') price = shippingPrices[wilaya] || 0;
   else if (type === 'stopdesk') price = stopDeskPrices[wilaya] || 0;
-  
+
   if (priceEl) priceEl.textContent = price + ' DA';
   if (info) info.classList.add('active');
 }
@@ -507,24 +519,24 @@ function updateShippingPrice() {
 async function submitOrderForm() {
   const form = document.getElementById('orderForm');
   if (!form) return;
-  
+
   const orderType = form.orderType?.value || '';
   const wilaya = form.wilaya?.value || '';
   const commune = form.commune?.value || '';
-  
+
   if (!orderType || !wilaya || !commune) {
     alert("Veuillez remplir tous les champs obligatoires.");
     return;
   }
-  
+
   let shippingPrice = 0;
   if (orderType === 'domicile') shippingPrice = shippingPrices[wilaya] || 0;
   else if (orderType === 'stopdesk') shippingPrice = stopDeskPrices[wilaya] || 0;
-  
+
   const orderNumber = generateOrderNumber();
   const cartTotal = parseFloat(document.getElementById('totalPrice')?.textContent) || 0;
   const grandTotal = cartTotal + shippingPrice;
-  
+
   const commande = {
     orderNumber,
     status: 'pending',
@@ -541,27 +553,27 @@ async function submitOrderForm() {
     grandTotal,
     date: new Date().toISOString()
   };
-  
+
   try {
     await db.collection("commandes").add(commande);
-    
+
     closeOrderForm();
-    
+
     const confirmModal = document.getElementById('confirmModal');
     const orderNumberEl = document.getElementById('orderNumber');
     if (confirmModal) confirmModal.classList.add('active');
     if (orderNumberEl) orderNumberEl.textContent = orderNumber;
-    
+
     cart = [];
     saveCartToStorage();
     updateCartCount();
     form.reset();
-    
+
     const shippingPriceEl = document.getElementById('shippingPrice');
     if (shippingPriceEl) shippingPriceEl.textContent = '0 DA';
-    
+
     showNotification('✅ Commande envoyée avec succès!');
-    
+
   } catch (error) {
     console.error("❌ Erreur Firebase:", error);
     alert("Erreur lors de l'envoi. Vérifiez votre connexion.");
@@ -580,7 +592,7 @@ function showNotification(message) {
   `;
   notif.textContent = message;
   document.body.appendChild(notif);
-  
+
   setTimeout(() => {
     notif.style.animation = 'slideOut 0.3s ease-out';
     setTimeout(() => notif.remove(), 300);
@@ -708,14 +720,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const wilayaSel = document.getElementById('wilaya');
   const typeSel = document.getElementById('orderType');
   const communeSel = document.getElementById('commune');
-  
+
   wilayaSel?.addEventListener('change', () => {
     const w = wilayaSel.value;
     if (communeSel) {
       communeSel.innerHTML = '<option value="">Sélectionner une commune</option>';
     }
     updateShippingPrice();
-    
+
     if (w && wilayasData[w]) {
       wilayasData[w].forEach(c => {
         const opt = document.createElement('option');
@@ -725,9 +737,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
-  
+
   typeSel?.addEventListener('change', updateShippingPrice);
-  
+
   const orderForm = document.getElementById('orderForm');
   orderForm?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -743,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if ('ontouchstart' in window) {
     document.body.classList.add('touch-device');
   }
-  
+
   // إغلاق المودال عند النقر خارج المحتوى
   document.querySelectorAll('.modal').forEach(modal => {
     modal.addEventListener('click', (e) => {
@@ -752,10 +764,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-  
+
   // تحسين التمرير السلس للعناوين
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
       e.preventDefault();
       const target = document.querySelector(this.getAttribute('href'));
       if (target) {
@@ -769,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function optimizeImages() {
   const images = document.querySelectorAll('.product-image, .detail-image, .slider-slide img');
   const screenWidth = window.innerWidth;
-  
+
   images.forEach(img => {
     if (screenWidth < 768) {
       img.loading = 'eager'; // Mobile: load immediately
@@ -795,7 +807,7 @@ if (slider) {
   slider.addEventListener('touchstart', (e) => {
     touchStartX = e.changedTouches[0].screenX;
   }, { passive: true });
-  
+
   slider.addEventListener('touchend', (e) => {
     touchEndX = e.changedTouches[0].screenX;
     handleSwipe();
@@ -836,7 +848,7 @@ function switchShippingType(type, btn) {
   // تحديث الأزرار
   document.querySelectorAll('.btn-shipping-type').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  
+
   // إعادة رسم الجدول
   renderShippingTable(type);
 }
@@ -845,10 +857,10 @@ function switchShippingType(type, btn) {
 function renderShippingTable(type) {
   const tbody = document.getElementById('shippingTableBody');
   if (!tbody) return;
-  
+
   const prices = type === 'domicile' ? shippingPrices : stopDeskPrices;
   const wilayas = Object.keys(prices).sort();
-  
+
   tbody.innerHTML = wilayas.map((wilaya, index) => {
     const code = wilaya.split(' - ')[0];
     const name = wilaya.split(' - ')[1];
@@ -867,7 +879,7 @@ function renderShippingTable(type) {
 function filterShippingTable() {
   const search = document.getElementById('shippingSearch')?.value.toLowerCase() || '';
   const rows = document.querySelectorAll('#shippingTableBody tr');
-  
+
   rows.forEach(row => {
     const text = row.textContent.toLowerCase();
     row.style.display = text.includes(search) ? '' : 'none';

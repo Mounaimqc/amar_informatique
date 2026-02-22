@@ -101,13 +101,17 @@
 
     .btn-nav {
       padding: 10px 18px;
-      border-radius: 50px;
+      border-radius: 12px;
       font-weight: 600;
       background: rgba(124, 58, 237, 0.1);
       color: var(--primary-color);
       border: 1px solid rgba(124, 58, 237, 0.3);
       text-decoration: none;
       transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
     }
 
     .btn-nav:hover {
@@ -156,24 +160,31 @@
     }
 
     .content-grid {
-      display: grid;
-      grid-template-columns: 1fr 350px;
+      display: flex;
+      flex-direction: column;
       gap: 30px;
-      align-items: start;
+      align-items: center;
+      width: 100%;
     }
 
     .map-wrapper {
       background: var(--bg-card);
       backdrop-filter: blur(16px);
       border-radius: var(--radius-lg);
-      padding: 30px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+      padding: 0;
+      /* Remove padding for edge-to-edge map feel */
+      box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
       border: var(--glass-border);
       position: relative;
-      min-height: 600px;
+      width: 100%;
+      max-width: 1200px;
+      /* Centered and prominent */
+      height: 650px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      overflow: hidden;
+      /* Important for zoom/pan containment */
     }
 
     #map-svg-container {
@@ -189,30 +200,114 @@
       filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.1));
     }
 
-    path {
-      fill: #1e293b;
-      stroke: rgba(255, 255, 255, 0.1);
-      stroke-width: 0.5;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-    }
-
     path:hover {
-      fill: rgba(124, 58, 237, 0.8);
+      fill: rgba(139, 92, 246, 0.9);
       stroke: #fff;
-      stroke-width: 1;
-      filter: drop-shadow(0 0 8px var(--primary-color));
+      stroke-width: 1.5;
+      filter: drop-shadow(0 0 12px var(--primary-glow));
+      z-index: 10;
     }
 
     path.highlight {
-      fill: var(--primary-color);
-      filter: drop-shadow(0 0 12px var(--primary-color));
+      fill: var(--primary-color) !important;
+      stroke: #fff;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 20px var(--primary-color));
+      animation: pulseHighlight 2s infinite;
+    }
+
+    @keyframes pulseHighlight {
+      0% {
+        filter: drop-shadow(0 0 5px var(--primary-color));
+      }
+
+      50% {
+        filter: drop-shadow(0 0 25px var(--primary-color));
+      }
+
+      100% {
+        filter: drop-shadow(0 0 5px var(--primary-color));
+      }
+    }
+
+    /* Category Colors */
+    .speed-fast {
+      fill: #10b981;
+      fill-opacity: 0.35;
+    }
+
+    .speed-medium {
+      fill: #f59e0b;
+      fill-opacity: 0.35;
+    }
+
+    .speed-slow {
+      fill: #ef4444;
+      fill-opacity: 0.35;
+    }
+
+    #map-viewport {
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Zoom Controls */
+    .zoom-controls {
+      position: absolute;
+      bottom: 25px;
+      right: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .zoom-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: var(--glass-border);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: var(--transition);
+    }
+
+    .zoom-btn:hover {
+      background: var(--primary-color);
+      transform: scale(1.1);
+    }
+
+    /* Legend */
+    .legend-card {
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
     }
 
     #sidebar {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 20px;
     }
 
     .glass-card {
@@ -222,6 +317,8 @@
       border: var(--glass-border);
       padding: 25px;
       text-align: left;
+      flex: 1;
+      min-width: 300px;
     }
 
     .glass-card h2 {
@@ -291,13 +388,34 @@
       color: var(--text-muted);
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 768px) {
       .content-grid {
         grid-template-columns: 1fr;
       }
 
       #sidebar {
         order: -1;
+      }
+
+      .btn-nav span {
+        display: none;
+      }
+
+      .btn-nav {
+        width: 44px;
+        height: 44px;
+        padding: 10px;
+        justify-content: center;
+      }
+
+      .btn-nav i {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo h1 {
+        display: none;
       }
     }
 
@@ -319,7 +437,7 @@
           <img src="logo.jpg">
           <h1>Amar Informatique</h1>
         </div>
-        <a href="index.html" class="btn-nav"><i class="fas fa-store"></i> Boutique</a>
+        <a href="index.html" class="btn-nav"><i class="fas fa-store"></i> <span>Boutique</span></a>
       </div>
     </nav>
   </header>
@@ -332,18 +450,37 @@
     <input type="text" id="wilayaSearch" class="search-input" placeholder="🔍 ابحث عن منطقة...">
 
     <div class="content-grid">
-      <div class="map-wrapper">
-        <div id="map-svg-container">
-          <div class="loader">Loading Map...</div>
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="adjustZoom(1.2)" title="Zoom In"><i class="fas fa-plus"></i></button>
+        <button class="zoom-btn" onclick="adjustZoom(1/1.2)" title="Zoom Out"><i class="fas fa-minus"></i></button>
+        <button class="zoom-btn" onclick="resetView()" title="Reset View"><i
+            class="fas fa-expand-arrows-alt"></i></button>
+      </div>
+      <div id="map-svg-container">
+        <div class="loader">Loading Map...</div>
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div class="glass-card">
+        <h2><i class="fas fa-info-circle"></i> Wilaya Details</h2>
+        <div id="wilaya-info">
+          <p style="color:var(--text-muted); font-style: italic;">Hover over a wilaya to see details</p>
         </div>
       </div>
-
-      <div id="sidebar">
-        <div class="glass-card">
-          <h2><i class="fas fa-info-circle"></i> Wilaya Details</h2>
-          <div id="wilaya-info">
-            <p style="color:var(--text-muted); font-style: italic;">Hover over a wilaya to see details</p>
-          </div>
+      <div class="glass-card legend-card">
+        <h2><i class="fas fa-layer-group"></i> Expédition</h2>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #10b981; border: 1px solid #059669;"></div>
+          <span style="font-size: 0.85rem;">Rapide (24h - 48h)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f59e0b; border: 1px solid #d97706;"></div>
+          <span style="font-size: 0.85rem;">Moyenne (48h - 72h)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ef4444; border: 1px solid #dc2626;"></div>
+          <span style="font-size: 0.85rem;">Longue (72h+)</span>
         </div>
       </div>
     </div>
@@ -421,6 +558,10 @@
     const wilayaInfo = document.getElementById("wilaya-info");
     const mapContainer = document.getElementById("map-svg-container");
     let geoJsonData = null;
+    let currentScale = 1;
+    let currentTranslate = { x: 0, y: 0 };
+    let isPanning = false;
+    let startPan = { x: 0, y: 0 };
 
     async function loadMapData() {
       console.log("Starting map data load process...");
@@ -502,6 +643,110 @@
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svg.setAttribute("viewBox", "0 0 800 650");
       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      svg.style.cursor = "grab";
+      svg.style.width = "100%";
+      svg.style.height = "100%";
+
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("id", "map-viewport");
+      // Add a base group for coordinate system normalization
+      const zoomG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      zoomG.setAttribute("id", "zoom-group");
+      g.appendChild(zoomG);
+      svg.appendChild(g);
+
+      // Pan & Zoom Logic
+      let isDragging = false;
+      let startX, startY;
+
+      svg.addEventListener('mousedown', e => {
+        isDragging = true;
+        svg.style.cursor = "grabbing";
+        startX = e.clientX - currentTranslate.x;
+        startY = e.clientY - currentTranslate.y;
+        g.style.transition = 'none'; // Disable transition during manual pan
+      });
+
+      window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        currentTranslate.x = e.clientX - startX;
+        currentTranslate.y = e.clientY - startY;
+        updateTransform();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+        svg.style.cursor = "grab";
+      });
+
+      svg.addEventListener('wheel', e => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+
+        // Cursor-centric zoom logic
+        const pt = svg.createSVGPoint();
+        pt.x = e.clientX;
+        pt.y = e.clientY;
+        const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+        const prevScale = currentScale;
+        currentScale *= delta;
+        currentScale = Math.max(0.5, Math.min(currentScale, 15));
+
+        const scaleDiff = currentScale / prevScale;
+        currentTranslate.x = svgPt.x - (svgPt.x - currentTranslate.x) * scaleDiff;
+        currentTranslate.y = svgPt.y - (svgPt.y - currentTranslate.y) * scaleDiff;
+
+        g.style.transition = 'none';
+        updateTransform();
+      }, { passive: false });
+
+      // Double Click to Zoom
+      svg.addEventListener('dblclick', e => {
+        const delta = 1.5;
+        const pt = svg.createSVGPoint();
+        pt.x = e.clientX;
+        pt.y = e.clientY;
+        const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+        const prevScale = currentScale;
+        currentScale *= delta;
+        currentScale = Math.max(0.5, Math.min(currentScale, 15));
+
+        const scaleDiff = currentScale / prevScale;
+        currentTranslate.x = svgPt.x - (svgPt.x - currentTranslate.x) * scaleDiff;
+        currentTranslate.y = svgPt.y - (svgPt.y - currentTranslate.y) * scaleDiff;
+
+        g.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        updateTransform();
+      });
+
+      function updateTransform() {
+        g.setAttribute("transform", `translate(${currentTranslate.x}, ${currentTranslate.y}) scale(${currentScale})`);
+      }
+      window.updateTransform = updateTransform;
+
+      window.adjustZoom = (delta) => {
+        // Zoom relative to center
+        const prevScale = currentScale;
+        currentScale *= delta;
+        currentScale = Math.max(0.5, Math.min(currentScale, 15));
+
+        const scaleDiff = currentScale / prevScale;
+        currentTranslate.x = 400 - (400 - currentTranslate.x) * scaleDiff;
+        currentTranslate.y = 325 - (325 - currentTranslate.y) * scaleDiff;
+
+        g.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+        updateTransform();
+      };
+
+      window.resetView = () => {
+        currentScale = 1;
+        currentTranslate = { x: 0, y: 0 };
+        g.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        updateTransform();
+        document.querySelectorAll('path').forEach(p => p.classList.remove('highlight'));
+      };
 
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       geoData.features.forEach(feature => {
@@ -517,9 +762,9 @@
         });
       });
 
-      const scale = Math.min(760 / (maxX - minX), 600 / (maxY - minY));
-      const offsetX = (800 - (maxX - minX) * scale) / 2 - minX * scale;
-      const offsetY = (650 - (maxY - minY) * scale) / 2 - minY * scale;
+      const scaleFactor = Math.min(760 / (maxX - minX), 600 / (maxY - minY));
+      const offsetX = (800 - (maxX - minX) * scaleFactor) / 2 - minX * scaleFactor;
+      const offsetY = (650 - (maxY - minY) * scaleFactor) / 2 - minY * scaleFactor;
 
       geoData.features.forEach(feature => {
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -529,8 +774,8 @@
           let pd = "";
           polygon.forEach((ring) => {
             ring.forEach((p, j) => {
-              const x = p[0] * scale + offsetX;
-              const y = 650 - (p[1] * scale + offsetY);
+              const x = p[0] * scaleFactor + offsetX;
+              const y = 650 - (p[1] * scaleFactor + offsetY);
               pd += (j === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1);
             });
             pd += "Z";
@@ -543,7 +788,29 @@
 
         path.setAttribute("d", d);
         path.setAttribute("id", feature.id);
-        path.setAttribute("class", "wilaya-path");
+
+        // Calculate Centroid (for auto-zoom)
+        let cX = 0, cY = 0, count = 0;
+        feature.geometry.coordinates.forEach(polygon => {
+          const points = feature.geometry.type === "MultiPolygon" ? polygon[0] : polygon;
+          points.forEach(p => {
+            cX += p[0] * scaleFactor + offsetX;
+            cY += 650 - (p[1] * scaleFactor + offsetY);
+            count++;
+          });
+        });
+        path.setAttribute("data-cx", cX / count);
+        path.setAttribute("data-cy", cY / count);
+
+        // Apply Speed Colors
+        const wilayaNum = feature.id.split("-")[1];
+        const wData = wilayasData[parseInt(wilayaNum)];
+        if (wData) {
+          const hours = parseInt(wData.time);
+          if (hours <= 48) path.classList.add('speed-fast');
+          else if (hours <= 72) path.classList.add('speed-medium');
+          else path.classList.add('speed-slow');
+        }
 
         path.addEventListener('mouseenter', (e) => {
           const wilayaNum = feature.id.split("-")[1];
@@ -573,7 +840,7 @@
           path.classList.add('highlight');
         });
 
-        svg.appendChild(path);
+        g.appendChild(path);
       });
       mapContainer.appendChild(svg);
     }
@@ -599,6 +866,13 @@
             path.style.opacity = "1";
             path.classList.add('highlight');
             if (!found) {
+              const cx = parseFloat(path.getAttribute("data-cx"));
+              const cy = parseFloat(path.getAttribute("data-cy"));
+              currentScale = 2.5;
+              currentTranslate.x = 400 - (cx * currentScale);
+              currentTranslate.y = 325 - (cy * currentScale);
+              updateTransform();
+
               // Trigger the info for the first match
               path.dispatchEvent(new Event('mouseenter'));
               found = true;
