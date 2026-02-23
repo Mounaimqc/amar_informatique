@@ -469,3 +469,19 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+function sendStatusNotification(orderId) {
+  const cmd = allCommandes.find(c => c.id === orderId);
+  if (!cmd) return;
+
+  const statusLabel = getStatusLabel(cmd.status);
+  const message = `Bonjour ${cmd.firstName}, *Amar Informatique* vous informe que votre commande N°${cmd.orderNumber} est désormais : *${statusLabel}*. 
+  
+Vous pouvez suivre l'évolution ici : https://votre-site.com/tracking.html?order=${cmd.orderNumber}`;
+
+  // Nettoyage du numéro de téléphone (enlève les espaces)
+  const phone = cmd.phone1.replace(/\s/g, '');
+  
+  // Ouvre WhatsApp avec le message pré-rempli
+  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
+}
