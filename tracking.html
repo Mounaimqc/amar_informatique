@@ -753,141 +753,140 @@
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const trackBtn = document.getElementById('trackBtn');
-      const orderIdInput = document.getElementById('orderIdInput');
+  document.addEventListener('DOMContentLoaded', () => {
+    const trackBtn = document.getElementById('trackBtn');
+    const orderIdInput = document.getElementById('orderIdInput');
+    const resultBox = document.getElementById('resultBox');
+    const noResultBox = document.getElementById('noResultBox');
 
-      // منع التكبير عند التركيز على الحقل في iOS
-      orderIdInput?.addEventListener('focus', function () {
-        if (window.innerWidth < 480) {
-          this.style.fontSize = '16px';
-        }
-      });
+    // Écouteur pour le bouton
+    trackBtn?.addEventListener('click', () => {
+      const orderId = orderIdInput.value.trim();
+      if (orderId) trackOrder(orderId);
+    });
 
-      trackBtn?.addEventListener('click', () => {
+    // Écouteur pour la touche Entrée
+    orderIdInput?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
         const orderId = orderIdInput.value.trim();
         if (orderId) trackOrder(orderId);
-      });
-
-      orderIdInput?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          const orderId = orderIdInput.value.trim();
-          if (orderId) trackOrder(orderId);
-        }
-      });
-// Variable pour stocker l'écouteur et pouvoir l'arrêter si besoin
-let statusListener = null;
-
-function trackOrder() {
-  const inputEl = document.getElementById('orderInput'); // Vérifiez que cet ID existe dans votre HTML
-  
-  if (!inputEl) {
-    console.error("L'élément avec l'ID 'orderInput' est introuvable dans le HTML.");
-    return;
-  }
-
-  const orderNumber = inputEl.value.trim();
-  
-  if (!orderNumber) {
-    alert("Veuillez entrer un numéro de commande.");
-    return;
-  }
-  
-  // La suite de votre code (db.collection...)
-}
-      function displayOrder(id, data) {
-        setText('displayOrderId', data.orderNumber || id);
-
-        if (data.date) {
-          try {
-            setText('displayOrderDate', new Date(data.date).toLocaleDateString('fr-FR'));
-          } catch { setText('displayOrderDate', '—'); }
-        }
-
-        setText('displayOrderTotal', (data.grandTotal || 0) + ' DA');
-
-        const badge = document.getElementById('displayStatusBadge');
-        const status = data.status || 'pending';
-        if (badge) {
-          badge.textContent = getStatusLabel(status);
-          badge.className = 'status-badge status-' + status;
-        }
-
-        updateTimeline(status);
-      }
-
-      function setText(id, val) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = val ?? '—';
-      }
-
-      function getStatusLabel(status) {
-        const labels = {
-          'pending': '⏳ En attente',
-          'accepted': '✓ Acceptée',
-          'shipped': '🚚 En route',
-          'arrived': '📦 Livrée',
-          'returned': '↩️ Retournée'
-        };
-        return labels[status] || '⏳ En attente';
-      }
-
-      function updateTimeline(status) {
-        const steps = ['pending', 'accepted', 'shipped', 'arrived'];
-        let foundActive = false;
-
-        steps.forEach(stepId => {
-          const stepEl = document.getElementById('step-' + stepId);
-          if (!stepEl) return;
-
-          if (stepId === status) {
-            stepEl.classList.add('active');
-            stepEl.style.opacity = '1';
-            foundActive = true;
-          } else if (!foundActive) {
-            stepEl.classList.add('completed');
-            stepEl.style.opacity = '1';
-          }
-        });
       }
     });
-  </script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 
-<script>
-const messaging = firebase.messaging();
+    function trackOrder(orderNumber) {
+      // Masquer les résultats précédents
+      resultBox.style.display = 'none';
+      noResultBox.style.display = 'none';
 
-// 1. Demander la permission
-function requestNotificationPermission(orderNumber) {
-  Notification.requestPermission().then((permission) => {
-    if (permission === 'granted') {
-      console.log('Permission accordée');
-      // Obtenir le token de l'appareil
-      messaging.getToken({ vapidKey: 'VOTRE_CLE_VAPID_PUBLIQUE' })
-        .then((currentToken) => {
-          if (currentToken) {
-            // Enregistrer le token dans Firestore sous la commande spécifique
-            saveTokenToOrder(orderNumber, currentToken);
+      db.collection("commandes")
+        .where("orderNumber", "==", orderNumber)
+        .onSnapshot((snapshot) => {
+          if (!snapshot.empty) {
+            const doc = snapshot.docs[0];
+            const data = doc.data();
+            
+            displayOrder(doc.id, data);
+            resultBox.style.display = 'block';
+            
+            // MÉTHODE 1 : Demander la permission de notification
+            // dès que le client suit sa commande
+            requestNotificationPermission(orderNumber);
+          } else {
+            noResultBox.style.display = 'block';
           }
+        }, (error) => {
+          console.error("Erreur de suivi:", error);
         });
     }
-  });
-}
 
-function saveTokenToOrder(orderNumber, token) {
-  db.collection("commandes")
-    .where("orderNumber", "==", orderNumber)
-    .get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {
-        doc.ref.update({ clientToken: token });
+    function displayOrder(id, data) {
+      setText('displayOrderId', data.orderNumber || id);
+
+      if (data.date) {
+        try {
+          setText('displayOrderDate', new Date(data.date).toLocaleDateString('fr-FR'));
+        } catch { setText('displayOrderDate', '—'); }
+      }
+
+      setText('displayOrderTotal', (data.grandTotal || 0) + ' DA');
+
+      const badge = document.getElementById('displayStatusBadge');
+      const status = data.status || 'pending';
+      if (badge) {
+        badge.textContent = getStatusLabel(status);
+        badge.className = 'status-badge status-' + status;
+      }
+
+      updateTimeline(status);
+    }
+
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val ?? '—';
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        'pending': '⏳ En attente',
+        'accepted': '✓ Acceptée',
+        'shipped': '🚚 En route',
+        'arrived': '📦 Livrée',
+        'returned': '↩️ Retournée'
+      };
+      return labels[status] || '⏳ En attente';
+    }
+
+    function updateTimeline(status) {
+      const steps = ['pending', 'accepted', 'shipped', 'arrived'];
+      let currentStepFound = false;
+
+      steps.forEach(stepId => {
+        const stepEl = document.getElementById('step-' + stepId);
+        if (!stepEl) return;
+
+        stepEl.classList.remove('active', 'completed');
+
+        if (stepId === status) {
+          stepEl.classList.add('active');
+          currentStepFound = true;
+        } else if (!currentStepFound) {
+          stepEl.classList.add('completed');
+        }
       });
+    }
+  });
+
+  // ========== SYSTÈME DE NOTIFICATIONS PUSH ==========
+  const messaging = firebase.messaging();
+
+  function requestNotificationPermission(orderNumber) {
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        // Remplacez par votre clé VAPID publique générée dans la console Firebase
+        messaging.getToken({ vapidKey: 'VOTRE_CLE_VAPID_PUBLIQUE_ICI' })
+          .then((currentToken) => {
+            if (currentToken) {
+              saveTokenToOrder(orderNumber, currentToken);
+            }
+          }).catch((err) => console.log('Erreur Token:', err));
+      }
     });
-}
+  }
+
+  function saveTokenToOrder(orderNumber, token) {
+    db.collection("commandes")
+      .where("orderNumber", "==", orderNumber)
+      .get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          doc.ref.update({ clientToken: token });
+        });
+      });
+  }
 </script>
-</body>
 
 
 </html>
+
 
 
