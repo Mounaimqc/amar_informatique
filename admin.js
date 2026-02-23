@@ -138,6 +138,25 @@ function showDetail(orderNumber) {
   // Afficher le modal
   modal.classList.add('active');
   console.log("✅ Modal affiché avec succès");
+  // ... داخل دالة showDetail، بعد تعبئة البيانات ...
+
+// إضافة زر واتساب للتواصل مع العميل
+const whatsappContainer = document.getElementById('detailWhatsappContainer');
+if (whatsappContainer) {
+    const phone = cmd.phone1 ? cmd.phone1.replace(/[^0-9]/g, '') : '';
+    // تحويل الرقم للصيغة الدولية (الجزائر 213)
+    const internationalPhone = phone.startsWith('0') ? '213' + phone.substring(1) : (phone.startsWith('213') ? phone : '213' + phone);
+    
+    const statusLabel = getStatusLabel(cmd.status || 'pending');
+    const message = `مرحباً ${cmd.firstName || ''}، تحديث بخصوص طلبك رقم ${cmd.orderNumber}: ${statusLabel}. شكراً لثقتكم بـ Amar Informatique.`;
+    const whatsappUrl = `https://wa.me/${internationalPhone}?text=${encodeURIComponent(message)}`;
+
+    whatsappContainer.innerHTML = `
+        <a href="${whatsappUrl}" target="_blank" class="action-btn" style="background:#25D366; color:white; text-decoration:none; display:inline-flex; align-items:center; gap:5px; margin-top:10px;">
+            <i class="fab fa-whatsapp"></i> إشعار العميل عبر واتساب
+        </a>
+    `;
+}
 }
 
 function closeDetail() {
@@ -485,4 +504,5 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
 
