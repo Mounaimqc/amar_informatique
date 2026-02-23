@@ -775,49 +775,50 @@
           if (orderId) trackOrder(orderId);
         }
       });
+// Variable pour stocker l'écouteur et pouvoir l'arrêter si besoin
+let statusListener = null;
 
-      async function trackOrder(orderId) {
-        const resultBox = document.getElementById('resultBox');
-        const noResultBox = document.getElementById('noResultBox');
+function trackOrder() {
+  const orderNumber = document.getElementById('orderInput').value.trim();
+  if (!orderNumber) {
+    alert("Veuillez entrer un numéro de commande.");
+    return;
+  }
 
-        resultBox.style.display = 'none';
-        noResultBox.style.display = 'none';
+  // Si un ancien écouteur existe, on l'arrête avant d'en créer un nouveau
+  if (statusListener) statusListener();
 
-        // Reset timeline
-        document.querySelectorAll('.timeline-step').forEach(step => {
-          step.classList.remove('active', 'completed');
-          step.style.opacity = '0.5';
-        });
+  showLoading(true);
 
-        // Show loading on button
-        const originalBtnText = trackBtn.innerHTML;
-        trackBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recherche...';
-        trackBtn.disabled = true;
-
-        try {
-          const snapshot = await db.collection('commandes')
-            .where('orderNumber', '==', orderId)
-            .limit(1)
-            .get();
-
-          if (!snapshot.empty) {
-            const doc = snapshot.docs[0];
-            const data = doc.data();
-            displayOrder(doc.id, data);
-            resultBox.style.display = 'block';
-          } else {
-            noResultBox.style.display = 'block';
-          }
-        } catch (error) {
-          console.error("❌ Error tracking:", error);
-          alert("Erreur de connexion. Veuillez réessayer.");
-        } finally {
-          // Restore button
-          trackBtn.innerHTML = originalBtnText;
-          trackBtn.disabled = false;
-        }
+  // Utilisation de onSnapshot pour le temps réel
+  statusListener = db.collection("commandes")
+    .where("orderNumber", "==", orderNumber)
+    .onSnapshot((snapshot) => {
+      showLoading(false);
+      
+      if (snapshot.empty) {
+        alert("Commande non trouvée.");
+        document.getElementById('trackingResult').classList.remove('active');
+        return;
       }
 
+      const data = snapshot.docs[0].data();
+      displayOrderInfo(data);
+      
+      // Petit plus : Notification sonore ou visuelle si le statut change
+      if (window.lastStatus && window.lastStatus !== data.status) {
+        playNotificationSound(); // Optionnel
+        alert("📢 Le statut de votre commande a été mis à jour : " + getStatusLabel(data.status));
+      }
+      window.lastStatus = data.status;
+
+      document.getElementById('trackingResult').classList.add('active');
+      document.getElementById('trackingResult').scrollIntoView({ behavior: 'smooth' });
+    }, (error) => {
+      console.error("Erreur de suivi:", error);
+      showLoading(false);
+    });
+}
       function displayOrder(id, data) {
         setText('displayOrderId', data.orderNumber || id);
 
@@ -876,5 +877,6 @@
     });
   </script>
 </body>
+
 
 </html>
