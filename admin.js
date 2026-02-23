@@ -168,36 +168,52 @@ function getStatusLabel(status) {
   }[status] || '⏳ En attente';
 }
 
-function updateOrderStatus(newStatus) {
-  const modal = document.getElementById('detailModal');
-  const firebaseId = modal?.dataset.firebaseId;
-  const orderNumber = modal?.dataset.currentOrderNumber;
-  
-  if (!firebaseId) {
-    alert("❌ Erreur: ID Firebase manquant");
-    return;
-  }
-  
-  if (!confirm(`Changer le statut de la commande ${orderNumber} à "${getStatusLabel(newStatus)}"?`)) {
-    return;
-  }
-  
-  db.collection("commandes").doc(firebaseId).update({
-    status: newStatus
-  })
-  .then(() => {
-    const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
-    if (cmd) cmd.status = newStatus;
-    showNotification('✅ Statut mis à jour');
-    displayCommandes(allCommandes);
-    showDetail(orderNumber);
-  })
-  .catch((error) => {
-    console.error("❌ Erreur mise à jour:", error);
-    alert("❌ Erreur lors de la mise à jour du statut");
-  });
-}
+// ========== GESTION STATUT ==========
+// ... (دوال getStatusClass و getStatusLabel كما هي)
 
+function updateOrderStatus(newStatus) {
+    const modal = document.getElementById('detailModal');
+    const firebaseId = modal?.dataset.firebaseId;
+    const orderNumber = modal?.dataset.currentOrderNumber;
+    
+    // جلب بيانات العميل لإرسال الواتساب
+    const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
+
+    if (!firebaseId) {
+        alert("❌ Erreur: ID Firebase manquant");
+        return;
+    }
+    if (!confirm(`Changer le statut de la commande ${orderNumber} à "${getStatusLabel(newStatus)}"?`)) {
+        return;
+    }
+
+    db.collection("commandes").doc(firebaseId).update({
+        status: newStatus
+    })
+    .then(() => {
+        // 1. تحديث البيانات المحلية
+        const cmdIndex = allCommandes.findIndex(c => c.orderNumber === orderNumber);
+        if (cmdIndex !== -1) allCommandes[cmdIndex].status = newStatus;
+        
+        // 2. حفظ إشعار في قاعدة البيانات (ليظهر في صفحة التتبع)
+        db.collection("notifications").add({
+            orderNumber: orderNumber,
+            message: `تم تحديث حالة طلبك إلى: ${getStatusLabel(newStatus)}`,
+            status: newStatus,
+            date: new Date().toISOString(),
+            read: false
+        }).catch(err => console.error("Erreur notification", err));
+
+        // 3. عرض إشعار نجاح للأدمن
+        showNotification('✅ Statut mis à jour');
+        displayCommandes(allCommandes);
+        showDetail(orderNumber); // إعادة تحميل التفاصيل لتحديث زر الواتساب
+    })
+    .catch((error) => {
+        console.error("❌ Erreur mise à jour:", error);
+        alert("❌ Erreur lors de la mise à jour du statut");
+    });
+}
 // ========== SUPPRESSION COMMANDE ==========
 function deleteCommande(orderNumber) {
   if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer la commande ${orderNumber}?\n\nCette action est irréversible!`)) {
@@ -469,3 +485,4 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
