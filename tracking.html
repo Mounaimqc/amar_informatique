@@ -876,7 +876,41 @@ function trackOrder() {
       }
     });
   </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+
+<script>
+const messaging = firebase.messaging();
+
+// 1. Demander la permission
+function requestNotificationPermission(orderNumber) {
+  Notification.requestPermission().then((permission) => {
+    if (permission === 'granted') {
+      console.log('Permission accordée');
+      // Obtenir le token de l'appareil
+      messaging.getToken({ vapidKey: 'VOTRE_CLE_VAPID_PUBLIQUE' })
+        .then((currentToken) => {
+          if (currentToken) {
+            // Enregistrer le token dans Firestore sous la commande spécifique
+            saveTokenToOrder(orderNumber, currentToken);
+          }
+        });
+    }
+  });
+}
+
+function saveTokenToOrder(orderNumber, token) {
+  db.collection("commandes")
+    .where("orderNumber", "==", orderNumber)
+    .get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        doc.ref.update({ clientToken: token });
+      });
+    });
+}
+</script>
 </body>
 
 
 </html>
+
