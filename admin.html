@@ -171,6 +171,10 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
       <a href="index.html" class="btn btn-secondary btn-sm"><i class="fas fa-store"></i> Boutique</a>
       <button class="btn btn-danger btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
     </div>
+    // Exemple de bouton à ajouter dans votre colonne "Actions"
+`<button onclick="sendStatusNotification('${cmd.id}')" class="btn-notify" title="Envoyer notification WhatsApp">
+   <i class="fab fa-whatsapp"></i> Notifier
+</button>`
   </nav>
 </header>
 
@@ -509,3 +513,4 @@ function logout() { sessionStorage.removeItem('adminLogged'); window.location.hr
 </script>
 </body>
 </html>
+
