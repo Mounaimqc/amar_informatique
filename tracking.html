@@ -779,45 +779,21 @@
 let statusListener = null;
 
 function trackOrder() {
-  const orderNumber = document.getElementById('orderInput').value.trim();
+  const inputEl = document.getElementById('orderInput'); // Vérifiez que cet ID existe dans votre HTML
+  
+  if (!inputEl) {
+    console.error("L'élément avec l'ID 'orderInput' est introuvable dans le HTML.");
+    return;
+  }
+
+  const orderNumber = inputEl.value.trim();
+  
   if (!orderNumber) {
     alert("Veuillez entrer un numéro de commande.");
     return;
   }
-
-  // Si un ancien écouteur existe, on l'arrête avant d'en créer un nouveau
-  if (statusListener) statusListener();
-
-  showLoading(true);
-
-  // Utilisation de onSnapshot pour le temps réel
-  statusListener = db.collection("commandes")
-    .where("orderNumber", "==", orderNumber)
-    .onSnapshot((snapshot) => {
-      showLoading(false);
-      
-      if (snapshot.empty) {
-        alert("Commande non trouvée.");
-        document.getElementById('trackingResult').classList.remove('active');
-        return;
-      }
-
-      const data = snapshot.docs[0].data();
-      displayOrderInfo(data);
-      
-      // Petit plus : Notification sonore ou visuelle si le statut change
-      if (window.lastStatus && window.lastStatus !== data.status) {
-        playNotificationSound(); // Optionnel
-        alert("📢 Le statut de votre commande a été mis à jour : " + getStatusLabel(data.status));
-      }
-      window.lastStatus = data.status;
-
-      document.getElementById('trackingResult').classList.add('active');
-      document.getElementById('trackingResult').scrollIntoView({ behavior: 'smooth' });
-    }, (error) => {
-      console.error("Erreur de suivi:", error);
-      showLoading(false);
-    });
+  
+  // La suite de votre code (db.collection...)
 }
       function displayOrder(id, data) {
         setText('displayOrderId', data.orderNumber || id);
@@ -913,4 +889,5 @@ function saveTokenToOrder(orderNumber, token) {
 
 
 </html>
+
 
