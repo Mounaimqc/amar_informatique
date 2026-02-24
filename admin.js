@@ -170,47 +170,34 @@ function getStatusLabel(status) {
 
 function updateOrderStatus(newStatus) {
   const modal = document.getElementById('detailModal');
-  const fid = modal.dataset.firebaseId;
-  const orderNumber = modal.dataset.currentOrderNumber;
-
-  db.collection("commandes").doc(fid).update({ status: newStatus })
-    .then(() => {
-      // Récupérer le token du client pour envoyer la push
-      return db.collection("commandes").doc(fid).get();
-    })
-    .then(doc => {
-      const data = doc.data();
-      if (data.clientToken) {
-        sendPushNotification(data.clientToken, orderNumber, newStatus);
-      }
-      showNotification("✅ Statut mis à jour et notification envoyée !");
-    });
-}
-
-async function sendPushNotification(token, orderNum, status) {
-  const statusLabel = getStatusLabel(status);
+  const firebaseId = modal?.dataset.firebaseId;
+  const orderNumber = modal?.dataset.currentOrderNumber;
   
-  // Note: En production, cet appel doit être fait via un serveur (Node.js) 
-  // pour ne pas exposer votre clé serveur Firebase.
-  const message = {
-    notification: {
-      title: "Mise à jour Amar Informatique",
-      body: `Votre commande N°${orderNum} est maintenant : ${statusLabel}`,
-      icon: "logo.jpg"
-    },
-    to: token
-  };
-
-  // Exemple d'appel à l'API Firebase (nécessite Clé Serveur)
-  fetch('https://fcm.googleapis.com/fcm/send', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'key=VOTRE_CLE_SERVEUR_FIREBASE',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(message)
+  if (!firebaseId) {
+    alert("❌ Erreur: ID Firebase manquant");
+    return;
+  }
+  
+  if (!confirm(`Changer le statut de la commande ${orderNumber} à "${getStatusLabel(newStatus)}"?`)) {
+    return;
+  }
+  
+  db.collection("commandes").doc(firebaseId).update({
+    status: newStatus
+  })
+  .then(() => {
+    const cmd = allCommandes.find(c => c.orderNumber === orderNumber);
+    if (cmd) cmd.status = newStatus;
+    showNotification('✅ Statut mis à jour');
+    displayCommandes(allCommandes);
+    showDetail(orderNumber);
+  })
+  .catch((error) => {
+    console.error("❌ Erreur mise à jour:", error);
+    alert("❌ Erreur lors de la mise à jour du statut");
   });
 }
+
 // ========== SUPPRESSION COMMANDE ==========
 function deleteCommande(orderNumber) {
   if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer la commande ${orderNumber}?\n\nCette action est irréversible!`)) {
@@ -482,20 +469,3 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
-function sendStatusNotification(orderId) {
-  const cmd = allCommandes.find(c => c.id === orderId);
-  if (!cmd) return;
-
-  const statusLabel = getStatusLabel(cmd.status);
-  const message = `Bonjour ${cmd.firstName}, *Amar Informatique* vous informe que votre commande N°${cmd.orderNumber} est désormais : *${statusLabel}*. 
-  
-Vous pouvez suivre l'évolution ici : https://votre-site.com/tracking.html?order=${cmd.orderNumber}`;
-
-  // Nettoyage du numéro de téléphone (enlève les espaces)
-  const phone = cmd.phone1.replace(/\s/g, '');
-  
-  // Ouvre WhatsApp avec le message pré-rempli
-  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-  window.open(whatsappUrl, '_blank');
-}
-
