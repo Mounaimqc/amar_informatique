@@ -82,37 +82,37 @@ function loadProducts(filteredProducts = null) {
   grid.innerHTML = '';
 
   if (productsToDisplay.length === 0) {
-    grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 20px;">Aucun produit trouvé.</p>';
+    grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 20px; color: var(--text-muted);">Aucun produit trouvé.</p>';
     return;
   }
 
   productsToDisplay.forEach(product => {
     const card = document.createElement('div');
     card.className = 'product-card';
+    // فتح تفاصيل المنتج عند النقر على البطاقة
     card.onclick = () => openProductDetail(product.id);
 
     const img = document.createElement('img');
-    img.src = product.image || 'image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage+non+disponible%3C/text%3E%3C/svg%3E';
+    // صورة افتراضية في حال عدم وجود صورة للمنتج
+    img.src = product.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%231e293b%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2214%22 fill=%22%2394a3b8%22%3ENo+Image%3C/text%3E%3C/svg%3E';
     img.alt = product.name;
     img.className = 'product-image';
     img.onerror = function () {
-      this.src = 'image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23666%22%3EImage+non+disponible%3C/text%3E%3C/svg%3E';
+      this.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%231e293b%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2214%22 fill=%22%2394a3b8%22%3ENo+Image%3C/text%3E%3C/svg%3E';
     };
 
     const info = document.createElement('div');
     info.className = 'product-info';
+    
     const price = parseFloat(product.price) || 0;
-    const isNew = Math.random() > 0.7; // Simulate "New" badge
-    const isPopular = !isNew && Math.random() > 0.5; // Simulate "Popular" badge
 
+    // ✅ تم إزالة منطق badges العشوائي هنا
+    
     info.innerHTML = `
-      <div class="product-badges">
-        ${isNew ? '<span class="badge badge-new">NOUVEAU</span>' : ''}
-        ${isPopular ? '<span class="badge badge-hot">POPULAIRE</span>' : ''}
-      </div>
+      <!-- ✅ تم إزالة قسم product-badges -->
       <h3 class="product-name">${product.name}</h3>
       <div class="product-meta">
-        <span class="product-category">${product.category || ''}</span>
+        <span class="product-category">${product.category || 'Général'}</span>
       </div>
       <p class="product-description">${product.description || ''}</p>
       <div class="product-footer">
@@ -131,14 +131,17 @@ function loadProducts(filteredProducts = null) {
     grid.appendChild(card);
   });
 
-  // Initialiser le slider une seule fois
+  // تهيئة السلايدر مرة واحدة فقط عند التحميل الأول
   if (filteredProducts === null && !window.sliderInitialized) {
     setTimeout(() => {
-      initHeroSlider();
+      if (typeof initHeroSlider === 'function') {
+        initHeroSlider();
+      }
       window.sliderInitialized = true;
     }, 100);
   }
 
+  // تفعيل أنيميشن الظهور عند التمرير
   setTimeout(initScrollAnimations, 100);
 }
 
@@ -900,6 +903,7 @@ document.addEventListener('keydown', (e) => {
     closeShippingModal();
   }
 });
+
 
 
 
