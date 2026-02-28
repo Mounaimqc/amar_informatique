@@ -14,6 +14,7 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script>
 const firebaseConfig = {
     apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
@@ -25,6 +26,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const storage = firebase.storage();
 </script>
 <style>
 :root {
@@ -208,6 +210,29 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
                     <div class="detail-item"><span class="detail-label">Commune</span><span class="detail-value" id="detailCommune">—</span></div>
                 </div>
             </div>
+            
+            <!-- 🚚 Section Livreur (سقط تظهر للـ Domicile) -->
+            <div class="detail-section" id="livreurSection" style="display:none;">
+                <div class="section-title"><i class="fas fa-motorcycle"></i> Livreur</div>
+                <div class="form-group">
+                    <label class="form-label">Téléphone Livreur</label>
+                    <div style="display:flex; gap:0.5rem;">
+                        <input type="tel" id="livreurPhone" class="form-input" placeholder="+213 5XX XXX XXX" style="flex:1;">
+                        <button class="btn btn-primary btn-sm" onclick="saveLivreurPhone()" style="white-space:nowrap;">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                    </div>
+                    <small id="livreurSaved" style="color:var(--success); display:none;">✅ Enregistré</small>
+                </div>
+                <div class="detail-item" style="margin-top:0.5rem;">
+                    <span class="detail-label">Livreur actuel:</span>
+                    <span class="detail-value" id="livreurPhoneDisplay">—</span>
+                    <a id="livreurCallLink" href="#" target="_blank" style="margin-left:0.5rem; color:var(--primary);">
+                        <i class="fas fa-phone"></i> Appeler
+                    </a>
+                </div>
+            </div>
+            
             <div class="detail-section">
                 <div class="section-title"><i class="fas fa-box-open"></i> Produits</div>
                 <div class="products-list" id="detailItems"><p style="text-align:center;color:var(--text-muted);">Aucun produit</p></div>
@@ -248,7 +273,7 @@ header { background:rgba(30,41,59,0.8); backdrop-filter:blur(20px); border-botto
     </div>
 </div>
 
-<!-- ✅ Modal Modifier Produit (جديد) -->
+<!-- ✅ Modal Modifier Produit -->
 <div class="modal" id="editProductModal">
     <div class="modal-content">
         <div class="modal-header"><h2 class="modal-title"><i class="fas fa-edit"></i> Modifier Produit</h2><button class="modal-close" onclick="closeEditProductModal()">&times;</button></div>
