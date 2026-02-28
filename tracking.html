@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
@@ -8,15 +7,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Suivi de Commande - Amar Informatique</title>
-  <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="logo.jpg" type="image/x-icon">
-  <!-- Google Fonts - تم إصلاح الروابط -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <!-- Font Awesome - تم إصلاح الرابط -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Firebase - تم إصلاح الروابط -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
@@ -33,31 +31,17 @@
     window.db = db;
   </script>
   <style>
-    /* ========== المتغيرات ========== */
     :root {
-      --bg-dark: #0f172a;
-      --bg-card: rgba(30, 41, 59, 0.7);
-      --primary-color: #7c3aed;
-      --primary-glow: #8b5cf6;
-      --secondary-color: #06b6d4;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --success: #10b981;
-      --danger: #ef4444;
+      --bg-dark: #0f172a; --bg-card: rgba(30, 41, 59, 0.7);
+      --primary-color: #7c3aed; --primary-glow: #8b5cf6;
+      --secondary-color: #06b6d4; --text-main: #f8fafc;
+      --text-muted: #94a3b8; --success: #10b981; --danger: #ef4444;
       --glass-border: 1px solid rgba(255, 255, 255, 0.1);
       --neon-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
-      --radius-md: 12px;
-      --radius-lg: 20px;
+      --radius-md: 12px; --radius-lg: 20px;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
-    /* ========== الأساسيات ========== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
       background-color: var(--bg-dark);
@@ -65,592 +49,174 @@
         radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.15), transparent 25%);
       background-size: 200% 200%;
       animation: bgPulse 15s ease-in-out infinite alternate;
-      color: var(--text-main);
-      line-height: 1.6;
-      min-height: 100vh;
+      color: var(--text-main); line-height: 1.6; min-height: 100vh;
     }
-
-    @keyframes bgPulse {
-      0% {
-        background-position: 0% 50%
-      }
-
-      100% {
-        background-position: 100% 50%
-      }
-    }
-
-    /* ========== Header ========== */
+    @keyframes bgPulse { 0% { background-position: 0% 50% } 100% { background-position: 100% 50% } }
     header {
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(12px);
-      border-bottom: var(--glass-border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 1rem 0;
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px);
+      border-bottom: var(--glass-border); position: sticky; top: 0; z-index: 100; padding: 1rem 0;
     }
-
     .navbar .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: min(92%, 1400px);
-      margin: 0 auto;
-      padding: 0 1rem;
+      display: flex; justify-content: space-between; align-items: center;
+      width: min(92%, 1400px); margin: 0 auto; padding: 0 1rem;
     }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo img {
-      height: 42px;
-      width: auto;
-    }
-
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo img { height: 42px; width: auto; }
     .logo h1 {
-      font-size: 1.4rem;
-      font-weight: 800;
+      font-size: 1.4rem; font-weight: 800;
       background: linear-gradient(135deg, #fff, var(--primary-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-
     .btn-nav {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      background: rgba(124, 58, 237, 0.1);
-      color: var(--primary-color);
-      border: 1px solid rgba(124, 58, 237, 0.3);
-      text-decoration: none;
-      transition: var(--transition);
-      min-height: 44px;
+      display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+      border-radius: 12px; font-weight: 600; font-size: 0.9rem;
+      background: rgba(124, 58, 237, 0.1); color: var(--primary-color);
+      border: 1px solid rgba(124, 58, 237, 0.3); text-decoration: none;
+      transition: var(--transition); min-height: 44px;
     }
-
     .btn-nav:hover {
-      background: rgba(124, 58, 237, 0.2);
-      transform: translateY(-2px);
+      background: rgba(124, 58, 237, 0.2); transform: translateY(-2px);
       box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
     }
-
-    /* ========== Container ========== */
-    .container {
-      width: min(92%, 1400px);
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-
-    /* ========== Tracking Container ========== */
+    .container { width: min(92%, 1400px); margin: 0 auto; padding: 0 1rem; }
     .tracking-container {
-      max-width: 800px;
-      margin: 40px auto;
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      padding: 30px 25px;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--neon-shadow);
-      border: var(--glass-border);
-      animation: fadeIn 0.8s ease-out;
+      max-width: 800px; margin: 40px auto; background: var(--bg-card);
+      backdrop-filter: blur(16px); padding: 30px 25px;
+      border-radius: var(--radius-lg); box-shadow: var(--neon-shadow);
+      border: var(--glass-border); animation: fadeIn 0.8s ease-out;
     }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px)
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0)
-      }
-    }
-
-    .tracking-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .tracking-header h2 {
-      font-size: 2rem;
-      color: var(--text-main);
-      margin-bottom: 8px;
-      font-weight: 800;
-    }
-
-    .tracking-header p {
-      color: var(--text-muted);
-      font-size: 1rem;
-    }
-
-    /* ========== Search Group ========== */
-    .search-group {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
+    .tracking-header { text-align: center; margin-bottom: 30px; }
+    .tracking-header h2 { font-size: 2rem; color: var(--text-main); margin-bottom: 8px; font-weight: 800; }
+    .tracking-header p { color: var(--text-muted); font-size: 1rem; }
+    .search-group { display: flex; gap: 12px; margin-bottom: 30px; }
     .search-input-tracking {
-      flex: 1;
-      padding: 14px 20px;
-      font-size: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50px;
-      outline: none;
-      background: rgba(15, 23, 42, 0.6);
-      color: var(--text-main);
+      flex: 1; padding: 14px 20px; font-size: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50px;
+      outline: none; background: rgba(15, 23, 42, 0.6); color: var(--text-main);
       transition: var(--transition);
     }
-
     .search-input-tracking:focus {
       border-color: var(--primary-color);
       box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
     }
-
-    .search-input-tracking::placeholder {
-      color: var(--text-muted);
-    }
-
+    .search-input-tracking::placeholder { color: var(--text-muted); }
     .search-btn {
-      padding: 0 25px;
-      background: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: var(--transition);
-      white-space: nowrap;
+      padding: 0 25px; background: var(--primary-color); color: white;
+      border: none; border-radius: 50px; cursor: pointer;
+      font-weight: 700; font-size: 1rem;
+      display: flex; align-items: center; gap: 8px;
+      transition: var(--transition); white-space: nowrap;
     }
-
     .search-btn:hover {
-      background: var(--primary-glow);
-      transform: translateY(-2px);
+      background: var(--primary-glow); transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
     }
-
-    /* ========== Result Box ========== */
-    .result-box {
-      margin-top: 25px;
-      display: none;
-      animation: slideUp 0.5s ease-out;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(10px)
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0)
-      }
-    }
-
+    .result-box { margin-top: 25px; display: none; animation: slideUp 0.5s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
     .order-details {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 20px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03); padding: 20px;
+      border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.05);
       margin-bottom: 25px;
     }
-
     .order-info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 15px;
     }
-
     .info-item label {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      display: block; font-size: 0.8rem; color: var(--text-muted);
+      margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
     }
-
-    .info-item span {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    /* ========== Status Badge ========== */
+    .info-item span { font-size: 1rem; font-weight: 600; color: var(--text-main); }
     .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      font-weight: 700;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 50px; font-size: 0.85rem; font-weight: 700;
     }
-
-    .status-pending {
-      background: rgba(245, 158, 11, 0.2);
-      color: #fbbf24;
+    .status-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .status-accepted { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .status-shipped { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .status-arrived { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .status-returned { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    
+    /* ✅ قسم الليفرور */
+    #livreurSection {
+      margin-top: 15px; padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: none;
     }
-
-    .status-accepted {
-      background: rgba(59, 130, 246, 0.2);
-      color: #60a5fa;
+    #livreurCallBtn {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px; padding: 8px 16px;
+      background: var(--success); color: white;
+      border-radius: 50px; text-decoration: none;
+      font-weight: 600; font-size: 0.9rem;
+      transition: var(--transition);
     }
-
-    .status-shipped {
-      background: rgba(139, 92, 246, 0.2);
-      color: #a78bfa;
+    #livreurCallBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
     }
-
-    .status-arrived {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-    }
-
-    .status-returned {
-      background: rgba(239, 68, 68, 0.2);
-      color: #f87171;
-    }
-
-    /* ========== Timeline ========== */
-    .timeline {
-      position: relative;
-      margin-top: 30px;
-      padding-left: 25px;
-    }
-
+    
+    .timeline { position: relative; margin-top: 30px; padding-left: 25px; }
     .timeline::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 27px;
-      height: 100%;
-      width: 2px;
-      background: rgba(255, 255, 255, 0.1);
-      z-index: 0;
+      content: ''; position: absolute; top: 0; left: 27px;
+      height: 100%; width: 2px; background: rgba(255, 255, 255, 0.1); z-index: 0;
     }
-
     .timeline-step {
-      position: relative;
-      margin-bottom: 25px;
-      display: flex;
-      align-items: flex-start;
-      opacity: 0.5;
+      position: relative; margin-bottom: 25px;
+      display: flex; align-items: flex-start; opacity: 0.5;
       transition: opacity 0.3s;
     }
-
-    .timeline-step.active {
-      opacity: 1;
-    }
-
+    .timeline-step.active { opacity: 1; }
     .timeline-dot {
-      width: 18px;
-      height: 18px;
-      background: var(--bg-dark);
-      border: 2px solid var(--text-muted);
-      border-radius: 50%;
-      margin-right: 15px;
-      z-index: 1;
-      position: relative;
-      flex-shrink: 0;
+      width: 18px; height: 18px; background: var(--bg-dark);
+      border: 2px solid var(--text-muted); border-radius: 50%;
+      margin-right: 15px; z-index: 1; position: relative; flex-shrink: 0;
     }
-
     .timeline-step.active .timeline-dot {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
+      background: var(--primary-color); border-color: var(--primary-color);
       box-shadow: 0 0 15px var(--primary-color);
     }
-
     .timeline-step.completed .timeline-dot {
-      background: var(--success);
-      border-color: var(--success);
+      background: var(--success); border-color: var(--success);
       box-shadow: 0 0 10px var(--success);
     }
-
-    .timeline-content h4 {
-      font-size: 1rem;
-      margin-bottom: 4px;
-      color: var(--text-main);
-      font-weight: 600;
-    }
-
-    .timeline-content p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    /* ========== No Result Box ========== */
+    .timeline-content h4 { font-size: 1rem; margin-bottom: 4px; color: var(--text-main); font-weight: 600; }
+    .timeline-content p { font-size: 0.85rem; color: var(--text-muted); }
     #noResultBox {
-      display: none;
-      text-align: center;
-      padding: 25px;
-      background: rgba(239, 68, 68, 0.1);
-      border-radius: 12px;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: var(--text-main);
+      display: none; text-align: center; padding: 25px;
+      background: rgba(239, 68, 68, 0.1); border-radius: 12px;
+      border: 1px solid rgba(239, 68, 68, 0.3); color: var(--text-main);
     }
-
-    /* ========== Footer ========== */
     footer {
       border-top: 1px solid rgba(255, 255, 255, 0.05);
-      margin-top: 60px;
-      padding: 2rem 0;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
+      margin-top: 60px; padding: 2rem 0;
+      text-align: center; color: var(--text-muted); font-size: 0.9rem;
     }
-
-    /* ========== Responsive: Tablet (≤ 768px) ========== */
     @media (max-width: 768px) {
-      .tracking-container {
-        margin: 30px 15px;
-        padding: 25px 20px;
-      }
-
-      .tracking-header h2 {
-        font-size: 1.6rem;
-      }
-
-      .tracking-header p {
-        font-size: 0.95rem;
-      }
-
-      .search-group {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .search-input-tracking {
-        width: 100%;
-        padding: 14px 18px;
-        font-size: 1rem;
-        /* منع التكبير في iOS */
-      }
-
-      .search-btn {
-        width: 100%;
-        justify-content: center;
-        padding: 14px;
-        font-size: 1rem;
-      }
-
-      .order-info-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
-
-      .info-item span {
-        font-size: 0.95rem;
-      }
-
-      .timeline {
-        padding-left: 20px;
-      }
-
-      .timeline::before {
-        left: 24px;
-      }
-
-      .timeline-dot {
-        width: 16px;
-        height: 16px;
-        margin-right: 12px;
-      }
-
-      .timeline-content h4 {
-        font-size: 0.95rem;
-      }
-
-      .timeline-content p {
-        font-size: 0.8rem;
-      }
-
-      .status-badge {
-        padding: 6px 14px;
-        font-size: 0.8rem;
-      }
+      .tracking-container { margin: 30px 15px; padding: 25px 20px; }
+      .tracking-header h2 { font-size: 1.6rem; }
+      .search-group { flex-direction: column; gap: 10px; }
+      .search-input-tracking { width: 100%; padding: 14px 18px; font-size: 1rem; }
+      .search-btn { width: 100%; justify-content: center; padding: 14px; font-size: 1rem; }
+      .order-info-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
     }
-
-    /* ========== Responsive: Mobile Small (≤ 480px) ========== */
     @media (max-width: 480px) {
-      .navbar .container {
-        padding: 0 0.8rem;
-      }
-
-      .logo img {
-        height: 36px;
-      }
-
-      .logo h1 {
-        font-size: 1.2rem;
-      }
-
-      .btn-nav {
-        padding: 10px;
-        width: 44px;
-        height: 44px;
-        justify-content: center;
-      }
-
-      .btn-nav i {
-        display: block;
-        font-size: 1.2rem;
-      }
-
-      .btn-nav span {
-        display: none;
-      }
-
-      .tracking-container {
-        margin: 20px 10px;
-        padding: 20px 15px;
-        border-radius: var(--radius-md);
-      }
-
-      .tracking-header h2 {
-        font-size: 1.4rem;
-      }
-
-      .tracking-header p {
-        font-size: 0.9rem;
-      }
-
-      .search-input-tracking {
-        padding: 12px 16px;
-        font-size: 1rem;
-      }
-
-      .search-btn {
-        padding: 12px;
-        font-size: 0.95rem;
-      }
-
-      .order-info-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .info-item label {
-        font-size: 0.75rem;
-      }
-
-      .info-item span {
-        font-size: 0.9rem;
-      }
-
-      .timeline {
-        padding-left: 18px;
-      }
-
-      .timeline::before {
-        left: 22px;
-        width: 1.5px;
-      }
-
-      .timeline-dot {
-        width: 14px;
-        height: 14px;
-        margin-right: 10px;
-      }
-
-      .timeline-content h4 {
-        font-size: 0.9rem;
-      }
-
-      .timeline-content p {
-        font-size: 0.75rem;
-      }
-
-      .status-badge {
-        padding: 5px 12px;
-        font-size: 0.75rem;
-      }
-
-      #noResultBox {
-        padding: 20px 15px;
-        font-size: 0.9rem;
-      }
-
-      footer {
-        margin-top: 40px;
-        padding: 1.5rem 0;
-        font-size: 0.85rem;
-      }
-
-      /* منع التمرير الأفقي */
-      body {
-        overflow-x: hidden;
-      }
-
-      /* تحسين اللمس */
-      .search-btn,
-      .btn-nav {
-        min-height: 44px;
-        /* Apple HIG */
-      }
+      .tracking-container { margin: 20px 10px; padding: 20px 15px; border-radius: var(--radius-md); }
+      .tracking-header h2 { font-size: 1.4rem; }
+      .search-input-tracking { padding: 12px 16px; font-size: 1rem; }
+      .search-btn { padding: 12px; font-size: 0.95rem; }
+      .order-info-grid { grid-template-columns: 1fr; gap: 10px; }
+      .timeline { padding-left: 20px; }
+      .timeline::before { left: 24px; }
+      .timeline-dot { width: 16px; height: 16px; margin-right: 12px; }
     }
-
-    /* ========== Ultra Small (≤ 320px) ========== */
-    @media (max-width: 319px) {
-      .logo h1 {
-        font-size: 1rem;
-      }
-
-      .logo img {
-        height: 32px;
-      }
-
-      .tracking-header h2 {
-        font-size: 1.2rem;
-      }
-
-      .search-input-tracking {
-        padding: 10px 14px;
-      }
-
-      .search-btn {
-        padding: 10px;
-        font-size: 0.9rem;
-      }
-    }
-
-    /* ========== Reduced Motion ========== */
     @media (prefers-reduced-motion: reduce) {
-
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-
-      body {
-        background-image: none !important;
-      }
-    }
-
-    /* ========== High DPI ========== */
-    @media (-webkit-min-device-pixel-ratio: 2),
-    (min-resolution: 192dpi) {
-      .logo img {
-        image-rendering: -webkit-optimize-contrast;
-      }
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      body { background-image: none !important; }
     }
   </style>
 </head>
-
 <body>
 
   <header>
@@ -678,8 +244,7 @@
         </div>
 
         <div class="search-group">
-          <input type="text" id="orderIdInput" class="search-input-tracking" placeholder="Ex: AM260101001"
-            inputmode="text" autocomplete="off">
+          <input type="text" id="orderIdInput" class="search-input-tracking" placeholder="Ex: AM260101001" inputmode="text" autocomplete="off">
           <button id="trackBtn" class="search-btn">
             <i class="fas fa-search"></i> <span>Rechercher</span>
           </button>
@@ -688,52 +253,43 @@
         <div id="resultBox" class="result-box">
           <div class="order-details">
             <div class="order-info-grid">
-              <div class="info-item">
-                <label>Numéro</label>
-                <span id="displayOrderId"></span>
-              </div>
-              <div class="info-item">
-                <label>Date</label>
-                <span id="displayOrderDate"></span>
-              </div>
-              <div class="info-item">
-                <label>Total</label>
-                <span id="displayOrderTotal"></span>
-              </div>
+              <div class="info-item"><label>Numéro</label><span id="displayOrderId"></span></div>
+              <div class="info-item"><label>Date</label><span id="displayOrderDate"></span></div>
+              <div class="info-item"><label>Total</label><span id="displayOrderTotal"></span></div>
             </div>
             <div style="margin-top: 15px; text-align: center;">
               <span id="displayStatusBadge" class="status-badge"></span>
+            </div>
+            
+            <!-- ✅ قسم الليفرور (يظهر فقط للطلبات المنزلية) -->
+            <div id="livreurSection">
+              <div class="info-item" style="text-align:center;">
+                <label><i class="fas fa-motorcycle"></i> Livreur</label>
+                <span id="displayLivreurPhone" style="font-size:1.1rem; color:var(--success); font-weight:600;"></span>
+                <br>
+                <a id="livreurCallBtn" href="#" target="_blank">
+                  <i class="fas fa-phone"></i> Appeler le livreur
+                </a>
+              </div>
             </div>
           </div>
 
           <div class="timeline">
             <div class="timeline-step" id="step-pending">
               <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Commande Reçue</h4>
-                <p>Nous avons reçu votre commande</p>
-              </div>
+              <div class="timeline-content"><h4>Commande Reçue</h4><p>Nous avons reçu votre commande</p></div>
             </div>
             <div class="timeline-step" id="step-accepted">
               <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Confirmée</h4>
-                <p>Votre commande a été vérifiée</p>
-              </div>
+              <div class="timeline-content"><h4>Confirmée</h4><p>Votre commande a été vérifiée</p></div>
             </div>
             <div class="timeline-step" id="step-shipped">
               <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Expédiée</h4>
-                <p>Colis en route vers vous</p>
-              </div>
+              <div class="timeline-content"><h4>Expédiée</h4><p>Colis en route vers vous</p></div>
             </div>
             <div class="timeline-step" id="step-arrived">
               <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Livrée</h4>
-                <p>Commande livrée avec succès</p>
-              </div>
+              <div class="timeline-content"><h4>Livrée</h4><p>Commande livrée avec succès</p></div>
             </div>
           </div>
         </div>
@@ -757,11 +313,9 @@
       const trackBtn = document.getElementById('trackBtn');
       const orderIdInput = document.getElementById('orderIdInput');
 
-      // منع التكبير عند التركيز على الحقل في iOS
+      // منع التكبير في iOS
       orderIdInput?.addEventListener('focus', function () {
-        if (window.innerWidth < 480) {
-          this.style.fontSize = '16px';
-        }
+        if (window.innerWidth < 480) { this.style.fontSize = '16px'; }
       });
 
       trackBtn?.addEventListener('click', () => {
@@ -779,17 +333,16 @@
       async function trackOrder(orderId) {
         const resultBox = document.getElementById('resultBox');
         const noResultBox = document.getElementById('noResultBox');
-
         resultBox.style.display = 'none';
         noResultBox.style.display = 'none';
-
+        
         // Reset timeline
         document.querySelectorAll('.timeline-step').forEach(step => {
           step.classList.remove('active', 'completed');
           step.style.opacity = '0.5';
         });
-
-        // Show loading on button
+        
+        // Loading
         const originalBtnText = trackBtn.innerHTML;
         trackBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recherche...';
         trackBtn.disabled = true;
@@ -812,7 +365,6 @@
           console.error("❌ Error tracking:", error);
           alert("Erreur de connexion. Veuillez réessayer.");
         } finally {
-          // Restore button
           trackBtn.innerHTML = originalBtnText;
           trackBtn.disabled = false;
         }
@@ -820,20 +372,35 @@
 
       function displayOrder(id, data) {
         setText('displayOrderId', data.orderNumber || id);
-
+        
         if (data.date) {
-          try {
-            setText('displayOrderDate', new Date(data.date).toLocaleDateString('fr-FR'));
-          } catch { setText('displayOrderDate', '—'); }
+          try { setText('displayOrderDate', new Date(data.date).toLocaleDateString('fr-FR')); }
+          catch { setText('displayOrderDate', '—'); }
         }
-
+        
         setText('displayOrderTotal', (data.grandTotal || 0) + ' DA');
-
+        
         const badge = document.getElementById('displayStatusBadge');
         const status = data.status || 'pending';
         if (badge) {
           badge.textContent = getStatusLabel(status);
           badge.className = 'status-badge status-' + status;
+        }
+
+        // ✅ إظهار رقم الليفرور إذا الطلب domicile والرقم موجود
+        const livreurSection = document.getElementById('livreurSection');
+        const livreurPhoneSpan = document.getElementById('displayLivreurPhone');
+        const livreurCallBtn = document.getElementById('livreurCallBtn');
+        
+        if (livreurSection && data.orderType === 'domicile' && data.livreurPhone) {
+          livreurSection.style.display = 'block';
+          if (livreurPhoneSpan) livreurPhoneSpan.textContent = data.livreurPhone;
+          if (livreurCallBtn) {
+            livreurCallBtn.href = `tel:${data.livreurPhone.replace(/\s/g, '')}`;
+            livreurCallBtn.style.display = 'inline-flex';
+          }
+        } else if (livreurSection) {
+          livreurSection.style.display = 'none';
         }
 
         updateTimeline(status);
@@ -858,11 +425,9 @@
       function updateTimeline(status) {
         const steps = ['pending', 'accepted', 'shipped', 'arrived'];
         let foundActive = false;
-
         steps.forEach(stepId => {
           const stepEl = document.getElementById('step-' + stepId);
           if (!stepEl) return;
-
           if (stepId === status) {
             stepEl.classList.add('active');
             stepEl.style.opacity = '1';
@@ -876,5 +441,4 @@
     });
   </script>
 </body>
-
 </html>
