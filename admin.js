@@ -4,6 +4,7 @@ GESTION DES COMMANDES & PRODUITS (FIREBASE)
 let allCommandes = [];
 let allProduits = [];
 let isFirstLoad = true;
+let currentOrderFirebaseId = null;
 
 // ========== Export des fonctions ==========
 window.showDetail = showDetail;
@@ -18,6 +19,7 @@ window.closeEditProductModal = closeEditProductModal;
 window.saveProduct = saveProduct;
 window.updateProduct = updateProduct;
 window.deleteProduct = deleteProduct;
+window.saveLivreurPhone = saveLivreurPhone;
 window.clearFilters = clearFilters;
 window.filterCommandes = filterCommandes;
 window.loadProduits = loadProduits;
@@ -94,18 +96,53 @@ function showDetail(orderNumber) {
     if (!cmd) { alert("❌ Commande introuvable"); return; }
     const modal = document.getElementById('detailModal');
     if (!modal) { alert("❌ Modal non trouvé"); return; }
+    
     modal.dataset.firebaseId = cmd.id;
     modal.dataset.currentOrderNumber = orderNumber;
+    currentOrderFirebaseId = cmd.id;
+    
     const setText = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val??'—'; };
+    
     setText('detailOrderNumber', cmd.orderNumber);
     setText('detailDate', formatDateTime(cmd.date));
     setText('detailName', `${cmd.firstName||''} ${cmd.lastName||''}`);
-    setText('detailPhone1', cmd.phone1); setText('detailPhone2', cmd.phone2);
-    setText('detailWilaya', cmd.wilaya); setText('detailCommune', cmd.commune);
+    setText('detailPhone1', cmd.phone1);
+    setText('detailPhone2', cmd.phone2);
+    setText('detailWilaya', cmd.wilaya);
+    setText('detailCommune', cmd.commune);
     setText('detailOrderType', cmd.orderType === 'domicile' ? '🏠 Domicile' : '🏪 Stop Desk');
+    
+    // ✅ إظهار/إخفاء قسم الليفرور حسب نوع الطلب
+    const livreurSection = document.getElementById('livreurSection');
+    const livreurPhone = document.getElementById('livreurPhone');
+    const livreurDisplay = document.getElementById('livreurPhoneDisplay');
+    const livreurCall = document.getElementById('livreurCallLink');
+    const livreurSaved = document.getElementById('livreurSaved');
+    
+    if(livreurSection) {
+        if(cmd.orderType === 'domicile') {
+            livreurSection.style.display = 'block';
+            const savedPhone = cmd.livreurPhone || '';
+            if(livreurPhone) livreurPhone.value = savedPhone;
+            if(livreurDisplay) livreurDisplay.textContent = savedPhone || 'Non défini';
+            if(livreurCall) {
+                if(savedPhone) {
+                    livreurCall.href = `tel:${savedPhone.replace(/\s/g,'')}`;
+                    livreurCall.style.display = 'inline';
+                } else {
+                    livreurCall.style.display = 'none';
+                }
+            }
+            if(livreurSaved) livreurSaved.style.display = 'none';
+        } else {
+            livreurSection.style.display = 'none';
+        }
+    }
+    
     const status = cmd.status || 'pending';
     const badge = document.getElementById('detailStatusBadge');
     if(badge) { badge.textContent = getStatusLabel(status); badge.className = 'status-badge ' + getStatusClass(status); }
+    
     const items = document.getElementById('detailItems');
     if(items) {
         if(cmd.cartItems?.length) {
@@ -115,8 +152,10 @@ function showDetail(orderNumber) {
     setText('detailCartTotal', (cmd.cartTotal||0).toFixed(2));
     setText('detailShipping', (cmd.shippingPrice||0).toFixed(2));
     setText('detailTotal', (cmd.grandTotal||0).toFixed(2));
+    
     modal.classList.add('active');
 }
+
 function closeDetail() { document.getElementById('detailModal')?.classList.remove('active'); }
 function getStatusClass(s) { return {pending:'status-pending',accepted:'status-accepted',shipped:'status-shipped',arrived:'status-arrived',returned:'status-returned'}[s]||'status-pending'; }
 function getStatusLabel(s) { return {pending:'⏳ En attente',accepted:'✓ Acceptée',shipped:'🚚 En route',arrived:'📦 Arrivée',returned:'↩️ Retournée'}[s]||'⏳ En attente'; }
@@ -258,6 +297,48 @@ function deleteProduct(productId) {
     db.collection("produits").doc(productId).delete().then(() => {
         showNotification('🗑️ Produit supprimé', 'success'); loadProduits();
     }).catch(err => { console.error(err); alert("❌ "+err.message); });
+}
+
+// ========== 🚚 SAUVEGARDER TÉLÉPHONE LIVREUR ==========
+function saveLivreurPhone() {
+    if(!currentOrderFirebaseId) {
+        alert("❌ Erreur: Commande non identifiée");
+        return;
+    }
+    const phone = document.getElementById('livreurPhone')?.value.trim();
+    if(!phone) {
+        alert("⚠️ Veuillez entrer un numéro de téléphone");
+        return;
+    }
+    if(!/^(\+213|0)[567]\d{8}$/.test(phone.replace(/\s/g,''))) {
+        if(!confirm("⚠️ Le numéro semble invalide. Continuer quand même?")) return;
+    }
+    showNotification('🔄 Enregistrement...', 'success');
+    db.collection("commandes").doc(currentOrderFirebaseId).update({
+        livreurPhone: phone,
+        livreurAddedAt: new Date().toISOString()
+    })
+    .then(() => {
+        const display = document.getElementById('livreurPhoneDisplay');
+        const callLink = document.getElementById('livreurCallLink');
+        const savedMsg = document.getElementById('livreurSaved');
+        if(display) display.textContent = phone;
+        if(callLink) {
+            callLink.href = `tel:${phone.replace(/\s/g,'')}`;
+            callLink.style.display = 'inline';
+        }
+        if(savedMsg) {
+            savedMsg.style.display = 'block';
+            setTimeout(() => savedMsg.style.display = 'none', 2000);
+        }
+        const cmd = allCommandes.find(c => c.id === currentOrderFirebaseId);
+        if(cmd) cmd.livreurPhone = phone;
+        showNotification('✅ Numéro livreur enregistré!', 'success');
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ Erreur: " + err.message);
+    });
 }
 
 // ========== 🔔 NOTIFICATIONS ==========
