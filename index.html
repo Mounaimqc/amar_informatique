@@ -42,7 +42,7 @@
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return; n = f.fbq = function () {
         n.callMethod ?
-        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
       };
       if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
       n.queue = []; t = b.createElement(e); t.async = !0;
@@ -104,12 +104,39 @@
         <div class="filters">
           <input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input"
             aria-label="Rechercher">
-          <select id="categoryFilter" class="category-filter" aria-label="Filtrer par catégorie">
-            <option value="">Toutes les catégories</option>
-            <option value="laptop">Laptops</option>
-            <option value="imprimantes">Imprimantes</option>
-            <option value="accessoires">Accessoires</option>
-          </select>
+          <!-- hidden input used by filterProducts() in script.js -->
+          <input type="hidden" id="categoryFilter" value="">
+        </div>
+        <!-- Category Cards -->
+        <div class="cat-cards">
+          <div class="cat-card cat-all active" onclick="selectCat('', this)" id="btnAll">
+            <div class="cat-card-icon"><i class="fas fa-th-large"></i></div>
+            <div class="cat-card-info">
+              <div class="cat-card-name">Tous</div>
+              <div class="cat-card-count" id="countAll">—</div>
+            </div>
+          </div>
+          <div class="cat-card cat-laptop" onclick="selectCat('laptop', this)" id="btnLaptop">
+            <div class="cat-card-icon"><i class="fas fa-laptop"></i></div>
+            <div class="cat-card-info">
+              <div class="cat-card-name">Laptops</div>
+              <div class="cat-card-count" id="countLaptop">—</div>
+            </div>
+          </div>
+          <div class="cat-card cat-imprimantes" onclick="selectCat('imprimantes', this)" id="btnImprimantes">
+            <div class="cat-card-icon"><i class="fas fa-print"></i></div>
+            <div class="cat-card-info">
+              <div class="cat-card-name">Imprimantes</div>
+              <div class="cat-card-count" id="countImprimantes">—</div>
+            </div>
+          </div>
+          <div class="cat-card cat-accessoires" onclick="selectCat('accessoires', this)" id="btnAccessoires">
+            <div class="cat-card-icon"><i class="fas fa-plug"></i></div>
+            <div class="cat-card-info">
+              <div class="cat-card-name">Accessoires</div>
+              <div class="cat-card-count" id="countAccessoires">—</div>
+            </div>
+          </div>
         </div>
         <div class="products-grid" id="productsGrid" role="list">
           <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);" role="status">

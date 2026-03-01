@@ -58,6 +58,7 @@ async function loadProductsFromFirebase() {
     });
 
     loadProducts();
+    updateCatCounts();
 
   } catch (error) {
     console.error("❌ Erreur chargement produits:", error);
@@ -103,16 +104,16 @@ function loadProducts(filteredProducts = null) {
 
     const info = document.createElement('div');
     info.className = 'product-info';
-    
+
     const price = parseFloat(product.price) || 0;
 
     // ✅ تم إزالة منطق badges العشوائي هنا
-    
+
     info.innerHTML = `
       <!-- ✅ تم إزالة قسم product-badges -->
       <h3 class="product-name">${product.name}</h3>
       <div class="product-meta">
-        <span class="product-category">${product.category || 'Général'}</span>
+        <span class="product-category ${catBadgeClass(product.category)}">${catIcon(product.category)} ${product.category ? catLabel(product.category) : 'Général'}</span>
       </div>
       <p class="product-description">${product.description || ''}</p>
       <div class="product-footer">
@@ -440,8 +441,38 @@ function setupEventListeners() {
   });
 
   searchInput?.addEventListener('input', filterProducts);
-  categoryFilter?.addEventListener('change', filterProducts);
 }
+
+// ========== CATEGORY FILTER (card-based) ==========
+function selectCat(cat, btn) {
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const hidden = document.getElementById('categoryFilter');
+  if (hidden) hidden.value = cat;
+  filterProducts();
+}
+
+function updateCatCounts() {
+  const total = products.length;
+  const laptop = products.filter(p => p.category === 'laptop').length;
+  const imp = products.filter(p => p.category === 'imprimantes').length;
+  const acc = products.filter(p => p.category === 'accessoires').length;
+  const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setEl('countAll', total);
+  setEl('countLaptop', laptop);
+  setEl('countImprimantes', imp);
+  setEl('countAccessoires', acc);
+}
+
+// ========== CATEGORY HELPERS ==========
+const CAT_META = {
+  laptop: { label: 'Laptop', icon: '<i class="fas fa-laptop"></i>', cls: 'cat-badge-laptop' },
+  imprimantes: { label: 'Imprimantes', icon: '<i class="fas fa-print"></i>', cls: 'cat-badge-imprimantes' },
+  accessoires: { label: 'Accessoires', icon: '<i class="fas fa-plug"></i>', cls: 'cat-badge-accessoires' },
+};
+function catLabel(c) { return (CAT_META[c] || {}).label || c || 'Général'; }
+function catIcon(c) { return (CAT_META[c] ? CAT_META[c].icon : '<i class="fas fa-tag"></i>'); }
+function catBadgeClass(c) { return (CAT_META[c] ? CAT_META[c].cls : 'cat-badge-default'); }
 
 // ========== FILTRE PRODUITS ==========
 function filterProducts() {
