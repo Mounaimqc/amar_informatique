@@ -934,6 +934,61 @@ document.addEventListener('keydown', (e) => {
     closeShippingModal();
   }
 });
+// ========== Gestion du Bouton Contact Social ==========
+document.addEventListener('DOMContentLoaded', function() {
+  const socialToggleBtn = document.getElementById('socialToggleBtn');
+  const socialLinksMenu = document.getElementById('socialLinksMenu');
+  
+  if (socialToggleBtn && socialLinksMenu) {
+    // Toggle du menu
+    socialToggleBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isActive = socialLinksMenu.classList.toggle('active');
+      socialToggleBtn.setAttribute('aria-expanded', isActive);
+      socialLinksMenu.setAttribute('aria-hidden', !isActive);
+    });
+    
+    // Fermer en cliquant à l'extérieur
+    document.addEventListener('click', function(e) {
+      if (!socialToggleBtn.contains(e.target) && !socialLinksMenu.contains(e.target)) {
+        socialLinksMenu.classList.remove('active');
+        socialToggleBtn.setAttribute('aria-expanded', 'false');
+        socialLinksMenu.setAttribute('aria-hidden', 'true');
+      }
+    });
+    
+    // Fermer avec la touche Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && socialLinksMenu.classList.contains('active')) {
+        socialLinksMenu.classList.remove('active');
+        socialToggleBtn.setAttribute('aria-expanded', 'false');
+        socialLinksMenu.setAttribute('aria-hidden', 'true');
+        socialToggleBtn.focus();
+      }
+    });
+    
+    // Analytics : tracking des clics (optionnel)
+    document.querySelectorAll('.social-link').forEach(link => {
+      link.addEventListener('click', function() {
+        const platform = this.classList.contains('whatsapp') ? 'WhatsApp' :
+                        this.classList.contains('facebook') ? 'Facebook' : 'Instagram';
+        
+        // Meta Pixel Event (si vous utilisez Facebook Pixel)
+        if (typeof fbq !== 'undefined') {
+          fbq('track', 'Contact', { platform: platform });
+        }
+        
+        // Google Analytics (si configuré)
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'contact_click', {
+            'event_category': 'social',
+            'event_label': platform
+          });
+        }
+      });
+    });
+  }
+});
 
 
 
