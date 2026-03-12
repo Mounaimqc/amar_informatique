@@ -32,45 +32,49 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
-
-// ========== CHARGER LES PRODUITS DEPUIS FIREBASE ==========
+// ========== دالة خلط المنتجات (Random Shuffle) ==========
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}// ========== CHARGER LES PRODUITS DEPUIS FIREBASE ==========
 async function loadProductsFromFirebase() {
-  try {
-    const grid = document.getElementById('productsGrid');
-    if (!grid) {
-      console.warn("⚠️ #productsGrid non trouvé");
-      return;
+    try {
+        const grid = document.getElementById('productsGrid');
+        if (!grid) {
+            console.warn("⚠️ #productsGrid non trouvé");
+            return;
+        }
+        const snapshot = await db.collection("produits").get();
+        products = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            products.push({
+                id: doc.id,
+                name: data.name || 'Produit sans nom',
+                category: data.category || '',
+                description: data.description || '',
+                price: typeof data.price === 'number' ? data.price : 0,
+                image: data.image || ''
+            });
+        });
+        
+        // ✅ هنا نضيفوا خلط المنتجات عشوائياً
+        shuffleArray(products); 
+        
+        loadProducts();
+        updateCatCounts();
+    } catch (error) {
+        console.error("❌ Erreur chargement produits:", error);
+        const grid = document.getElementById('productsGrid');
+        if (grid) {
+            grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:red; padding:20px;">
+            ❌ Erreur de chargement des produits.<br><small>${error.message}</small>
+            </p>`;
+        }
     }
-
-    const snapshot = await db.collection("produits").get();
-    products = [];
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      products.push({
-        id: doc.id,
-        name: data.name || 'Produit sans nom',
-        category: data.category || '',
-        description: data.description || '',
-        price: typeof data.price === 'number' ? data.price : 0,
-        image: data.image || ''
-      });
-    });
-
-    loadProducts();
-    updateCatCounts();
-
-  } catch (error) {
-    console.error("❌ Erreur chargement produits:", error);
-    const grid = document.getElementById('productsGrid');
-    if (grid) {
-      grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:red; padding:20px;">
-        ❌ Erreur de chargement des produits.<br><small>${error.message}</small>
-      </p>`;
-    }
-  }
 }
-
 // ========== AFFICHAGE DES PRODUITS ==========
 function loadProducts(filteredProducts = null) {
   const grid = document.getElementById('productsGrid');
@@ -989,6 +993,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
 
 
 
