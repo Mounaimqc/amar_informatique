@@ -5,23 +5,26 @@
   <meta charset="UTF-8">
   <meta name="facebook-domain-verification" content="qivdt86tqxbbfker2d8mp0o9647twe" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <meta name="theme-color" content="E3E3E3">
+  <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
   <title>Amar Informatique - Premium Tech Store</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="logo.jpg" type="image/x-icon">
-  <!-- Google Fonts: Outfit (Modern/Tech) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com    ">
-  <link rel="preconnect" href="https://fonts.gstatic.com    " crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit    :wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css    ">
-  <!-- Firebase (Compat Version) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js    "></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js    "></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js    "></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
@@ -34,28 +37,26 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const storage = firebase.storage();
-    // جعل db و storage متاحين عالميًا
     window.db = db;
     window.storage = storage;
   </script>
+  
   <!-- Meta Pixel Code -->
   <script>
-    !function (f, b, e, v, n, t, s) {
-      if (f.fbq) return; n = f.fbq = function () {
-        n.callMethod ?
-          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+    !function(f,b,e,v,n,t,s){
+      if(f.fbq)return;n=f.fbq=function(){
+        n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)
       };
-      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-      n.queue = []; t = b.createElement(e); t.async = !0;
-      t.src = v; s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s)
-    }(window, document, 'script',
-      'https://connect.facebook.net/en_US/fbevents.js    ');
-    fbq('init', '1226041376399363');
-    fbq('track', 'PageView');
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)
+    }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init','1226041376399363');
+    fbq('track','PageView');
   </script>
   <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1226041376399363&ev=PageView&noscript=1    " /></noscript>
+      src="https://www.facebook.com/tr?id=1226041376399363&ev=PageView&noscript=1"/></noscript>
   <!-- End Meta Pixel Code -->
 </head>
 
@@ -73,7 +74,6 @@
           <div class="contact-info">
             <span><i class="fas fa-phone-alt"></i> 0559 46 99 56</span>
           </div>
-          <!-- ✅ زر خريطة التوصيل الجديد -->
           <a href="couverture.html" class="btn-nav btn-track" title="Zones de Livraison">
             <i class="fas fa-map-marked-alt"></i> <span>Zones de Livraison</span>
           </a>
@@ -105,7 +105,6 @@
         <div class="filters">
           <input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input"
             aria-label="Rechercher">
-          <!-- hidden input used by filterProducts() in script.js -->
           <input type="hidden" id="categoryFilter" value="">
         </div>
         <!-- Category Cards -->
@@ -155,8 +154,7 @@
       <h2 id="cartModalTitle"><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
       <div class="cart-items" id="cartItems" role="list"></div>
       <div class="cart-summary">
-        <div
-          style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
           <span>Total:</span>
           <span><span id="totalPrice">0.00</span> DA</span>
         </div>
@@ -227,14 +225,12 @@
   <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
     <div class="modal-content" style="text-align: center;">
       <span class="close-modal" aria-label="Fermer">&times;</span>
-      <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;"
-        aria-hidden="true"></i>
+      <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;" aria-hidden="true"></i>
       <h2 id="confirmModalTitle" style="border:none;">Commande Reçue!</h2>
       <p style="font-size: 1.1rem; margin-bottom: 20px;">Merci pour votre achat.</p>
       <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
         <p style="margin-bottom: 5px; font-size: 0.9rem;">Votre numéro de commande:</p>
-        <strong id="orderNumber"
-          style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
+        <strong id="orderNumber" style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
       </div>
       <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
         <i class="fas fa-camera" aria-hidden="true"></i> Prenez une capture d'écran de ce numéro.
@@ -264,14 +260,14 @@
     </div>
   </div>
 
-  <!-- ✅ Modal أسعار التوصيل لجميع الولايات -->
+  <!-- Modal أسعار التوصيل -->
   <div class="modal" id="shippingModal" role="dialog" aria-modal="true" aria-labelledby="shippingModalTitle">
     <div class="modal-content" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
       <span class="close-modal" onclick="closeShippingModal()" aria-label="Fermer">&times;</span>
-      <h2 id="shippingModalTitle"><i class="fas fa-truck-fast"></i> Prix ​​de livraison pour tous les états</h2>
+      <h2 id="shippingModalTitle"><i class="fas fa-truck-fast"></i> Prix de livraison pour tous les états</h2>
       <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
         <button class="btn-shipping-type active" onclick="switchShippingType('domicile', this)">
-          <i class="fas fa-home"></i> Livraison à Domicil
+          <i class="fas fa-home"></i> Livraison à Domicile
         </button>
         <button class="btn-shipping-type" onclick="switchShippingType('stopdesk', this)">
           <i class="fas fa-store"></i> Stop Desk (Bureau)
@@ -288,8 +284,7 @@
             <tr style="background: var(--bg-hover);">
               <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border);">#</th>
               <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border);">Wilaya</th>
-              <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border);">Prix de Livraison
-              </th>
+              <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border);">Prix de Livraison</th>
             </tr>
           </thead>
           <tbody id="shippingTableBody"></tbody>
@@ -301,13 +296,53 @@
     </div>
   </div>
 
+  <!-- ✅ FOOTER AVEC RÉSEAUX SOCIAUX -->
   <footer>
-    <p>&copy; 2026 Amar Informatique. Premium Tech Store.</p>
+    <div class="container">
+      <!-- Section Réseaux Sociaux -->
+      <div class="footer-social">
+        <h3 style="color: var(--text-main); margin-bottom: 15px; font-size: 1.1rem;">Suivez-nous</h3>
+        <div class="social-links">
+          <!-- WhatsApp -->
+          <a href="https://wa.me/213559469956" target="_blank" class="social-link whatsapp" title="WhatsApp" aria-label="Contactez-nous sur WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp</span>
+          </a>
+          <!-- Facebook -->
+          <a href="https://www.facebook.com/share/17JGx1hrCd/?mibextid=wwXIfr" target="_blank" class="social-link facebook" title="Facebook" aria-label="Suivez-nous sur Facebook">
+            <i class="fab fa-facebook-f"></i>
+            <span>Facebook</span>
+          </a>
+          <!-- Instagram -->
+          <a href="https://www.instagram.com/amar_info19?igsh=MTk0c3hxdGhwY2dwag==" target="_blank" class="social-link instagram" title="Instagram" aria-label="Suivez-nous sur Instagram">
+            <i class="fab fa-instagram"></i>
+            <span>Instagram</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Section Contact -->
+      <div class="footer-contact" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <p style="margin-bottom: 8px;">
+          <i class="fas fa-phone-alt" style="margin-right: 8px;"></i>
+          <strong>0559 46 99 56</strong>
+        </p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+          <i class="fas fa-clock" style="margin-right: 6px;"></i>
+          Lun-Sam: 9h00 - 18h00
+        </p>
+      </div>
+      
+      <!-- Copyright -->
+      <p style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.85rem;">
+        &copy; 2026 Amar Informatique. Premium Tech Store.
+      </p>
+    </div>
   </footer>
 
   <script src="script.js"></script>
 
-  <!-- ✅ JavaScript لوظائف مودال أسعار التوصيل -->
+  <!-- JavaScript pour les modals et fonctionnalités -->
   <script>
     // ========== وظائف مودال أسعار التوصيل ==========
     function openShippingModal() {
@@ -354,22 +389,100 @@
       });
     }
 
-    // إغلاق المودال عند النقر خارجه
     document.addEventListener('click', (e) => {
       const modal = document.getElementById('shippingModal');
       if (modal && e.target === modal) closeShippingModal();
     });
 
-    // إغلاق المودال بمفتاح Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeShippingModal();
     });
   </script>
 
+  <!-- ✅ CSS pour le footer avec réseaux sociaux (à ajouter dans styles.css ou ici) -->
+  <style>
+    /* Footer Social Links - Thème Noir & Blanc */
+    .footer-social { text-align: center; }
+    .footer-social h3 { 
+      color: var(--text-main); 
+      margin-bottom: 15px; 
+      font-size: 1.1rem; 
+      font-weight: 600;
+    }
+    
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+    }
+    
+    .social-link i {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .social-link.whatsapp { border-color: #25D366; }
+    .social-link.whatsapp:hover {
+      background: #25D366;
+      color: #000;
+      border-color: #25D366;
+      transform: translateY(-2px);
+    }
+    
+    .social-link.facebook { border-color: #1877F2; }
+    .social-link.facebook:hover {
+      background: #1877F2;
+      color: #fff;
+      border-color: #1877F2;
+      transform: translateY(-2px);
+    }
+    
+    .social-link.instagram { border-color: #E4405F; }
+    .social-link.instagram:hover {
+      background: #E4405F;
+      color: #fff;
+      border-color: #E4405F;
+      transform: translateY(-2px);
+    }
+    
+    .footer-contact { text-align: center; }
+    .footer-contact p { margin: 5px 0; color: var(--text-muted); }
+    .footer-contact i { color: var(--primary-color); }
+    
+    /* Responsive mobile */
+    @media (max-width: 480px) {
+      .social-links { gap: 12px; }
+      .social-link {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+      }
+      .social-link span { display: none; } /* Cache le texte sur très petit écran */
+      .social-link i { font-size: 1.2rem; }
+    }
+    
+    /* Accessibilité : focus visible */
+    .social-link:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+  </style>
+
 </body>
-
-
 </html>
-
-
-
