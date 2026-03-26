@@ -4,7 +4,10 @@ let cart = [];
 let currentProductId = null;
 let observer;
 let sliderInterval;
-
+// ========== PAGINATION PRODUITS ==========
+const PRODUCTS_PER_PAGE = 10;  // Nombre de produits à afficher par page
+let displayedProductsCount = 0; // Nombre de produits actuellement affichés
+let filteredProducts = [];      // Produits filtrés pour l'affichage
 // ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', function () {
   // التحقق من تهيئة Firebase
@@ -76,45 +79,61 @@ async function loadProductsFromFirebase() {
     }
 }
 // ========== AFFICHAGE DES PRODUITS ==========
-function loadProducts(filteredProducts = null) {
+// ========== AFFICHAGE DES PRODUITS AVEC PAGINATION ==========
+function loadProducts(productsToDisplay = null, resetPagination = true) {
   const grid = document.getElementById('productsGrid');
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  
   if (!grid) {
     console.warn("⚠️ #productsGrid non trouvé");
     return;
   }
 
-  const productsToDisplay = filteredProducts || products;
-  grid.innerHTML = '';
+  // Si aucun produit spécifié, utiliser tous les produits
+  if (!productsToDisplay) {
+    productsToDisplay = [...products];
+    filteredProducts = [...products];
+  } else {
+    filteredProducts = [...productsToDisplay];
+  }
 
-  if (productsToDisplay.length === 0) {
+  // Réinitialiser le compteur si demandé
+  if (resetPagination) {
+    displayedProductsCount = 0;
+    grid.innerHTML = '';
+  }
+
+  // Afficher les produits par lots de 10
+  const productsToShow = filteredProducts.slice(
+    displayedProductsCount, 
+    displayedProductsCount + PRODUCTS_PER_PAGE
+  );
+
+  if (productsToShow.length === 0 && displayedProductsCount === 0) {
     grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 20px; color: var(--text-muted);">Aucun produit trouvé.</p>';
+    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
     return;
   }
 
-  productsToDisplay.forEach(product => {
+  // Créer les cartes produits
+  productsToShow.forEach(product => {
     const card = document.createElement('div');
     card.className = 'product-card';
-    // فتح تفاصيل المنتج عند النقر على البطاقة
     card.onclick = () => openProductDetail(product.id);
 
     const img = document.createElement('img');
-    // صورة افتراضية في حال عدم وجود صورة للمنتج
     img.src = product.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%231e293b%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2214%22 fill=%22%2394a3b8%22%3ENo+Image%3C/text%3E%3C/svg%3E';
     img.alt = product.name;
     img.className = 'product-image';
-    img.onerror = function () {
+    img.onerror = function() {
       this.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22200%22%3E%3Crect fill=%22%231e293b%22 width=%22250%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2214%22 fill=%22%2394a3b8%22%3ENo+Image%3C/text%3E%3C/svg%3E';
     };
 
     const info = document.createElement('div');
     info.className = 'product-info';
-
     const price = parseFloat(product.price) || 0;
 
-    // ✅ تم إزالة منطق badges العشوائي هنا
-
     info.innerHTML = `
-      <!-- ✅ تم إزالة قسم product-badges -->
       <h3 class="product-name">${product.name}</h3>
       <div class="product-meta">
         <span class="product-category ${catBadgeClass(product.category)}">${catIcon(product.category)} ${product.category ? catLabel(product.category) : 'Général'}</span>
@@ -136,18 +155,44 @@ function loadProducts(filteredProducts = null) {
     grid.appendChild(card);
   });
 
-  // تهيئة السلايدر مرة واحدة فقط عند التحميل الأول
-  if (filteredProducts === null && !window.sliderInitialized) {
+  // Mettre à jour le compteur
+  displayedProductsCount += productsToShow.length;
+
+  // Afficher/masquer le bouton "Afficher plus"
+  if (loadMoreBtn) {
+    if (displayedProductsCount >= filteredProducts.length) {
+      loadMoreBtn.style.display = 'none';
+    } else {
+      loadMoreBtn.style.display = 'flex';
+      // Mettre à jour le texte du bouton
+      const remaining = filteredProducts.length - displayedProductsCount;
+      loadMoreBtn.innerHTML = `<i class="fas fa-plus"></i> Afficher ${Math.min(PRODUCTS_PER_PAGE, remaining)} produit${remaining > 1 ? 's' : ''} de plus`;
+    }
+  }
+
+  // Initialiser le slider seulement au premier chargement
+  if (resetPagination && !window.sliderInitialized) {
     setTimeout(() => {
-      if (typeof initHeroSlider === 'function') {
-        initHeroSlider();
-      }
+      if (typeof initHeroSlider === 'function') initHeroSlider();
       window.sliderInitialized = true;
     }, 100);
   }
 
-  // تفعيل أنيميشن الظهور عند التمرير
+  // Animation de scroll
   setTimeout(initScrollAnimations, 100);
+}
+// ========== CHARGER PLUS DE PRODUITS ==========
+function loadMoreProducts() {
+  if (displayedProductsCount >= filteredProducts.length) return;
+  
+  // Recharger les produits sans réinitialiser la pagination
+  loadProducts(filteredProducts, false);
+  
+  // Scroll fluide vers les nouveaux produits
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  if (loadMoreBtn) {
+    loadMoreBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 // ========== SCROLL ANIMATION ==========
@@ -478,7 +523,7 @@ function catLabel(c) { return (CAT_META[c] || {}).label || c || 'Général'; }
 function catIcon(c) { return (CAT_META[c] ? CAT_META[c].icon : '<i class="fas fa-tag"></i>'); }
 function catBadgeClass(c) { return (CAT_META[c] ? CAT_META[c].cls : 'cat-badge-default'); }
 
-// ========== FILTRE PRODUITS ==========
+// ========== FILTRE PRODUITS AVEC PAGINATION ==========
 function filterProducts() {
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
@@ -494,9 +539,9 @@ function filterProducts() {
     return matchesSearch && matchesCategory;
   });
 
-  loadProducts(filtered);
+  // Réinitialiser la pagination lors d'un nouveau filtre
+  loadProducts(filtered, true);
 }
-
 // ========== COMMANDE ==========
 function generateOrderNumber() {
   const now = new Date();
