@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#ffffff">
   <title>خريطة التوصيل - Amar Informatique</title>
 
   <link rel="icon" href="logo.jpg" type="image/x-icon">
@@ -17,12 +17,9 @@
     window.am4internal_webpackJsonp = function (id, modules) {
       for (let key in modules) {
         try {
-          // Execute the module function with dummy arguments
-          // This triggers 'window.am4geodata_algeriaHigh = ...' internal logic
           modules[key]({}, {}, {});
           console.log("Executed module:", key);
         } catch (e) {
-          // Some modules might need real amCharts environment, but map data usually doesn't
           console.warn("Module exec warning for " + key + ":", e);
         }
       }
@@ -33,6 +30,7 @@
     };
   </script>
   <script src="algeria_data.js" defer></script>
+  
   <!-- Meta Pixel Code -->
   <script>
     !function (f, b, e, v, n, t, s) {
@@ -52,42 +50,41 @@
   <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=1226041376399363&ev=PageView&noscript=1" /></noscript>
   <!-- End Meta Pixel Code -->
+  
   <style>
+    /* ========== VARIABLES - THÈME CLAIR (INVERSÉ) ========== */
     :root {
-      --bg-dark: #0f172a;
-      --bg-card: rgba(30, 41, 59, 0.7);
-      --primary-color: #7c3aed;
-      --primary-glow: #8b5cf6;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-      --neon-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+      --bg-dark: #ffffff;
+      --bg-card: rgba(248, 248, 248, 0.9);
+      --primary-color: #000000;
+      --primary-glow: #333333;
+      --text-main: #000000;
+      --text-muted: #555555;
+      --glass-border: 1px solid rgba(0, 0, 0, 0.1);
+      --neon-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       --radius-lg: 20px;
       --transition: all 0.3s ease;
-      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-bg: rgba(0, 0, 0, 0.02);
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Outfit', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
       color: var(--text-main);
       min-height: 100vh;
     }
 
     header {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: var(--glass-border);
       padding: 1rem 0;
       position: sticky;
       top: 0;
       z-index: 1000;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
     }
 
     .navbar .container {
@@ -98,20 +95,15 @@
       margin: 0 auto;
     }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo img { 
+      height: 42px; 
+      filter: grayscale(100%) brightness(0.85);
     }
-
-    .logo img {
-      height: 42px
-    }
-
     .logo h1 {
       font-size: 1.4rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #fff, var(--primary-color));
+      background: linear-gradient(135deg, #000, #444);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -121,9 +113,9 @@
       padding: 10px 18px;
       border-radius: 12px;
       font-weight: 600;
-      background: rgba(124, 58, 237, 0.1);
+      background: rgba(0, 0, 0, 0.06);
       color: var(--primary-color);
-      border: 1px solid rgba(124, 58, 237, 0.3);
+      border: 1px solid rgba(0, 0, 0, 0.15);
       text-decoration: none;
       transition: var(--transition);
       display: flex;
@@ -131,10 +123,9 @@
       gap: 8px;
       min-height: 44px;
     }
-
     .btn-nav:hover {
-      background: rgba(124, 58, 237, 0.2);
-      box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+      background: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
     }
 
     .coverage-section {
@@ -148,7 +139,7 @@
       font-size: 2.5rem;
       font-weight: 800;
       margin-bottom: 10px;
-      background: linear-gradient(135deg, #fff, var(--primary-glow));
+      background: linear-gradient(135deg, #000, #444);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -164,14 +155,14 @@
       max-width: 500px;
       padding: 15px 25px;
       border-radius: 50px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(15, 23, 42, 0.6);
-      color: white;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      background: #fff;
+      color: #000;
       margin-bottom: 40px;
       outline: none;
       transition: var(--transition);
     }
-
+    .search-input::placeholder { color: var(--text-muted); }
     .search-input:focus {
       border-color: var(--primary-color);
       box-shadow: var(--neon-shadow);
@@ -190,85 +181,90 @@
       backdrop-filter: blur(16px);
       border-radius: var(--radius-lg);
       padding: 0;
-      /* Remove padding for edge-to-edge map feel */
-      box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.08);
       border: var(--glass-border);
       position: relative;
       width: 100%;
       max-width: 1200px;
-      /* Centered and prominent */
       height: 650px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       overflow: hidden;
-      /* Important for zoom/pan containment */
     }
 
     #map-svg-container {
       width: 100%;
       height: auto;
       position: relative;
+      background: #fafafa;
+      border-radius: var(--radius-lg);
     }
 
     svg {
       width: 100%;
       height: auto;
       max-height: 700px;
-      filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.1));
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.05));
     }
 
+    /* Map paths - thème clair */
+    path {
+      transition: all 0.2s ease;
+      stroke: rgba(0, 0, 0, 0.2);
+      stroke-width: 0.5;
+    }
+    
     path:hover {
-      fill: rgba(139, 92, 246, 0.9);
+      fill: rgba(0, 0, 0, 0.85) !important;
       stroke: #fff;
       stroke-width: 1.5;
-      filter: drop-shadow(0 0 12px var(--primary-glow));
+      filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.3));
       z-index: 10;
+      cursor: pointer;
     }
 
     path.highlight {
-      fill: var(--primary-color) !important;
+      fill: #000 !important;
       stroke: #fff;
       stroke-width: 2;
-      filter: drop-shadow(0 0 20px var(--primary-color));
+      filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.4));
       animation: pulseHighlight 2s infinite;
     }
 
     @keyframes pulseHighlight {
-      0% {
-        filter: drop-shadow(0 0 5px var(--primary-color));
-      }
-
-      50% {
-        filter: drop-shadow(0 0 25px var(--primary-color));
-      }
-
-      100% {
-        filter: drop-shadow(0 0 5px var(--primary-color));
-      }
+      0%, 100% { filter: drop-shadow(0 0 5px rgba(0,0,0,0.2)); }
+      50% { filter: drop-shadow(0 0 20px rgba(0,0,0,0.4)); }
     }
 
-    /* Category Colors */
+    /* Category Colors - adaptés au thème clair */
     .speed-fast {
       fill: #10b981;
-      fill-opacity: 0.35;
+      fill-opacity: 0.25;
+      stroke: #059669;
+      stroke-width: 0.5;
     }
+    .speed-fast:hover { fill: #10b981 !important; fill-opacity: 0.8 !important; }
 
     .speed-medium {
       fill: #f59e0b;
-      fill-opacity: 0.35;
+      fill-opacity: 0.25;
+      stroke: #d97706;
+      stroke-width: 0.5;
     }
+    .speed-medium:hover { fill: #f59e0b !important; fill-opacity: 0.8 !important; }
 
     .speed-slow {
       fill: #ef4444;
-      fill-opacity: 0.35;
+      fill-opacity: 0.25;
+      stroke: #dc2626;
+      stroke-width: 0.5;
     }
+    .speed-slow:hover { fill: #ef4444 !important; fill-opacity: 0.8 !important; }
 
-    #map-viewport {
-      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    #map-viewport { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    /* Zoom Controls */
+    /* Zoom Controls - thème clair */
     .zoom-controls {
       position: absolute;
       bottom: 25px;
@@ -283,38 +279,39 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      background: rgba(15, 23, 42, 0.8);
-      border: var(--glass-border);
-      color: white;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       backdrop-filter: blur(8px);
       transition: var(--transition);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     }
-
     .zoom-btn:hover {
-      background: var(--primary-color);
+      background: #000;
+      color: #fff;
       transform: scale(1.1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
-    /* Legend */
+    /* Legend Card - thème clair */
     .legend-card {
       margin-top: 10px;
     }
-
     .legend-item {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-bottom: 8px;
     }
-
     .legend-color {
       width: 14px;
       height: 14px;
       border-radius: 3px;
+      border: 1px solid rgba(0, 0, 0, 0.2);
     }
 
     #sidebar {
@@ -337,13 +334,14 @@
       text-align: left;
       flex: 1;
       min-width: 300px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
 
     .glass-card h2 {
       font-size: 1.25rem;
       margin-bottom: 20px;
-      color: var(--primary-glow);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--primary-color);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       padding-bottom: 10px;
     }
 
@@ -352,50 +350,40 @@
       justify-content: space-between;
       margin-bottom: 12px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
+    .wilaya-detail-row span:first-child { color: var(--text-muted); font-size: 0.9rem; }
+    .wilaya-detail-row span:last-child { font-weight: 600; color: var(--text-main); }
 
-    .wilaya-detail-row span:first-child {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .wilaya-detail-row span:last-child {
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
+    /* Tooltip - thème clair */
     .map-tooltip {
       position: fixed;
-      background: rgba(15, 23, 42, 0.95);
+      background: #fff;
       padding: 12px 18px;
       border-radius: 10px;
       opacity: 0;
       transition: opacity 0.2s;
       pointer-events: none;
-      border: 1px solid var(--primary-color);
+      border: 1px solid rgba(0, 0, 0, 0.15);
       min-width: 180px;
       z-index: 2000;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       backdrop-filter: blur(8px);
+      color: #000;
     }
-
-    .map-tooltip.show {
-      opacity: 1
-    }
+    .map-tooltip.show { opacity: 1; }
 
     .tooltip-row {
       display: flex;
       justify-content: space-between;
       margin: 4px 0;
-      font-size: .85rem;
+      font-size: 0.85rem;
     }
-
     .tooltip-title {
-      color: var(--primary-glow);
+      color: var(--primary-color);
       font-weight: 800;
       margin-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       padding-bottom: 4px;
     }
 
@@ -404,44 +392,33 @@
       padding: 40px 20px;
       margin-top: 60px;
       color: var(--text-muted);
+      background: #f8f8f8;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
     }
 
+    /* Loader - thème clair */
+    .loader {
+      color: var(--text-muted);
+      padding: 30px;
+      font-style: italic;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-      .content-grid {
-        grid-template-columns: 1fr;
-      }
-
-      #sidebar {
-        order: -1;
-      }
-
-      .btn-nav span {
-        display: none;
-      }
-
+      .content-grid { grid-template-columns: 1fr; }
+      #sidebar { order: -1; }
+      .btn-nav span { display: none; }
       .btn-nav {
-        width: 44px;
-        height: 44px;
-        padding: 10px;
+        width: 44px; height: 44px; padding: 10px;
         justify-content: center;
       }
-
-      .btn-nav i {
-        font-size: 1.2rem;
-      }
+      .btn-nav i { font-size: 1.2rem; }
     }
 
     @media (max-width: 480px) {
-      .logo h1 {
-        display: none;
-      }
-    }
-
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      margin-top: 60px;
-      color: var(--text-muted);
+      .logo h1 { display: none; }
+      .coverage-title { font-size: 1.8rem; }
+      .map-wrapper { height: 500px; }
     }
   </style>
 </head>
@@ -452,7 +429,7 @@
     <nav class="navbar">
       <div class="container">
         <div class="logo">
-          <img src="logo.jpg">
+          <img src="logo.jpg" alt="Logo">
           <h1>Amar Informatique</h1>
         </div>
         <a href="index.html" class="btn-nav"><i class="fas fa-store"></i> <span>Boutique</span></a>
@@ -461,7 +438,6 @@
   </header>
 
   <section class="coverage-section">
-
     <h1 class="coverage-title">📍 COUVERTURE DE LIVRAISON</h1>
     <p class="coverage-subtitle">Nous couvrons 58 Wilayas du territoire national algérien</p>
 
@@ -471,33 +447,32 @@
       <div class="zoom-controls">
         <button class="zoom-btn" onclick="adjustZoom(1.2)" title="Zoom In"><i class="fas fa-plus"></i></button>
         <button class="zoom-btn" onclick="adjustZoom(1/1.2)" title="Zoom Out"><i class="fas fa-minus"></i></button>
-        <button class="zoom-btn" onclick="resetView()" title="Reset View"><i
-            class="fas fa-expand-arrows-alt"></i></button>
+        <button class="zoom-btn" onclick="resetView()" title="Reset View"><i class="fas fa-expand-arrows-alt"></i></button>
       </div>
       <div id="map-svg-container">
-        <div class="loader">Loading Map...</div>
+        <div class="loader">Chargement de la carte...</div>
       </div>
     </div>
 
     <div id="sidebar">
       <div class="glass-card">
-        <h2><i class="fas fa-info-circle"></i> Wilaya Details</h2>
+        <h2><i class="fas fa-info-circle"></i> Détails Wilaya</h2>
         <div id="wilaya-info">
-          <p style="color:var(--text-muted); font-style: italic;">Hover over a wilaya to see details</p>
+          <p style="color:var(--text-muted); font-style: italic;">Survolez une wilaya pour voir les détails</p>
         </div>
       </div>
       <div class="glass-card legend-card">
         <h2><i class="fas fa-layer-group"></i> Expédition</h2>
         <div class="legend-item">
-          <div class="legend-color" style="background: #10b981; border: 1px solid #059669;"></div>
+          <div class="legend-color" style="background: #10b981;"></div>
           <span style="font-size: 0.85rem;">Rapide (24h - 48h)</span>
         </div>
         <div class="legend-item">
-          <div class="legend-color" style="background: #f59e0b; border: 1px solid #d97706;"></div>
+          <div class="legend-color" style="background: #f59e0b;"></div>
           <span style="font-size: 0.85rem;">Moyenne (48h - 72h)</span>
         </div>
         <div class="legend-item">
-          <div class="legend-color" style="background: #ef4444; border: 1px solid #dc2626;"></div>
+          <div class="legend-color" style="background: #ef4444;"></div>
           <span style="font-size: 0.85rem;">Longue (72h+)</span>
         </div>
       </div>
@@ -551,7 +526,7 @@
       "37": { name: "Tindouf", nameAr: "تندوف", code: "37", time: "72h à 96h", home: 1700, desk: 1000 },
       "38": { name: "Tissemsilt", nameAr: "تسمسيلت", code: "38", time: "48h à 72h", home: 850, desk: 500 },
       "39": { name: "El Oued", nameAr: "الوادي", code: "39", time: "72h à 96h", home: 1000, desk: 600 },
-      "40": { name: "Khencheلا", nameAr: "خنشلة", code: "40", time: "48h à 72h", home: 600, desk: 500 },
+      "40": { name: "Khenchela", nameAr: "خنشلة", code: "40", time: "48h à 72h", home: 600, desk: 500 },
       "41": { name: "Souk Ahras", nameAr: "سوق أهراس", code: "41", time: "24h à 48h", home: 850, desk: 500 },
       "42": { name: "Tipaza", nameAr: "تيبازة", code: "42", time: "24h à 48h", home: 600, desk: 450 },
       "43": { name: "Mila", nameAr: "ميلة", code: "43", time: "24h à 48h", home: 600, desk: 500 },
@@ -578,13 +553,10 @@
     let geoJsonData = null;
     let currentScale = 1;
     let currentTranslate = { x: 0, y: 0 };
-    let isPanning = false;
-    let startPan = { x: 0, y: 0 };
 
     async function loadMapData() {
       console.log("Starting map data load process...");
 
-      // Tier 1: Check if already captured by robust script tag capturer
       for (let i = 0; i < 5; i++) {
         if (window.algeriaGeoJSON || window.am4geodata_algeriaHigh) {
           geoJsonData = window.algeriaGeoJSON || window.am4geodata_algeriaHigh;
@@ -595,7 +567,6 @@
         await new Promise(r => setTimeout(r, 200));
       }
 
-      // Tier 2: Try to load from amCharts CDN (Reliable and bypasses CORS)
       console.log("Local capture failed, trying CDN...");
       try {
         const cdnPromise = new Promise((resolve, reject) => {
@@ -603,13 +574,12 @@
           script.src = "https://www.amcharts.com/lib/4/geodata/algeriaHigh.js";
           script.onload = () => {
             if (window.am4geodata_algeriaHigh) resolve(window.am4geodata_algeriaHigh);
-            else reject("CDN load failed (variable not set)");
+            else reject("CDN load failed");
           };
           script.onerror = () => reject("CDN script load error");
           document.head.appendChild(script);
         });
 
-        // Wait up to 3 seconds for CDN
         const cdnData = await Promise.race([
           cdnPromise,
           new Promise((_, reject) => setTimeout(() => reject("CDN timeout"), 3000))
@@ -625,7 +595,6 @@
         console.warn("CDN fallback failed:", cdnError);
       }
 
-      // Tier 3: Last resort fallback to fetch (likely to fail on file:// but good for http://)
       try {
         const response = await fetch('algeria_data.js');
         const text = await response.text();
@@ -644,14 +613,13 @@
         console.error("Fetch fallback failed:", fetchError);
       }
 
-      // Final failure
       mapContainer.innerHTML = `
-        <div style="color:#ff4d4d;padding:30px;background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.2);border-radius:15px;margin-top:20px;text-align:center;">
+        <div style="color:#dc2626;padding:30px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:15px;margin-top:20px;text-align:center;">
           <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:15px;display:block;"></i>
           <h3 style="margin-bottom:10px;">Impossible de charger la carte</h3>
           <p style="color:var(--text-muted);font-size:0.9rem;">
             La sécurité de votre navigateur bloque l'accès aux données locales.<br>
-            <b>Solution :</b> Utilisez un serveur local (Live Server) ou connectez-vous à Internet pour charger depuis le CDN.
+            <b>Solution :</b> Utilisez un serveur local (Live Server) ou connectez-vous à Internet.
           </p>
         </div>`;
     }
@@ -667,13 +635,12 @@
 
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
       g.setAttribute("id", "map-viewport");
-      // Add a base group for coordinate system normalization
       const zoomG = document.createElementNS("http://www.w3.org/2000/svg", "g");
       zoomG.setAttribute("id", "zoom-group");
       g.appendChild(zoomG);
       svg.appendChild(g);
 
-      // Pan & Zoom Logic
+      // Pan & Zoom
       let isDragging = false;
       let startX, startY;
 
@@ -682,7 +649,7 @@
         svg.style.cursor = "grabbing";
         startX = e.clientX - currentTranslate.x;
         startY = e.clientY - currentTranslate.y;
-        g.style.transition = 'none'; // Disable transition during manual pan
+        g.style.transition = 'none';
       });
 
       window.addEventListener('mousemove', e => {
@@ -700,11 +667,8 @@
       svg.addEventListener('wheel', e => {
         e.preventDefault();
         const delta = e.deltaY > 0 ? 0.9 : 1.1;
-
-        // Cursor-centric zoom logic
         const pt = svg.createSVGPoint();
-        pt.x = e.clientX;
-        pt.y = e.clientY;
+        pt.x = e.clientX; pt.y = e.clientY;
         const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
 
         const prevScale = currentScale;
@@ -719,12 +683,10 @@
         updateTransform();
       }, { passive: false });
 
-      // Double Click to Zoom
       svg.addEventListener('dblclick', e => {
         const delta = 1.5;
         const pt = svg.createSVGPoint();
-        pt.x = e.clientX;
-        pt.y = e.clientY;
+        pt.x = e.clientX; pt.y = e.clientY;
         const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
 
         const prevScale = currentScale;
@@ -745,15 +707,12 @@
       window.updateTransform = updateTransform;
 
       window.adjustZoom = (delta) => {
-        // Zoom relative to center
         const prevScale = currentScale;
         currentScale *= delta;
         currentScale = Math.max(0.5, Math.min(currentScale, 15));
-
         const scaleDiff = currentScale / prevScale;
         currentTranslate.x = 400 - (400 - currentTranslate.x) * scaleDiff;
         currentTranslate.y = 325 - (325 - currentTranslate.y) * scaleDiff;
-
         g.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
         updateTransform();
       };
@@ -766,6 +725,7 @@
         document.querySelectorAll('path').forEach(p => p.classList.remove('highlight'));
       };
 
+      // Calculate bounds
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       geoData.features.forEach(feature => {
         const coords = feature.geometry.coordinates;
@@ -807,7 +767,7 @@
         path.setAttribute("d", d);
         path.setAttribute("id", feature.id);
 
-        // Calculate Centroid (for auto-zoom)
+        // Centroid for auto-zoom
         let cX = 0, cY = 0, count = 0;
         feature.geometry.coordinates.forEach(polygon => {
           const points = feature.geometry.type === "MultiPolygon" ? polygon[0] : polygon;
@@ -820,7 +780,7 @@
         path.setAttribute("data-cx", cX / count);
         path.setAttribute("data-cy", cY / count);
 
-        // Apply Speed Colors
+        // Speed colors
         const wilayaNum = feature.id.split("-")[1];
         const wData = wilayasData[parseInt(wilayaNum)];
         if (wData) {
@@ -830,6 +790,7 @@
           else path.classList.add('speed-slow');
         }
 
+        // Hover events
         path.addEventListener('mouseenter', (e) => {
           const wilayaNum = feature.id.split("-")[1];
           const data = wilayasData[parseInt(wilayaNum)] || { name: feature.properties.name, nameAr: "", time: "N/A", home: "N/A", desk: "N/A" };
@@ -842,9 +803,9 @@
           wilayaInfo.innerHTML = `
                 <div class="wilaya-detail-row"><span>Wilaya:</span><span>${data.name} (${data.code})</span></div>
                 <div class="wilaya-detail-row"><span>الولاية:</span><span>${data.nameAr}</span></div>
-                <div class="wilaya-detail-row"><span>Duration:</span><span>${data.time}</span></div>
-                <div class="wilaya-detail-row"><span>Home Price:</span><span>${data.home} DA</span></div>
-                <div class="wilaya-detail-row"><span>Desk Price:</span><span>${data.desk} DA</span></div>`;
+                <div class="wilaya-detail-row"><span>Durée:</span><span>${data.time}</span></div>
+                <div class="wilaya-detail-row"><span>Prix Home:</span><span>${data.home} DA</span></div>
+                <div class="wilaya-detail-row"><span>Prix Desk:</span><span>${data.desk} DA</span></div>`;
         });
 
         path.addEventListener('mousemove', (e) => {
@@ -890,13 +851,11 @@
               currentTranslate.x = 400 - (cx * currentScale);
               currentTranslate.y = 325 - (cy * currentScale);
               updateTransform();
-
-              // Trigger the info for the first match
               path.dispatchEvent(new Event('mouseenter'));
               found = true;
             }
           } else {
-            path.style.opacity = "0.1";
+            path.style.opacity = "0.15";
             path.classList.remove('highlight');
           }
         }
@@ -912,5 +871,4 @@
   </script>
 
 </body>
-
 </html>
