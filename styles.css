@@ -833,3 +833,185 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .social-toggle-btn, .social-links-menu, .pulse-dot { animation: none !important; transition: none !important; }
 }
+/* ========== 📱 CORRECTIONS MOBILE - BOUTONS ========== */
+
+/* 1. Permettre le tap sans délai sur mobile */
+button,
+.btn-nav,
+.btn-checkout,
+.btn-submit,
+.btn-cancel,
+.btn-add-cart,
+.btn-modal-cart,
+.search-btn,
+.zoom-btn,
+.social-toggle-btn,
+.cat-card,
+.slider-btn,
+.qty-btn,
+.close-modal,
+[role="button"] {
+  touch-action: manipulation !important;           /* ✅ Empêche le double-tap zoom */
+  -webkit-tap-highlight-color: transparent !important; /* ✅ Supprime le flash bleu Android */
+  -webkit-user-select: none !important;            /* ✅ Empêche la sélection de texte */
+  user-select: none !important;
+  position: relative !important;                   /* ✅ Pour z-index */
+  z-index: 10 !important;                          /* ✅ Au-dessus des overlays */
+}
+
+/* 2. Feedback visuel au tap sur mobile (remplace :hover) */
+@media (hover: none) and (pointer: coarse) {
+  button:active,
+  .btn-nav:active,
+  .btn-checkout:active,
+  .btn-submit:active,
+  .btn-cancel:active,
+  .btn-add-cart:active,
+  .btn-modal-cart:active,
+  .search-btn:active,
+  .zoom-btn:active,
+  .social-toggle-btn:active,
+  .cat-card:active,
+  .slider-btn:active,
+  .qty-btn:active {
+    transform: scale(0.97) !important;             /* ✅ Effet de pression */
+    opacity: 0.92 !important;
+    transition: transform 0.05s, opacity 0.05s !important;
+  }
+}
+
+/* 3. Correction : Product card ne doit pas intercepter le clic sur le bouton */
+.product-card {
+  cursor: pointer;
+  /* ✅ Le bouton enfant doit être au-dessus */
+}
+.product-card .btn-add-cart {
+  z-index: 20 !important;                          /* ✅ Au-dessus de la carte */
+  pointer-events: auto !important;                 /* ✅ Toujours cliquable */
+}
+
+/* 4. Correction : Modal buttons au-dessus de l'overlay */
+.modal.active {
+  z-index: 2000 !important;
+}
+.modal-content {
+  z-index: 2001 !important;
+}
+.modal-content .btn-checkout,
+.modal-content .btn-submit,
+.modal-content .btn-cancel,
+.modal-content .close-modal {
+  z-index: 2002 !important;                        /* ✅ Au-dessus de tout */
+}
+
+/* 5. Correction : Header buttons au-dessus du contenu */
+header {
+  z-index: 1000 !important;
+}
+header .btn-nav {
+  z-index: 1001 !important;
+}
+.cart-btn {
+  z-index: 1002 !important;
+}
+
+/* 6. Correction : Social button le plus haut */
+.social-contact-wrapper {
+  z-index: 9999 !important;
+}
+.social-toggle-btn {
+  z-index: 10000 !important;
+}
+.social-links-menu {
+  z-index: 9998 !important;
+}
+
+/* 7. Correction : Slider buttons */
+.hero-slider {
+  z-index: 100 !important;
+}
+.slider-btn {
+  z-index: 101 !important;
+}
+.slider-dots .dot {
+  z-index: 102 !important;
+}
+
+/* 8. Correction : Inputs ne doivent pas couvrir les boutons */
+.search-input:focus,
+.form-group input:focus,
+.form-group select:focus {
+  z-index: 5 !important;                           /* ✅ Sous les boutons */
+}
+
+/* 9. Correction : Backdrop-filter peut bloquer les taps sur vieux iOS */
+@supports not (backdrop-filter: blur(1px)) {
+  .modal-content,
+  .product-card,
+  .cat-card,
+  header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* 10. Correction : Éviter que transform + overflow hidden ne coupe les taps */
+.product-card,
+.modal-content,
+.hero-slider {
+  will-change: transform;                          /* ✅ Optimise le rendu mobile */
+  -webkit-transform: translateZ(0);                /* ✅ Force l'accélération GPU */
+  transform: translateZ(0);
+}
+
+/* 11. Correction : Boutons dans les cartes catégories */
+.cat-card {
+  pointer-events: auto !important;
+}
+.cat-card * {
+  pointer-events: none !important;                 /* ✅ Seul le card est cliquable */
+}
+.cat-card .cat-card-icon,
+.cat-card .cat-card-info {
+  pointer-events: none !important;
+}
+
+/* 12. Correction : Quantité buttons dans le panier */
+.qty-btn {
+  min-width: 36px !important;
+  min-height: 36px !important;                     /* ✅ Zone de tap assez grande */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 13. Correction : Bouton panier flottant */
+.cart-count {
+  pointer-events: none !important;                 /* ✅ Le compteur ne bloque pas le clic */
+}
+
+/* 14. Correction : Fermeture modals */
+.close-modal {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 15. Correction : Inputs sur iOS - empêcher le zoom */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;                    /* ✅ iOS ne zoome pas si >= 16px */
+  }
+}
+
+/* 16. Debug temporaire : voir les zones cliquables (à supprimer après test) */
+/*
+@media (max-width: 768px) {
+  button, [role="button"], .btn-nav, .btn-checkout, .search-btn, .btn-add-cart {
+    outline: 1px dashed rgba(255,100,100,0.5) !important;
+    outline-offset: 2px !important;
+  }
+}
+*/
