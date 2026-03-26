@@ -144,6 +144,12 @@
           </div>
         </div>
       </div>
+      <!-- Bouton Afficher plus -->
+<div style="text-align: center; margin-top: 30px;">
+  <button id="loadMoreBtn" class="btn-load-more" onclick="loadMoreProducts()" style="display: none;">
+    <i class="fas fa-plus"></i> Afficher plus de produits
+  </button>
+</div>
     </section>
   </main>
 
@@ -401,6 +407,59 @@
 
   <!-- ✅ CSS pour le footer avec réseaux sociaux (à ajouter dans styles.css ou ici) -->
   <style>
+    /* ========== Bouton "Afficher plus" ========== */
+.btn-load-more {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  margin: 0 auto;
+}
+
+.btn-load-more:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  filter: brightness(0.95);
+}
+
+.btn-load-more:active {
+  transform: scale(0.98);
+}
+
+.btn-load-more i {
+  transition: transform 0.3s;
+}
+
+.btn-load-more:hover i {
+  transform: rotate(90deg);
+}
+
+/* Responsive mobile */
+@media (max-width: 480px) {
+  .btn-load-more {
+    width: 90%;
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Thème clair - ajustement des couleurs */
+@media (prefers-color-scheme: light) {
+  .btn-load-more {
+    background: var(--primary-color);
+    color: #fff;
+  }
+}
     /* Footer Social Links - Thème Noir & Blanc */
     .footer-social { text-align: center; }
     .footer-social h3 { 
