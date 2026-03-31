@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="theme-color" content="#000000">
+  
+  <!-- ✅ Meta tags متوافقة مع iOS و Android -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  
   <title>Détails Produit - Amar Informatique</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="logo.jpg" type="image/x-icon">
@@ -15,7 +20,9 @@
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  
   <script>
+    // ✅ نفس إعدادات Firebase من index.html
     const firebaseConfig = {
       apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
       authDomain: "amar-informatique.firebaseapp.com",
@@ -24,8 +31,17 @@
       messagingSenderId: "568367870390",
       appId: "1:568367870390:web:e1583c182272ecbf141117"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    
+    // تهيئة Firebase مع معالجة الأخطاء
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const db = firebase.firestore();
+      window.db = db;
+    } catch (e) {
+      console.error('❌ Firebase init error:', e);
+    }
   </script>
 
   <style>
@@ -198,6 +214,10 @@
     .loading i, .error i { font-size: 3rem; margin-bottom: 20px; opacity: 0.7; }
     .error { color: var(--danger); }
     .error a { color: var(--primary-color); font-weight: 600; }
+    .error button {
+      margin-top: 15px; padding: 10px 20px; background: var(--primary-color);
+      color: #fff; border: none; border-radius: 8px; cursor: pointer;
+    }
 
     /* Share Button */
     .share-btn {
@@ -259,42 +279,72 @@
       "16": ["Alger Centre","Bab El Oued","Belouizdad","Bir Mourad Raïs","Birkhadem","El Harrach","Hussein Dey","Kouba","Oued Koriche","Sidi M'Hamed"],
       "31": ["Oran","Es Senia","Bir El Djir","Arzew","Bethioua","Mers El Kébir","Aïn El Turk","Bousfer","El Ancor","Oued Tlélat"]
     };
-    const shippingPrices = { "16 - Alger": 500, "31 - Oran": 600 };
-    const stopDeskPrices = { "16 - Alger": 300, "31 - Oran": 350 };
+    const shippingPrices = { "16 - Alger": 600, "31 - Oran": 700 };
+    const stopDeskPrices = { "16 - Alger": 400, "31 - Oran": 450 };
 
     // ========== Load Product ==========
     document.addEventListener('DOMContentLoaded', async () => {
+      // ✅ تحقق من Firebase قبل المتابعة
+      if (typeof window.db === 'undefined') {
+        showError('Firebase non initialisé. Veuillez actualiser la page.');
+        return;
+      }
+
       const params = new URLSearchParams(window.location.search);
       const productId = params.get('id');
       
       if (!productId) {
-        showError('Produit non spécifié');
+        showError('Produit non spécifié dans l\'URL');
         return;
       }
 
       try {
-        const doc = await db.collection('products').doc(productId).get();
-        if (!doc.exists) { showError('Produit introuvable'); return; }
+        // ✅ استخدام نفس اسم collection من index.html ("produits" أو "products")
+        const doc = await db.collection('produits').doc(productId).get();
+        
+        if (!doc.exists) {
+          showError('Produit introuvable dans la base de données');
+          return;
+        }
         
         const product = { id: doc.id, ...doc.data() };
         renderProductPage(product);
         
         // Track view
         if (typeof fbq !== 'undefined') {
-          fbq('track', 'ViewContent', { content_name: product.name, value: product.price, currency: 'DZD' });
+          fbq('track', 'ViewContent', { 
+            content_name: product.name, 
+            value: product.price, 
+            currency: 'DZD' 
+          });
         }
       } catch (error) {
-        console.error('Erreur:', error);
-        showError('Erreur de chargement');
+        console.error('❌ Erreur chargement produit:', error.code, error.message);
+        
+        if (error.code === 'permission-denied') {
+          showError(`
+            🔐 Accès refusé à la base de données<br>
+            <small>Vérifiez les Rules Firebase Console</small><br>
+            Collection: <strong>produits</strong> doit avoir:<br>
+            <code>allow read: if true;</code>
+          `);
+        } else if (error.code === 'not-found') {
+          showError('Produit introuvable. Il a peut-être été supprimé.');
+        } else {
+          showError(`Erreur: ${error.message}<br><button onclick="location.reload()">Réessayer</button>`);
+        }
       }
     });
 
     // ========== Render Product Page ==========
     function renderProductPage(product) {
       const container = document.getElementById('productContainer');
-      const priceDisplay = product.oldPrice 
-        ? `<old>${product.oldPrice.toLocaleString('fr-FR')}</old> ${product.price?.toLocaleString('fr-FR') || 0} DA`
-        : `${product.price?.toLocaleString('fr-FR') || 0} DA`;
+      const price = parseFloat(product.price) || 0;
+      const oldPrice = product.oldPrice ? parseFloat(product.oldPrice) : null;
+      
+      const priceDisplay = oldPrice 
+        ? `<old>${oldPrice.toLocaleString('fr-FR')}</old> ${price.toLocaleString('fr-FR')} DA`
+        : `${price.toLocaleString('fr-FR')} DA`;
 
       container.innerHTML = `
         <div class="product-detail-page">
@@ -322,7 +372,7 @@
             <p class="product-description">${product.description || 'Aucune description disponible pour ce produit.'}</p>
             <div class="detail-price">${priceDisplay}</div>
             
-            <button class="btn-add-cart" onclick="addToCart('${product.id}')">
+            <button class="btn-add-cart" onclick="addToCart('${product.id}', ${JSON.stringify(product).replace(/'/g, "\\'")})">
               <i class="fas fa-shopping-cart"></i> Ajouter au Panier
             </button>
             <button class="btn-buy-now" onclick="scrollToOrderForm()">
@@ -444,34 +494,46 @@
       if (navigator.share) {
         navigator.share({ title: decodeURIComponent(name), text: 'Découvrez ce produit sur Amar Informatique', url }).catch(() => {});
       } else {
-        navigator.clipboard.writeText(url).then(() => alert('🔗 Lien copié!'));
+        navigator.clipboard.writeText(url).then(() => {
+          const btn = event.currentTarget;
+          const original = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-check"></i> Copié!';
+          setTimeout(() => btn.innerHTML = original, 2000);
+        });
       }
     }
 
     // ========== Cart Functions ==========
-    function addToCart(productId) {
-      // Fetch product details if not available
-      db.collection('products').doc(productId).get().then(doc => {
-        if (!doc.exists) return;
-        const p = { id: doc.id, ...doc.data() };
-        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const existing = cart.find(item => item.id === productId);
-        if (existing) existing.qty++;
-        else cart.push({ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 });
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartCount();
-        alert('✅ Produit ajouté au panier!');
-      });
+    function addToCart(productId, productData) {
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existing = cart.find(item => item.id === productId);
+      
+      if (existing) {
+        existing.quantity = (existing.quantity || 1) + 1;
+      } else {
+        cart.push({
+          id: productData.id,
+          name: productData.name,
+          price: productData.price,
+          image: productData.image,
+          quantity: 1
+        });
+      }
+      
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartCount();
+      alert('✅ Produit ajouté au panier!');
     }
 
     function updateCartCount() {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const count = cart.reduce((sum, item) => sum + item.qty, 0);
-      // Update if cart btn exists on page
+      const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
       const els = document.querySelectorAll('#cartCount, .cart-count');
       els.forEach(el => {
-        el.textContent = count;
-        el.style.display = count > 0 ? 'flex' : 'none';
+        if (el) {
+          el.textContent = count;
+          el.style.display = count > 0 ? 'flex' : 'none';
+        }
       });
     }
 
@@ -486,12 +548,18 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
 
         // Fetch product for order
-        const doc = await db.collection('products').doc(productId).get();
+        const doc = await db.collection('produits').doc(productId).get();
         if (!doc.exists) throw new Error('Produit introuvable');
         const product = { id: doc.id, ...doc.data() };
 
         const order = {
-          items: [{ id: product.id, name: product.name, price: product.price, qty: 1, image: product.image }],
+          items: [{ 
+            id: product.id, 
+            name: product.name, 
+            price: parseFloat(product.price) || 0, 
+            qty: 1, 
+            image: product.image 
+          }],
           customer: {
             firstName: document.getElementById('qFirstName').value,
             lastName: document.getElementById('qLastName').value,
@@ -502,17 +570,17 @@
           },
           productDetails: {
             name: product.name,
-            price: product.price,
+            price: parseFloat(product.price) || 0,
             category: product.category
           },
           shipping: parseInt(document.getElementById('shippingPriceDisplay').textContent) || 0,
-          total: product.price + (parseInt(document.getElementById('shippingPriceDisplay').textContent) || 0),
+          total: (parseFloat(product.price) || 0) + (parseInt(document.getElementById('shippingPriceDisplay').textContent) || 0),
           status: 'pending',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           source: 'product-page'
         };
 
-        await db.collection('orders').add(order);
+        await db.collection('commandes').add(order);
         
         // Show success
         const orderNum = 'ORD-' + Date.now().toString().slice(-6);
@@ -527,7 +595,7 @@
         document.getElementById('shippingPriceDisplay').textContent = '0 DA';
         
       } catch (error) {
-        console.error('Erreur commande:', error);
+        console.error('❌ Erreur commande:', error);
         alert('❌ Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter au 0559 46 99 56');
       } finally {
         btn.disabled = false;
@@ -536,8 +604,12 @@
     }
 
     // ========== Meta Pixel ==========
-    if (typeof fbq !== 'undefined') {
-      fbq('track', 'PageView');
+    try {
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'PageView');
+      }
+    } catch(e) {
+      console.log('⚠️ Meta Pixel non chargé:', e.message);
     }
   </script>
 </body>
