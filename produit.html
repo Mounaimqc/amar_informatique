@@ -22,7 +22,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   
   <script>
-    // ✅ نفس إعدادات Firebase من index.html
     const firebaseConfig = {
       apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
       authDomain: "amar-informatique.firebaseapp.com",
@@ -32,7 +31,6 @@
       appId: "1:568367870390:web:e1583c182272ecbf141117"
     };
     
-    // تهيئة Firebase مع معالجة الأخطاء
     try {
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
@@ -90,58 +88,112 @@
     }
     .back-btn:hover { transform: translateX(-3px); background: var(--primary-color); color: #fff; }
 
-    /* Product Detail Layout */
+    /* ========== Product Detail Layout - الصورة في المنتصف ========== */
     .product-detail-page {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
-      padding: 30px 20px; align-items: start;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      padding: 30px 20px;
+      align-items: start;
     }
-    @media (max-width: 900px) { .product-detail-page { grid-template-columns: 1fr; } }
+    
+    @media (max-width: 900px) {
+      .product-detail-page {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
 
+    /* ✅ حاوية الصورة - متمركزة تماماً */
     .detail-image-container {
-      background: var(--bg-card); border-radius: var(--radius);
-      padding: 20px; text-align: center; box-shadow: var(--shadow);
-      position: sticky; top: 100px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 100px;
+      
+      /* ✅ تمركز الصورة في المنتصف */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      text-align: center;
     }
-    .detail-image {
-      max-width: 100%; height: auto; border-radius: 15px;
-      object-fit: contain; max-height: 500px; margin: 0 auto;
-      transition: var(--transition);
-    }
-    .detail-image:hover { transform: scale(1.02); }
 
+    /* ✅ الصورة نفسها - متمركزة */
+    .detail-image {
+      max-width: 100%;
+      max-height: 450px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      margin: 0 auto;
+      border-radius: 15px;
+      transition: var(--transition);
+      display: block;
+    }
+
+    .detail-image:hover {
+      transform: scale(1.05);
+    }
+
+    /* عمود المعلومات */
     .detail-info {
-      background: var(--bg-card); border-radius: var(--radius);
-      padding: 30px; box-shadow: var(--shadow);
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: var(--shadow);
     }
     .detail-info h1 {
-      font-size: 1.8rem; font-weight: 800; margin-bottom: 10px;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 10px;
       line-height: 1.3;
     }
     .product-category {
-      color: var(--primary-color); font-weight: 600;
-      margin-bottom: 15px; text-transform: capitalize; font-size: 1rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      margin-bottom: 15px;
+      text-transform: capitalize;
+      font-size: 1rem;
     }
     .product-description {
-      color: var(--text-muted); line-height: 1.7;
-      margin-bottom: 25px; font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 25px;
+      font-size: 1.05rem;
     }
     .detail-price {
-      font-size: 2.2rem; font-weight: 800; color: var(--secondary-color);
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--secondary-color);
       margin-bottom: 25px;
     }
     .detail-price old {
-      font-size: 1.2rem; color: var(--text-muted);
-      text-decoration: line-through; font-weight: 400; margin-right: 12px;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      font-weight: 400;
+      margin-right: 12px;
     }
 
     .btn-add-cart, .btn-buy-now {
-      width: 100%; padding: 15px; border-radius: 12px;
-      font-size: 1.05rem; font-weight: 600;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: var(--transition); margin-bottom: 12px;
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition);
+      margin-bottom: 12px;
     }
     .btn-add-cart {
-      background: var(--primary-color); color: #fff;
+      background: var(--primary-color);
+      color: #fff;
     }
     .btn-add-cart:hover {
       transform: translateY(-2px);
@@ -149,7 +201,8 @@
       filter: brightness(0.95);
     }
     .btn-buy-now {
-      background: var(--success); color: #fff;
+      background: var(--success);
+      color: #fff;
     }
     .btn-buy-now:hover {
       transform: translateY(-2px);
@@ -159,81 +212,171 @@
 
     /* Order Form */
     .order-form {
-      margin-top: 30px; padding-top: 25px;
+      margin-top: 30px;
+      padding-top: 25px;
       border-top: 1px solid var(--border);
     }
     .order-form h3 {
-      margin-bottom: 20px; font-size: 1.3rem;
-      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     .form-group { margin-bottom: 18px; }
     .form-group label {
-      display: block; margin-bottom: 6px; font-weight: 500;
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
       font-size: 0.95rem;
     }
     .form-group input, .form-group select {
-      width: 100%; padding: 12px 15px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--bg-main);
-      color: var(--text-main); font-size: 1rem; outline: none;
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
       transition: var(--transition);
     }
     .form-group input:focus, .form-group select:focus {
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
     }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
 
     .shipping-price {
-      background: var(--bg-hover); padding: 12px 15px;
-      border-radius: 10px; margin: 15px 0;
-      display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
+      background: var(--bg-hover);
+      padding: 12px 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
     }
     .shipping-price i { color: var(--primary-color); }
-    .shipping-price strong { margin-left: auto; color: var(--secondary-color); font-weight: 700; }
+    .shipping-price strong {
+      margin-left: auto;
+      color: var(--secondary-color);
+      font-weight: 700;
+    }
 
     .btn-submit-order {
-      width: 100%; padding: 15px; border-radius: 12px;
-      background: var(--success); color: #fff;
-      font-size: 1.1rem; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: var(--transition); margin-top: 10px;
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      background: var(--success);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition);
+      margin-top: 10px;
     }
     .btn-submit-order:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 30px rgba(34,197,94,0.4);
     }
     .btn-submit-order:disabled {
-      background: var(--border); cursor: not-allowed; transform: none;
+      background: var(--border);
+      cursor: not-allowed;
+      transform: none;
     }
 
     /* Loading & Error States */
     .loading, .error {
-      text-align: center; padding: 60px 20px;
+      text-align: center;
+      padding: 60px 20px;
     }
-    .loading i, .error i { font-size: 3rem; margin-bottom: 20px; opacity: 0.7; }
+    .loading i, .error i {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
     .error { color: var(--danger); }
     .error a { color: var(--primary-color); font-weight: 600; }
     .error button {
-      margin-top: 15px; padding: 10px 20px; background: var(--primary-color);
-      color: #fff; border: none; border-radius: 8px; cursor: pointer;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
     /* Share Button */
     .share-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border-radius: 50px;
-      background: var(--bg-hover); color: var(--text-main);
-      font-size: 0.9rem; margin-bottom: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 50px;
+      background: var(--bg-hover);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      margin-bottom: 15px;
       transition: var(--transition);
     }
-    .share-btn:hover { background: var(--primary-color); color: #fff; }
+    .share-btn:hover {
+      background: var(--primary-color);
+      color: #fff;
+    }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--bg-main); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
+
+    /* ========== تحسينات الموبايل - الصورة دائماً في المنتصف ========== */
+    @media (max-width: 768px) {
+      .detail-image-container {
+        position: relative;
+        top: 0;
+        padding: 20px;
+        min-height: 300px;
+      }
+      .detail-image {
+        max-height: 350px;
+      }
+      .detail-info {
+        padding: 20px;
+      }
+      .detail-info h1 {
+        font-size: 1.5rem;
+      }
+      .detail-price {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .product-detail-page {
+        padding: 20px 15px;
+        gap: 20px;
+      }
+      .detail-image-container {
+        padding: 15px;
+        min-height: 250px;
+      }
+      .detail-image {
+        max-height: 280px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -245,7 +388,9 @@
         <img src="logo.png" alt="Logo Amar Informatique" onerror="this.style.display='none'">
         <span>Amar Informatique</span>
       </a>
-      <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
+      <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Retour
+      </a>
     </div>
   </header>
 
@@ -284,7 +429,6 @@
 
     // ========== Load Product ==========
     document.addEventListener('DOMContentLoaded', async () => {
-      // ✅ تحقق من Firebase قبل المتابعة
       if (typeof window.db === 'undefined') {
         showError('Firebase non initialisé. Veuillez actualiser la page.');
         return;
@@ -299,7 +443,6 @@
       }
 
       try {
-        // ✅ استخدام نفس اسم collection من index.html ("produits" أو "products")
         const doc = await db.collection('produits').doc(productId).get();
         
         if (!doc.exists) {
@@ -310,7 +453,6 @@
         const product = { id: doc.id, ...doc.data() };
         renderProductPage(product);
         
-        // Track view
         if (typeof fbq !== 'undefined') {
           fbq('track', 'ViewContent', { 
             content_name: product.name, 
@@ -346,9 +488,17 @@
         ? `<old>${oldPrice.toLocaleString('fr-FR')}</old> ${price.toLocaleString('fr-FR')} DA`
         : `${price.toLocaleString('fr-FR')} DA`;
 
+      // ✅ تخزين بيانات المنتج بشكل آمن للزر
+      const productDataSafe = JSON.stringify({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image
+      }).replace(/'/g, "\\'");
+
       container.innerHTML = `
         <div class="product-detail-page">
-          <!-- Image Column -->
+          <!-- Image Column - الصورة في المنتصف -->
           <div class="detail-image-container">
             <img src="${product.image || 'https://via.placeholder.com/400?text=Produit'}" 
                  alt="${product.name}" 
@@ -372,7 +522,7 @@
             <p class="product-description">${product.description || 'Aucune description disponible pour ce produit.'}</p>
             <div class="detail-price">${priceDisplay}</div>
             
-            <button class="btn-add-cart" onclick="addToCart('${product.id}', ${JSON.stringify(product).replace(/'/g, "\\'")})">
+            <button class="btn-add-cart" onclick='addToCart("${product.id}", ${productDataSafe})'>
               <i class="fas fa-shopping-cart"></i> Ajouter au Panier
             </button>
             <button class="btn-buy-now" onclick="scrollToOrderForm()">
@@ -437,7 +587,6 @@
         </div>
       `;
 
-      // Initialize form
       loadWilayas();
       updateCartCount();
     }
@@ -547,7 +696,6 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
 
-        // Fetch product for order
         const doc = await db.collection('produits').doc(productId).get();
         if (!doc.exists) throw new Error('Produit introuvable');
         const product = { id: doc.id, ...doc.data() };
@@ -582,11 +730,9 @@
 
         await db.collection('commandes').add(order);
         
-        // Show success
         const orderNum = 'ORD-' + Date.now().toString().slice(-6);
         alert(`✅ Commande envoyée!\nNuméro de suivi: ${orderNum}\n\nNous vous contacterons bientôt.`);
         
-        // Track conversion
         if (typeof fbq !== 'undefined') {
           fbq('track', 'Lead', { value: order.total, currency: 'DZD' });
         }
