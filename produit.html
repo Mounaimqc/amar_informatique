@@ -2,7 +2,10 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Détails Produit - Amar Informatique</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="logo.jpg" type="image/x-icon">
@@ -24,273 +27,358 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
   </script>
+
   <style>
+    :root {
+      --primary-color: #6366f1; --secondary-color: #f59e0b;
+      --bg-main: #0f0f1a; --bg-card: #1a1a2e; --bg-hover: #252542;
+      --text-main: #ffffff; --text-muted: #a0a0b0; --border: #333355;
+      --success: #22c55e; --danger: #ef4444; --shadow: 0 10px 40px rgba(0,0,0,0.3);
+      --radius: 20px; --transition: all 0.3s ease;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg-main: #f8fafc; --bg-card: #ffffff; --bg-hover: #f1f5f9;
+        --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
+        --shadow: 0 10px 40px rgba(0,0,0,0.1);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', system-ui, sans-serif; background: var(--bg-main);
+      color: var(--text-main); line-height: 1.6; min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    img { max-width: 100%; height: auto; display: block; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    a { text-decoration: none; color: inherit; transition: var(--transition); }
+
+    /* Header */
+    header {
+      background: var(--bg-card); padding: 15px 0;
+      box-shadow: var(--shadow); border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-content {
+      display: flex; justify-content: space-between; align-items: center; gap: 15px;
+    }
+    .logo-link {
+      display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem;
+    }
+    .logo-link img { height: 40px; border-radius: 8px; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--primary-color); font-weight: 500; padding: 8px 16px;
+      border-radius: 50px; background: var(--bg-hover);
+      transition: var(--transition);
+    }
+    .back-btn:hover { transform: translateX(-3px); background: var(--primary-color); color: #fff; }
+
+    /* Product Detail Layout */
     .product-detail-page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      align-items: start;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+      padding: 30px 20px; align-items: start;
     }
-    @media (max-width: 768px) {
-      .product-detail-page { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 900px) { .product-detail-page { grid-template-columns: 1fr; } }
+
     .detail-image-container {
-      background: var(--bg-card);
-      border-radius: 20px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      background: var(--bg-card); border-radius: var(--radius);
+      padding: 20px; text-align: center; box-shadow: var(--shadow);
+      position: sticky; top: 100px;
     }
     .detail-image {
-      max-width: 100%;
-      height: auto;
-      border-radius: 15px;
-      object-fit: contain;
-      max-height: 500px;
+      max-width: 100%; height: auto; border-radius: 15px;
+      object-fit: contain; max-height: 500px; margin: 0 auto;
+      transition: var(--transition);
     }
+    .detail-image:hover { transform: scale(1.02); }
+
     .detail-info {
-      background: var(--bg-card);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      background: var(--bg-card); border-radius: var(--radius);
+      padding: 30px; box-shadow: var(--shadow);
     }
     .detail-info h1 {
-      font-size: 1.8rem;
-      margin-bottom: 10px;
-      color: var(--text-main);
+      font-size: 1.8rem; font-weight: 800; margin-bottom: 10px;
+      line-height: 1.3;
     }
     .product-category {
-      color: var(--primary-color);
-      font-weight: 600;
-      margin-bottom: 15px;
-      text-transform: capitalize;
+      color: var(--primary-color); font-weight: 600;
+      margin-bottom: 15px; text-transform: capitalize; font-size: 1rem;
     }
     .product-description {
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 25px;
-      font-size: 1rem;
+      color: var(--text-muted); line-height: 1.7;
+      margin-bottom: 25px; font-size: 1.05rem;
     }
     .detail-price {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--secondary-color);
+      font-size: 2.2rem; font-weight: 800; color: var(--secondary-color);
       margin-bottom: 25px;
     }
+    .detail-price old {
+      font-size: 1.2rem; color: var(--text-muted);
+      text-decoration: line-through; font-weight: 400; margin-right: 12px;
+    }
+
+    .btn-add-cart, .btn-buy-now {
+      width: 100%; padding: 15px; border-radius: 12px;
+      font-size: 1.05rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: var(--transition); margin-bottom: 12px;
+    }
     .btn-add-cart {
-      width: 100%;
-      padding: 15px;
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 0.3s;
-      margin-bottom: 15px;
+      background: var(--primary-color); color: #fff;
     }
     .btn-add-cart:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 30px rgba(99,102,241,0.4);
       filter: brightness(0.95);
     }
     .btn-buy-now {
-      width: 100%;
-      padding: 15px;
-      background: var(--secondary-color);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 0.3s;
+      background: var(--success); color: #fff;
     }
     .btn-buy-now:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 30px rgba(34,197,94,0.4);
       filter: brightness(0.95);
     }
+
+    /* Order Form */
     .order-form {
-      margin-top: 30px;
-      padding-top: 25px;
+      margin-top: 30px; padding-top: 25px;
       border-top: 1px solid var(--border);
     }
     .order-form h3 {
-      margin-bottom: 20px;
-      color: var(--text-main);
-      font-size: 1.3rem;
+      margin-bottom: 20px; font-size: 1.3rem;
+      display: flex; align-items: center; gap: 10px;
     }
-    .form-group { margin-bottom: 15px; }
+    .form-group { margin-bottom: 18px; }
     .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: var(--text-main);
+      display: block; margin-bottom: 6px; font-weight: 500;
+      font-size: 0.95rem;
     }
     .form-group input, .form-group select {
-      width: 100%;
-      padding: 12px 15px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--bg-main);
-      color: var(--text-main);
-      font-size: 1rem;
+      width: 100%; padding: 12px 15px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg-main);
+      color: var(--text-main); font-size: 1rem; outline: none;
+      transition: var(--transition);
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
     }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+
+    .shipping-price {
+      background: var(--bg-hover); padding: 12px 15px;
+      border-radius: 10px; margin: 15px 0;
+      display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
+    }
+    .shipping-price i { color: var(--primary-color); }
+    .shipping-price strong { margin-left: auto; color: var(--secondary-color); font-weight: 700; }
+
     .btn-submit-order {
-      width: 100%;
-      padding: 15px;
-      background: var(--success);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.3s;
+      width: 100%; padding: 15px; border-radius: 12px;
+      background: var(--success); color: #fff;
+      font-size: 1.1rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: var(--transition); margin-top: 10px;
     }
     .btn-submit-order:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(46,204,113,0.3);
+      box-shadow: 0 10px 30px rgba(34,197,94,0.4);
     }
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--primary-color);
-      text-decoration: none;
-      font-weight: 500;
-      margin-bottom: 20px;
-      transition: gap 0.3s;
+    .btn-submit-order:disabled {
+      background: var(--border); cursor: not-allowed; transform: none;
     }
-    .back-btn:hover { gap: 12px; }
-    .loading { text-align: center; padding: 50px; color: var(--text-muted); }
-    .error { text-align: center; padding: 50px; color: #e74c3c; }
+
+    /* Loading & Error States */
+    .loading, .error {
+      text-align: center; padding: 60px 20px;
+    }
+    .loading i, .error i { font-size: 3rem; margin-bottom: 20px; opacity: 0.7; }
+    .error { color: var(--danger); }
+    .error a { color: var(--primary-color); font-weight: 600; }
+
+    /* Share Button */
+    .share-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 50px;
+      background: var(--bg-hover); color: var(--text-main);
+      font-size: 0.9rem; margin-bottom: 15px;
+      transition: var(--transition);
+    }
+    .share-btn:hover { background: var(--primary-color); color: #fff; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-main); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
   </style>
 </head>
 <body>
 
-  <!-- Header بسيط -->
-  <header style="background: var(--bg-card); padding: 15px 0; box-shadow: 0 2px 20px rgba(0,0,0,0.1);">
-    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-      <a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-main);">
-        <img src="logo.png" alt="Logo" style="height: 40px;">
-        <strong>Amar Informatique</strong>
+  <!-- Header -->
+  <header>
+    <div class="container header-content">
+      <a href="index.html" class="logo-link">
+        <img src="logo.png" alt="Logo Amar Informatique" onerror="this.style.display='none'">
+        <span>Amar Informatique</span>
       </a>
       <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Retour</a>
     </div>
   </header>
 
-  <main style="min-height: 80vh; padding: 30px 0;">
-    <div id="productContainer">
-      <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Chargement...</div>
+  <!-- Main Content -->
+  <main>
+    <div id="productContainer" class="container">
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p style="margin-top:15px">Chargement du produit...</p>
+      </div>
     </div>
   </main>
 
   <script>
-    // ========== جلب بيانات المنتج من Firestore ==========
+    // ========== Global Data ==========
+    const wilayasList = [
+      "01 - Adrar","02 - Chlef","03 - Laghouat","04 - Oum El Bouaghi","05 - Batna",
+      "06 - Béjaïa","07 - Biskra","08 - Béchar","09 - Blida","10 - Bouira",
+      "11 - Tamanrasset","12 - Tébessa","13 - Tlemcen","14 - Tiaret","15 - Tizi Ouzou",
+      "16 - Alger","17 - Djelfa","18 - Jijel","19 - Sétif","20 - Saïda",
+      "21 - Skikda","22 - Sidi Bel Abbès","23 - Annaba","24 - Guelma","25 - Constantine",
+      "26 - Médéa","27 - Mostaganem","28 - M'Sila","29 - Mascara","30 - Ouargla",
+      "31 - Oran","32 - El Bayadh","33 - Illizi","34 - Bordj Bou Arréridj","35 - Boumerdès",
+      "36 - El Tarf","37 - Tindouf","38 - Tissemsilt","39 - El Oued","40 - Khenchela",
+      "41 - Souk Ahras","42 - Tipaza","43 - Mila","44 - Aïn Defla","45 - Naâma",
+      "46 - Aïn Témouchent","47 - Ghardaïa","48 - Relizane","49 - Timimoun","50 - Bordj Badji Mokhtar",
+      "51 - Ouled Djellal","52 - Béni Abbès","53 - In Salah","54 - In Guezzam","55 - Touggourt",
+      "56 - Djanet","57 - El M'Ghair","58 - El Meniaa"
+    ];
+    const communesData = {
+      "16": ["Alger Centre","Bab El Oued","Belouizdad","Bir Mourad Raïs","Birkhadem","El Harrach","Hussein Dey","Kouba","Oued Koriche","Sidi M'Hamed"],
+      "31": ["Oran","Es Senia","Bir El Djir","Arzew","Bethioua","Mers El Kébir","Aïn El Turk","Bousfer","El Ancor","Oued Tlélat"]
+    };
+    const shippingPrices = { "16 - Alger": 500, "31 - Oran": 600 };
+    const stopDeskPrices = { "16 - Alger": 300, "31 - Oran": 350 };
+
+    // ========== Load Product ==========
     document.addEventListener('DOMContentLoaded', async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const productId = urlParams.get('id');
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get('id');
       
       if (!productId) {
-        document.getElementById('productContainer').innerHTML = 
-          '<div class="error"><i class="fas fa-exclamation-circle fa-2x"></i><br><br>Produit non trouvé<br><a href="index.html" style="color:var(--primary-color);">← Retour à l\'accueil</a></div>';
+        showError('Produit non spécifié');
         return;
       }
 
       try {
         const doc = await db.collection('products').doc(productId).get();
-        if (!doc.exists) {
-          document.getElementById('productContainer').innerHTML = 
-            '<div class="error"><i class="fas fa-exclamation-circle fa-2x"></i><br><br>Produit introuvable<br><a href="index.html" style="color:var(--primary-color);">← Retour à l\'accueil</a></div>';
-          return;
-        }
+        if (!doc.exists) { showError('Produit introuvable'); return; }
+        
         const product = { id: doc.id, ...doc.data() };
         renderProductPage(product);
+        
+        // Track view
+        if (typeof fbq !== 'undefined') {
+          fbq('track', 'ViewContent', { content_name: product.name, value: product.price, currency: 'DZD' });
+        }
       } catch (error) {
         console.error('Erreur:', error);
-        document.getElementById('productContainer').innerHTML = 
-          '<div class="error"><i class="fas fa-exclamation-circle fa-2x"></i><br><br>Erreur de chargement<br><button onclick="location.reload()" style="margin-top:15px;padding:10px 20px;background:var(--primary-color);color:#fff;border:none;border-radius:8px;cursor:pointer;">Réessayer</button></div>';
+        showError('Erreur de chargement');
       }
     });
 
-    // ========== عرض صفحة المنتج ==========
+    // ========== Render Product Page ==========
     function renderProductPage(product) {
       const container = document.getElementById('productContainer');
+      const priceDisplay = product.oldPrice 
+        ? `<old>${product.oldPrice.toLocaleString('fr-FR')}</old> ${product.price?.toLocaleString('fr-FR') || 0} DA`
+        : `${product.price?.toLocaleString('fr-FR') || 0} DA`;
+
       container.innerHTML = `
         <div class="product-detail-page">
-          <!-- Column 1: Image -->
+          <!-- Image Column -->
           <div class="detail-image-container">
-            <img src="${product.image || 'placeholder.jpg'}" alt="${product.name}" class="detail-image" onerror="this.src='https://via.placeholder.com/400x400?text=Image+non+disponible'">
+            <img src="${product.image || 'https://via.placeholder.com/400?text=Produit'}" 
+                 alt="${product.name}" 
+                 class="detail-image" 
+                 loading="lazy"
+                 onerror="this.src='https://via.placeholder.com/400?text=Image+non+disponible'">
           </div>
-          
-          <!-- Column 2: Info + Form -->
+
+          <!-- Info Column -->
           <div class="detail-info">
-            <a href="index.html" class="back-btn" style="margin-bottom:15px;display:inline-flex;"><i class="fas fa-arrow-left"></i> Retour</a>
+            <a href="index.html" class="back-btn" style="margin-bottom:15px;display:inline-flex;">
+              <i class="fas fa-arrow-left"></i> Retour aux produits
+            </a>
+            
+            <button class="share-btn" onclick="shareProduct('${product.id}', '${encodeURIComponent(product.name)}')">
+              <i class="fas fa-share-alt"></i> Partager ce produit
+            </button>
+            
             <h1>${product.name}</h1>
             <p class="product-category">${product.category || 'Général'}</p>
-            <p class="product-description">${product.description || 'Aucune description disponible.'}</p>
-            <div class="detail-price">${product.price?.toLocaleString('fr-FR') || '0'} DA</div>
+            <p class="product-description">${product.description || 'Aucune description disponible pour ce produit.'}</p>
+            <div class="detail-price">${priceDisplay}</div>
             
-            <button class="btn-add-cart" onclick="addToCartFromDetail('${product.id}')">
+            <button class="btn-add-cart" onclick="addToCart('${product.id}')">
               <i class="fas fa-shopping-cart"></i> Ajouter au Panier
             </button>
-            <button class="btn-buy-now" onclick="buyNow('${product.id}')">
+            <button class="btn-buy-now" onclick="scrollToOrderForm()">
               <i class="fas fa-bolt"></i> Commander Maintenant
             </button>
 
-            <!-- Formulaire de commande rapide -->
-            <div class="order-form">
+            <!-- Quick Order Form -->
+            <div class="order-form" id="orderFormSection">
               <h3><i class="fas fa-truck-fast"></i> Livraison Rapide</h3>
               <form id="quickOrderForm" onsubmit="submitQuickOrder(event, '${product.id}')">
                 <div class="form-row">
                   <div class="form-group">
                     <label>Prénom *</label>
-                    <input type="text" id="qFirstName" required placeholder="Votre prénom">
+                    <input type="text" id="qFirstName" required placeholder="Votre prénom" autocomplete="given-name">
                   </div>
                   <div class="form-group">
                     <label>Nom *</label>
-                    <input type="text" id="qLastName" required placeholder="Votre nom">
+                    <input type="text" id="qLastName" required placeholder="Votre nom" autocomplete="family-name">
                   </div>
                 </div>
+                
                 <div class="form-group">
                   <label>Téléphone *</label>
-                  <input type="tel" id="qPhone" required placeholder="05XXXXXXXX" pattern="[0-9]{10}">
+                  <input type="tel" id="qPhone" required placeholder="05XXXXXXXX" pattern="[0-9]{10}" autocomplete="tel">
                 </div>
+                
                 <div class="form-row">
                   <div class="form-group">
                     <label>Wilaya *</label>
-                    <select id="qWilaya" required onchange="loadCommunes(this.value)"><option value="">Sélectionner</option></select>
+                    <select id="qWilaya" required onchange="loadCommunes(this.value); updateShippingPrice();">
+                      <option value="">Sélectionner une wilaya</option>
+                    </select>
                   </div>
                   <div class="form-group">
                     <label>Commune *</label>
-                    <select id="qCommune" required><option value="">Sélectionner</option></select>
+                    <select id="qCommune" required>
+                      <option value="">Sélectionner une commune</option>
+                    </select>
                   </div>
                 </div>
+                
                 <div class="form-group">
                   <label>Type de livraison *</label>
-                  <select id="qOrderType" required>
+                  <select id="qOrderType" required onchange="updateShippingPrice()">
                     <option value="domicile">🏠 Livraison à domicile</option>
-                    <option value="stopdesk">🏢 Stop Desk (Retrait bureau)</option>
+                    <option value="stopdesk">🏢 Stop Desk (Retrait au bureau)</option>
                   </select>
                 </div>
-                <button type="submit" class="btn-submit-order">
+                
+                <div class="shipping-price">
+                  <i class="fas fa-info-circle"></i>
+                  <span>Frais de livraison:</span>
+                  <strong id="shippingPriceDisplay">0 DA</strong>
+                </div>
+                
+                <button type="submit" class="btn-submit-order" id="submitOrderBtn">
                   <i class="fas fa-check"></i> Confirmer la Commande
                 </button>
               </form>
@@ -298,59 +386,22 @@
           </div>
         </div>
       `;
-      
-      // تحميل الولايات
+
+      // Initialize form
       loadWilayas();
-    }
-
-    // ========== دوال مساعدة ==========
-    function addToCartFromDetail(productId) {
-      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const product = { id: productId }; // يمكن جلب التفاصيل الكاملة إذا لزم
-      const existing = cart.find(item => item.id === productId);
-      if (existing) existing.qty++;
-      else cart.push({ ...product, qty: 1 });
-      localStorage.setItem('cart', JSON.stringify(cart));
       updateCartCount();
-      alert('✅ Produit ajouté au panier!');
     }
 
-    function buyNow(productId) {
-      // فتح الفورم مباشرة
-      document.querySelector('.order-form')?.scrollIntoView({ behavior: 'smooth' });
+    // ========== Helper Functions ==========
+    function showError(msg) {
+      document.getElementById('productContainer').innerHTML = `
+        <div class="error">
+          <i class="fas fa-exclamation-circle"></i>
+          <p style="margin:15px 0;font-size:1.1rem">${msg}</p>
+          <a href="index.html"><i class="fas fa-arrow-left"></i> Retour à l'accueil</a>
+        </div>
+      `;
     }
-
-    function updateCartCount() {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const count = cart.reduce((sum, item) => sum + item.qty, 0);
-      const els = document.querySelectorAll('#cartCount, .cart-count');
-      els.forEach(el => {
-        el.textContent = count;
-        el.style.display = count > 0 ? 'flex' : 'none';
-      });
-    }
-
-    // ========== الولايات والبلديات (نفس الكود من صفحتك الرئيسية) ==========
-    const wilayasList = [
-      "01 - Adrar", "02 - Chlef", "03 - Laghouat", "04 - Oum El Bouaghi", "05 - Batna",
-      "06 - Béjaïa", "07 - Biskra", "08 - Béchar", "09 - Blida", "10 - Bouira",
-      "11 - Tamanrasset", "12 - Tébessa", "13 - Tlemcen", "14 - Tiaret", "15 - Tizi Ouzou",
-      "16 - Alger", "17 - Djelfa", "18 - Jijel", "19 - Sétif", "20 - Saïda",
-      "21 - Skikda", "22 - Sidi Bel Abbès", "23 - Annaba", "24 - Guelma", "25 - Constantine",
-      "26 - Médéa", "27 - Mostaganem", "28 - M'Sila", "29 - Mascara", "30 - Ouargla",
-      "31 - Oran", "32 - El Bayadh", "33 - Illizi", "34 - Bordj Bou Arréridj", "35 - Boumerdès",
-      "36 - El Tarf", "37 - Tindouf", "38 - Tissemsilt", "39 - El Oued", "40 - Khenchela",
-      "41 - Souk Ahras", "42 - Tipaza", "43 - Mila", "44 - Aïn Defla", "45 - Naâma",
-      "46 - Aïn Témouchent", "47 - Ghardaïa", "48 - Relizane", "49 - Timimoun", "50 - Bordj Badji Mokhtar",
-      "51 - Ouled Djellal", "52 - Béni Abbès", "53 - In Salah", "54 - In Guezzam", "55 - Touggourt",
-      "56 - Djanet", "57 - El M'Ghair", "58 - El Meniaa"
-    ];
-
-    const communesData = {
-      "16": ["Alger Centre", "Bab El Oued", "Belouizdad", "Bir Mourad Raïs", "Birkhadem", "El Harrach", "Hussein Dey", "Kouba", "Oued Koriche", "Sidi M'Hamed"],
-      "31": ["Oran", "Es Senia", "Bir El Djir", "Arzew", "Bethioua", "Mers El Kébir", "Aïn El Turk", "Bousfer", "El Ancor", "Oued Tlélat"]
-      // ... أكمل باقي الولايات حسب الحاجة
-    };
 
     function loadWilayas() {
       const select = document.getElementById('qWilaya');
@@ -371,55 +422,122 @@
       const communes = communesData[wilayaCode] || [];
       communes.forEach(c => {
         const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = c;
-        select.appendChild(opt);
+        opt.value = c; opt.textContent = c; select.appendChild(opt);
       });
     }
 
-    // ========== إرسال الطلب السريع ==========
-    async function submitQuickOrder(e, productId) {
-      e.preventDefault();
-      
-      const order = {
-        productId: productId,
-        customer: {
-          firstName: document.getElementById('qFirstName').value,
-          lastName: document.getElementById('qLastName').value,
-          phone: document.getElementById('qPhone').value,
-          wilaya: document.getElementById('qWilaya').options[document.getElementById('qWilaya').selectedIndex].text,
-          commune: document.getElementById('qCommune').value,
-          orderType: document.getElementById('qOrderType').value
-        },
-        status: 'pending',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
+    function updateShippingPrice() {
+      const type = document.getElementById('qOrderType')?.value || 'domicile';
+      const wilayaCode = document.getElementById('qWilaya')?.value;
+      const prices = type === 'stopdesk' ? stopDeskPrices : shippingPrices;
+      const wilayaName = wilayasList.find(w => w.startsWith(wilayaCode + ' - '));
+      const price = wilayaName ? (prices[wilayaName] || 0) : 0;
+      document.getElementById('shippingPriceDisplay').textContent = price + ' DA';
+    }
 
-      try {
-        const btn = e.target.querySelector('button[type="submit"]');
-        const originalText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+    function scrollToOrderForm() {
+      document.getElementById('orderFormSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
-        await db.collection('orders').add(order);
-        
-        // عرض رسالة نجاح
-        alert('✅ Commande envoyée avec succès!\nNuméro de suivi: ' + Date.now().toString().slice(-6));
-        e.target.reset();
-        
-      } catch (error) {
-        console.error('Erreur:', error);
-        alert('❌ Erreur lors de l\'envoi. Veuillez réessayer.');
-      } finally {
-        const btn = e.target.querySelector('button[type="submit"]');
-        btn.disabled = false;
-        btn.innerHTML = originalText;
+    function shareProduct(id, name) {
+      const url = `${window.location.origin}${window.location.pathname}?id=${id}`;
+      if (navigator.share) {
+        navigator.share({ title: decodeURIComponent(name), text: 'Découvrez ce produit sur Amar Informatique', url }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(url).then(() => alert('🔗 Lien copié!'));
       }
     }
 
-    // ========== دعم Meta Pixel ==========
+    // ========== Cart Functions ==========
+    function addToCart(productId) {
+      // Fetch product details if not available
+      db.collection('products').doc(productId).get().then(doc => {
+        if (!doc.exists) return;
+        const p = { id: doc.id, ...doc.data() };
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existing = cart.find(item => item.id === productId);
+        if (existing) existing.qty++;
+        else cart.push({ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 });
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        alert('✅ Produit ajouté au panier!');
+      });
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const count = cart.reduce((sum, item) => sum + item.qty, 0);
+      // Update if cart btn exists on page
+      const els = document.querySelectorAll('#cartCount, .cart-count');
+      els.forEach(el => {
+        el.textContent = count;
+        el.style.display = count > 0 ? 'flex' : 'none';
+      });
+    }
+
+    // ========== Submit Quick Order ==========
+    async function submitQuickOrder(e, productId) {
+      e.preventDefault();
+      const btn = document.getElementById('submitOrderBtn');
+      const original = btn.innerHTML;
+      
+      try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+
+        // Fetch product for order
+        const doc = await db.collection('products').doc(productId).get();
+        if (!doc.exists) throw new Error('Produit introuvable');
+        const product = { id: doc.id, ...doc.data() };
+
+        const order = {
+          items: [{ id: product.id, name: product.name, price: product.price, qty: 1, image: product.image }],
+          customer: {
+            firstName: document.getElementById('qFirstName').value,
+            lastName: document.getElementById('qLastName').value,
+            phone: document.getElementById('qPhone').value,
+            wilaya: document.getElementById('qWilaya').options[document.getElementById('qWilaya').selectedIndex]?.text,
+            commune: document.getElementById('qCommune').value,
+            orderType: document.getElementById('qOrderType').value
+          },
+          productDetails: {
+            name: product.name,
+            price: product.price,
+            category: product.category
+          },
+          shipping: parseInt(document.getElementById('shippingPriceDisplay').textContent) || 0,
+          total: product.price + (parseInt(document.getElementById('shippingPriceDisplay').textContent) || 0),
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          source: 'product-page'
+        };
+
+        await db.collection('orders').add(order);
+        
+        // Show success
+        const orderNum = 'ORD-' + Date.now().toString().slice(-6);
+        alert(`✅ Commande envoyée!\nNuméro de suivi: ${orderNum}\n\nNous vous contacterons bientôt.`);
+        
+        // Track conversion
+        if (typeof fbq !== 'undefined') {
+          fbq('track', 'Lead', { value: order.total, currency: 'DZD' });
+        }
+        
+        e.target.reset();
+        document.getElementById('shippingPriceDisplay').textContent = '0 DA';
+        
+      } catch (error) {
+        console.error('Erreur commande:', error);
+        alert('❌ Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter au 0559 46 99 56');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    }
+
+    // ========== Meta Pixel ==========
     if (typeof fbq !== 'undefined') {
-      fbq('track', 'ViewContent');
+      fbq('track', 'PageView');
     }
   </script>
 </body>
