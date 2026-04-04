@@ -1,4 +1,10 @@
-// ========== VARIABLES GLOBALES ==========
+/**
+ * Amar Informatique - Premium Tech Store
+ * script.js - Version 3.0 ✅ Fixed & Optimized
+ * Dernière mise à jour: 2026
+ */
+
+// ========== 🌐 VARIABLES GLOBALES ==========
 let products = [];
 let cart = [];
 let currentProductId = null;
@@ -7,10 +13,12 @@ let sliderInterval;
 let displayedProductsCount = 0;
 let filteredProducts = [];
 const PRODUCTS_PER_PAGE = 10;
+window.sliderInitialized = false;
 
-// ========== INITIALISATION ==========
+// ========== 🚀 INITIALISATION PRINCIPALE ==========
 document.addEventListener('DOMContentLoaded', async function () {
-  // التحقق من تهيئة Firebase
+  
+  // ✅ 1. التحقق من تهيئة Firebase
   if (typeof window.db === 'undefined') {
     console.error("❌ Firebase non initialisé!");
     const grid = document.getElementById('productsGrid');
@@ -20,16 +28,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     return;
   }
 
-  // تحميل المنتجات
+  // ✅ 2. تحميل المنتجات والبيانات
   await loadProductsFromFirebase();
-  
-  // إعداد الأحداث
-  setupEventListeners();
-  
-  // تحميل السلة
   loadCartFromStorage();
 
-  // زر الإضافة من المودال
+  // ✅ 3. إعداد الأحداث والأزرار
+  setupEventListeners();
+
+  // ✅ 4. زر الإضافة من مودال التفاصيل
   const modalBtn = document.getElementById('modalAddToCartBtn');
   if (modalBtn) {
     modalBtn.addEventListener('click', () => {
@@ -40,9 +46,87 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
     });
   }
+
+  // ✅ 5. فلاتر الولايات والشحن
+  const wilayaSel = document.getElementById('wilaya');
+  const typeSel = document.getElementById('orderType');
+  const communeSel = document.getElementById('commune');
+  const orderForm = document.getElementById('orderForm');
+
+  wilayaSel?.addEventListener('change', function () {
+    const w = this.value;
+    if (communeSel) communeSel.innerHTML = '<option value="">Sélectionner une commune</option>';
+    updateShippingPrice();
+    if (w && wilayasData[w]) {
+      wilayasData[w].forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        communeSel?.appendChild(opt);
+      });
+    }
+  });
+
+  typeSel?.addEventListener('change', updateShippingPrice);
+  orderForm?.addEventListener('submit', submitOrderForm);
+
+  // ✅ 6. تحسينات الجوال والصور
+  if ('ontouchstart' in window) document.body.classList.add('touch-device');
+  window.addEventListener('load', optimizeImages);
+  window.addEventListener('resize', () => {
+    clearTimeout(window.resizeTimer);
+    window.resizeTimer = setTimeout(optimizeImages, 250);
+  });
+
+  // ✅ 7. سوايب السلايدر باللمس
+  let touchStartX = 0, touchEndX = 0;
+  const slider = document.getElementById('heroSlider');
+  if (slider) {
+    slider.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    slider.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) document.getElementById('nextBtn')?.click();
+      if (touchEndX > touchStartX + 50) document.getElementById('prevBtn')?.click();
+    }, { passive: true });
+  }
+
+  // ✅ 8. دوال مودال الشحن (عامة)
+  window.openShippingModal = function() {
+    const modal = document.getElementById('shippingModal');
+    if (modal) { modal.classList.add('active'); renderShippingTable('domicile'); }
+  };
+  window.closeShippingModal = function() {
+    const modal = document.getElementById('shippingModal');
+    if (modal) modal.classList.remove('active');
+  };
+  window.switchShippingType = function(type, btn) {
+    document.querySelectorAll('.btn-shipping-type').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderShippingTable(type);
+  };
+
+  // ✅ 9. أزرار التواصل الاجتماعي
+  const socialToggleBtn = document.getElementById('socialToggleBtn');
+  const socialLinksMenu = document.getElementById('socialLinksMenu');
+  if (socialToggleBtn && socialLinksMenu) {
+    socialToggleBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isActive = socialLinksMenu.classList.toggle('active');
+      socialToggleBtn.setAttribute('aria-expanded', isActive);
+      socialLinksMenu.setAttribute('aria-hidden', !isActive);
+    });
+    document.addEventListener('click', function(e) {
+      if (!socialToggleBtn.contains(e.target) && !socialLinksMenu.contains(e.target)) {
+        socialLinksMenu.classList.remove('active');
+        socialToggleBtn.setAttribute('aria-expanded', 'false');
+        socialLinksMenu.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
+  console.log('✅ Amar Informatique - Application initialisée');
 });
 
-// ========== دالة خلط المنتجات عشوائياً ==========
+// ========== 🔀 دالة خلط المنتجات عشوائياً ==========
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -51,17 +135,14 @@ function shuffleArray(array) {
   return array;
 }
 
-// ========== تحميل المنتجات من Firebase ==========
+// ========== 📦 تحميل المنتجات من Firebase ==========
 async function loadProductsFromFirebase() {
   try {
     const grid = document.getElementById('productsGrid');
-    if (!grid) {
-      console.warn("⚠️ #productsGrid non trouvé");
-      return;
-    }
+    if (!grid) { console.warn("⚠️ #productsGrid non trouvé"); return; }
 
-    // ✅ جلب المنتجات من collection "produits" (تأكد من الاسم في Firebase)
-    const snapshot = await db.collection("produits").get();
+    // ✅ اسم المجموعة في Firestore: "products" (صحّح إذا كان مختلفاً)
+    const snapshot = await db.collection("products").orderBy('createdAt', 'desc').get();
     
     products = [];
     snapshot.forEach(doc => {
@@ -80,10 +161,7 @@ async function loadProductsFromFirebase() {
       });
     });
     
-    // خلط المنتجات عشوائياً
     shuffleArray(products);
-    
-    // عرض المنتجات
     loadProducts();
     updateCatCounts();
     
@@ -96,32 +174,25 @@ async function loadProductsFromFirebase() {
           <div style="text-align:center; grid-column:1/-1; padding:30px; color:#ef4444;">
             <i class="fas fa-lock fa-3x"></i><br><br>
             <strong>Accès refusé à la base de données</strong><br>
-            <small>Vérifiez les Rules Firebase Console</small><br>
+            <small>Vérifiez les Rules dans Firebase Console → Firestore → Rules</small><br>
             <button onclick="location.reload()" 
                     style="margin-top:15px; padding:10px 20px; background:#6366f1; color:#fff; border:none; border-radius:8px; cursor:pointer;">
               <i class="fas fa-redo"></i> Réessayer
             </button>
           </div>`;
       } else {
-        grid.innerHTML = `
-          <p style="text-align:center; grid-column:1/-1; color:red; padding:20px;">
-            ❌ Erreur: ${error.message}<br>
-            <button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">Actualiser</button>
-          </p>`;
+        grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:red; padding:20px;">❌ Erreur: ${error.message}<br><button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">Actualiser</button></p>`;
       }
     }
   }
 }
 
-// ========== عرض المنتجات مع Pagination ==========
+// ========== 🎨 عرض المنتجات مع Pagination ==========
 function loadProducts(productsToDisplay = null, resetPagination = true) {
   const grid = document.getElementById('productsGrid');
   const loadMoreBtn = document.getElementById('loadMoreBtn');
   
-  if (!grid) {
-    console.warn("⚠️ #productsGrid non trouvé");
-    return;
-  }
+  if (!grid) { console.warn("⚠️ #productsGrid non trouvé"); return; }
 
   if (!productsToDisplay) {
     productsToDisplay = [...products];
@@ -135,10 +206,7 @@ function loadProducts(productsToDisplay = null, resetPagination = true) {
     grid.innerHTML = '';
   }
 
-  const productsToShow = filteredProducts.slice(
-    displayedProductsCount, 
-    displayedProductsCount + PRODUCTS_PER_PAGE
-  );
+  const productsToShow = filteredProducts.slice(displayedProductsCount, displayedProductsCount + PRODUCTS_PER_PAGE);
 
   if (productsToShow.length === 0 && displayedProductsCount === 0) {
     grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 20px; color: var(--text-muted);">Aucun produit trouvé.</p>';
@@ -149,7 +217,6 @@ function loadProducts(productsToDisplay = null, resetPagination = true) {
   productsToShow.forEach(product => {
     const card = document.createElement('div');
     card.className = 'product-card';
-    // ✅ النقر على المنتج يفتح صفحة التفاصيل الجديدة
     card.onclick = () => window.location.href = `produit.html?id=${product.id}`;
     card.setAttribute('tabindex', '0');
     card.onkeypress = (e) => { if (e.key === 'Enter') window.location.href = `produit.html?id=${product.id}`; };
@@ -227,17 +294,15 @@ function loadProducts(productsToDisplay = null, resetPagination = true) {
   setTimeout(initScrollAnimations, 100);
 }
 
-// ========== Load More ==========
+// ========== ▶️ Load More ==========
 function loadMoreProducts() {
   if (displayedProductsCount >= filteredProducts.length) return;
   loadProducts(filteredProducts, false);
   const loadMoreBtn = document.getElementById('loadMoreBtn');
-  if (loadMoreBtn) {
-    loadMoreBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+  if (loadMoreBtn) loadMoreBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ========== Scroll Animation ==========
+// ========== 🌀 Scroll Animation ==========
 function initScrollAnimations() {
   if (observer) observer.disconnect();
   const cards = document.querySelectorAll('.product-card');
@@ -253,7 +318,7 @@ function initScrollAnimations() {
   cards.forEach(card => observer.observe(card));
 }
 
-// ========== Hero Slider ==========
+// ========== 🎠 Hero Slider ==========
 function initHeroSlider() {
   const sliderContainer = document.getElementById('heroSlider');
   if (!sliderContainer) return;
@@ -299,17 +364,13 @@ function initHeroSlider() {
   setupSliderButtons(prevBtn, nextBtn, slides, sliderWrapper, dotsContainer);
 
   clearInterval(sliderInterval);
-  sliderInterval = setInterval(() => {
-    nextSlide(slides, sliderWrapper, dotsContainer);
-  }, 5000);
+  sliderInterval = setInterval(() => { nextSlide(slides, sliderWrapper, dotsContainer); }, 5000);
 }
 
 function updateSlider(index, slides, wrapper, dotsContainer) {
   if (!wrapper) return;
   wrapper.style.transform = `translateX(-${index * 100}%)`;
-  document.querySelectorAll('.slider-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === index);
-  });
+  document.querySelectorAll('.slider-dot').forEach((dot, i) => dot.classList.toggle('active', i === index));
 }
 
 function goToSlide(index, slides, wrapper, dotsContainer) {
@@ -336,22 +397,22 @@ function setupSliderButtons(prevBtn, nextBtn, slides, wrapper, dotsContainer) {
 
 function resetAutoPlay(slides, wrapper, dotsContainer) {
   clearInterval(sliderInterval);
-  sliderInterval = setInterval(() => {
-    nextSlide(slides, wrapper, dotsContainer);
-  }, 5000);
+  sliderInterval = setInterval(() => { nextSlide(slides, wrapper, dotsContainer); }, 5000);
 }
 
-// ========== Quick View Modal ==========
+// ========== 🔍 Quick View Modal ==========
 function quickView(productId) {
   const product = products.find(p => p.id === productId);
   if (!product) return;
   currentProductId = productId;
+  
   const detailImage = document.getElementById('detailImage');
   const detailName = document.getElementById('productModalTitle');
   const detailCategory = document.getElementById('detailCategory');
   const detailDescription = document.getElementById('detailDescription');
   const detailPrice = document.getElementById('detailPrice');
   const modal = document.getElementById('productDetailModal');
+  
   if (detailImage) detailImage.src = product.image || '';
   if (detailName) detailName.textContent = product.name;
   if (detailCategory) detailCategory.textContent = product.category || '';
@@ -363,7 +424,7 @@ function quickView(productId) {
   if (modal) modal.classList.add('active');
 }
 
-// ========== Wishlist ==========
+// ========== ❤️ Wishlist ==========
 function toggleWishlist(productId) {
   let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
   const index = wishlist.indexOf(productId);
@@ -377,34 +438,41 @@ function toggleWishlist(productId) {
   localStorage.setItem('wishlist', JSON.stringify(wishlist));
 }
 
-// ========== Panier ==========
+// ========== 🛒 Panier Functions ==========
 function addToCart(productId) {
   const product = products.find(p => p.id === productId);
-  if (!product) {
-    showNotification("Produit non trouvé.", 'error');
-    return;
-  }
+  if (!product) { showNotification("Produit non trouvé.", 'error'); return; }
+  
   const existingItem = cart.find(item => item.id === productId);
   if (existingItem) {
     existingItem.quantity += 1;
   } else {
     cart.push({ ...product, quantity: 1, price: parseFloat(product.price) || 0 });
   }
+  
   saveCartToStorage();
   updateCartCount();
   showNotification(`✅ ${product.name} ajouté au panier!`, 'success');
+  
+  // ✅ Meta Pixel محمي
+  if (typeof fbq === 'function' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    try {
+      fbq('track', 'AddToCart', {
+        content_ids: [productId],
+        content_type: 'product',
+        value: parseFloat(product.price) || 0,
+        currency: 'DZD'
+      });
+    } catch (e) { console.log('⚠️ Pixel AddToCart:', e.message); }
+  }
 }
 
 function updateQuantity(productId, change) {
   const item = cart.find(item => item.id === productId);
   if (item) {
     item.quantity += change;
-    if (item.quantity <= 0) {
-      removeFromCart(productId);
-    } else {
-      saveCartToStorage();
-      displayCart();
-    }
+    if (item.quantity <= 0) removeFromCart(productId);
+    else { saveCartToStorage(); displayCart(); }
   }
 }
 
@@ -420,6 +488,7 @@ function displayCart() {
   const totalPriceEl = document.getElementById('totalPrice');
   const checkoutBtn = document.getElementById('checkoutBtn');
   if (!cartItems) return;
+  
   let total = 0;
   if (cart.length === 0) {
     cartItems.innerHTML = '<div class="cart-empty">Votre panier est vide</div>';
@@ -427,12 +496,14 @@ function displayCart() {
     if (checkoutBtn) checkoutBtn.disabled = true;
     return;
   }
+  
   cartItems.innerHTML = '';
   cart.forEach(item => {
     const price = parseFloat(item.price) || 0;
     const quantity = parseInt(item.quantity) || 0;
     const itemTotal = price * quantity;
     total += itemTotal;
+    
     const cartItem = document.createElement('div');
     cartItem.className = 'cart-item';
     cartItem.innerHTML = `
@@ -451,6 +522,7 @@ function displayCart() {
     `;
     cartItems.appendChild(cartItem);
   });
+  
   if (totalPriceEl) totalPriceEl.textContent = total.toLocaleString('fr-FR', { minimumFractionDigits: 2 });
   if (checkoutBtn) checkoutBtn.disabled = false;
 }
@@ -463,9 +535,7 @@ function updateCartCount() {
   countEl.style.display = count > 0 ? 'flex' : 'none';
 }
 
-function saveCartToStorage() {
-  localStorage.setItem('cart', JSON.stringify(cart));
-}
+function saveCartToStorage() { localStorage.setItem('cart', JSON.stringify(cart)); }
 
 function loadCartFromStorage() {
   const saved = localStorage.getItem('cart');
@@ -486,7 +556,7 @@ function loadCartFromStorage() {
   }
 }
 
-// ========== Event Listeners ==========
+// ========== ⚙️ Event Listeners Setup ==========
 function setupEventListeners() {
   const cartBtn = document.getElementById('cartBtn');
   const cartModal = document.getElementById('cartModal');
@@ -495,28 +565,19 @@ function setupEventListeners() {
   const searchInput = document.getElementById('searchInput');
 
   cartBtn?.addEventListener('click', () => {
-    if (cartModal) {
-      cartModal.classList.add('active');
-      displayCart();
-    }
+    if (cartModal) { cartModal.classList.add('active'); displayCart(); }
   });
 
   closeButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const modal = btn.closest('.modal');
-      if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-      }
+      if (modal) { modal.classList.remove('active'); document.body.style.overflow = ''; }
     });
   });
 
   document.querySelectorAll('.modal').forEach(modal => {
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-      }
+      if (e.target === modal) { modal.classList.remove('active'); document.body.style.overflow = ''; }
     });
   });
 
@@ -539,7 +600,7 @@ function setupEventListeners() {
   searchInput?.addEventListener('input', filterProducts);
 }
 
-// ========== Category Filter ==========
+// ========== 🏷️ Category Filter ==========
 function selectCat(cat, btn) {
   document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
   if (btn) btn.classList.add('active');
@@ -554,10 +615,7 @@ function updateCatCounts() {
   const imp = products.filter(p => p.category === 'imprimantes').length;
   const acc = products.filter(p => p.category === 'accessoires').length;
   const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  setEl('countAll', total);
-  setEl('countLaptop', laptop);
-  setEl('countImprimantes', imp);
-  setEl('countAccessoires', acc);
+  setEl('countAll', total); setEl('countLaptop', laptop); setEl('countImprimantes', imp); setEl('countAccessoires', acc);
 }
 
 // ========== Category Helpers ==========
@@ -570,12 +628,13 @@ function catLabel(c) { return (CAT_META[c] || {}).label || c || 'Général'; }
 function catIcon(c) { return (CAT_META[c] ? CAT_META[c].icon : '<i class="fas fa-tag"></i>'); }
 function catBadgeClass(c) { return (CAT_META[c] ? CAT_META[c].cls : 'cat-badge-default'); }
 
-// ========== Filter Products ==========
+// ========== 🔍 Filter Products ==========
 function filterProducts() {
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
   const searchTerm = (searchInput?.value || '').toLowerCase();
   const selectedCategory = categoryFilter?.value || '';
+  
   const filtered = products.filter(product => {
     const name = (product.name || '').toLowerCase();
     const description = (product.description || '').toLowerCase();
@@ -583,10 +642,11 @@ function filterProducts() {
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+  
   loadProducts(filtered, true);
 }
 
-// ========== Order Functions ==========
+// ========== 📋 Order Functions ==========
 function generateOrderNumber() {
   const now = new Date();
   const datePart = now.toISOString().slice(2, 10).replace(/-/g, '');
@@ -598,19 +658,12 @@ function generateOrderNumber() {
 
 function openOrderForm() {
   const modal = document.getElementById('orderFormModal');
-  if (modal) {
-    modal.classList.add('active');
-    initializeWilayaSelect();
-    document.body.style.overflow = 'hidden';
-  }
+  if (modal) { modal.classList.add('active'); initializeWilayaSelect(); document.body.style.overflow = 'hidden'; }
 }
 
 function closeOrderForm() {
   const modal = document.getElementById('orderFormModal');
-  if (modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-  }
+  if (modal) { modal.classList.remove('active'); document.body.style.overflow = ''; }
 }
 
 function initializeWilayaSelect() {
@@ -619,8 +672,7 @@ function initializeWilayaSelect() {
   select.innerHTML = '<option value="">Sélectionner une wilaya</option>';
   Object.keys(wilayasData).forEach(wilaya => {
     const opt = document.createElement('option');
-    opt.value = wilaya;
-    opt.textContent = wilaya;
+    opt.value = wilaya; opt.textContent = wilaya;
     select.appendChild(opt);
   });
 }
@@ -630,19 +682,22 @@ function updateShippingPrice() {
   const wilaya = document.getElementById('wilaya')?.value || '';
   const priceEl = document.getElementById('shippingPrice');
   const info = document.querySelector('.shipping-info');
+  
   if (!wilaya) {
     if (priceEl) priceEl.textContent = '0 DA';
     if (info) info.classList.remove('active');
     return;
   }
+  
   let price = 0;
   if (type === 'domicile') price = shippingPrices[wilaya] || 0;
   else if (type === 'stopdesk') price = stopDeskPrices[wilaya] || 0;
+  
   if (priceEl) priceEl.textContent = price + ' DA';
   if (info) info.classList.add('active');
 }
 
-// ========== Submit Order ==========
+// ========== 📤 Submit Order (مع حماية البيكسل) ==========
 async function submitOrderForm(e) {
   e.preventDefault();
   const form = document.getElementById('orderForm');
@@ -666,19 +721,13 @@ async function submitOrderForm(e) {
   const grandTotal = cartTotal + shippingPrice;
 
   const commande = {
-    orderNumber,
-    status: 'pending',
-    orderType,
+    orderNumber, status: 'pending', orderType,
     firstName: form.firstName?.value.trim() || '',
     lastName: form.lastName?.value.trim() || '',
     phone1: form.phone1?.value.trim() || '',
     phone2: form.phone2?.value.trim() || null,
-    wilaya,
-    commune,
-    cartItems: [...cart],
-    cartTotal,
-    shippingPrice,
-    grandTotal,
+    wilaya, commune,
+    cartItems: [...cart], cartTotal, shippingPrice, grandTotal,
     date: new Date().toISOString(),
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
@@ -697,16 +746,21 @@ async function submitOrderForm(e) {
     if (confirmModal) confirmModal.classList.add('active');
     if (orderNumberEl) orderNumberEl.textContent = orderNumber;
 
-    cart = [];
-    saveCartToStorage();
-    updateCartCount();
-    form.reset();
+    cart = []; saveCartToStorage(); updateCartCount(); form.reset();
     const shippingPriceEl = document.getElementById('shippingPrice');
     if (shippingPriceEl) shippingPriceEl.textContent = '0 DA';
     showNotification('✅ Commande envoyée avec succès!', 'success');
 
-    if (typeof fbq !== 'undefined') {
-      fbq('track', 'Purchase', { value: grandTotal, currency: 'DZD' });
+    // ✅ Meta Pixel محمي تماماً
+    if (typeof fbq === 'function' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.protocol !== 'file:') {
+      try {
+        fbq('track', 'Purchase', { 
+          value: grandTotal, currency: 'DZD',
+          content_ids: cart.map(i => i.id), content_type: 'product'
+        });
+      } catch (pixelErr) {
+        console.log('⚠️ Meta Pixel tracking skipped:', pixelErr.message);
+      }
     }
 
   } catch (error) {
@@ -714,14 +768,11 @@ async function submitOrderForm(e) {
     alert("Erreur lors de l'envoi. Vérifiez votre connexion.");
   } finally {
     const btn = form.querySelector('button[type="submit"]');
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = 'Confirmer la Commande';
-    }
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Confirmer la Commande'; }
   }
 }
 
-// ========== Notification ==========
+// ========== 🔔 Notification System ==========
 function showNotification(message, type = 'info') {
   const notif = document.createElement('div');
   const bgColor = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#6366f1';
@@ -741,7 +792,7 @@ function showNotification(message, type = 'info') {
   }, 3000);
 }
 
-// ========== Animation Styles ==========
+// ========== 🎨 Animation Styles ==========
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -754,7 +805,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// ========== Wilayas & Communes ==========
+// ========== 🗺️ Wilayas & Communes Data ==========
 const wilayasData = {
   "01 - Adrar": ["Adrar", "Aoulef", "Charouine", "Reggane", "Tamentit", "Tsabit", "Zaouiet Kounta"],
   "02 - Chlef": ["Chlef", "Abou", "Ain Merane", "Boukadir", "El Karimia", "Oued Fodda", "Tadjena", "Zeboudja"],
@@ -816,7 +867,7 @@ const wilayasData = {
   "58 - El Meniaa": ["El Meniaa", "Hassi Gara", "Hassi Fehal"]
 };
 
-// ========== PRIX DE LIVRAISON ==========
+// ========== 💰 PRIX DE LIVRAISON ==========
 const shippingPrices = {
   "01 - Adrar": 1500, "02 - Chlef": 700, "03 - Laghouat": 900, "04 - Oum El Bouaghi": 800,
   "05 - Batna": 700, "06 - Béjaïa": 700, "07 - Biskra": 900, "08 - Béchar": 1200,
@@ -853,97 +904,7 @@ const stopDeskPrices = {
   "55 - Touggourt": 600, "56 - Djanet": 3500, "57 - El M'Ghair": 1800, "58 - El Meniaa": 600
 };
 
-// ========== Form Events ==========
-document.addEventListener('DOMContentLoaded', () => {
-  const wilayaSel = document.getElementById('wilaya');
-  const typeSel = document.getElementById('orderType');
-  const communeSel = document.getElementById('commune');
-  const orderForm = document.getElementById('orderForm');
-
-  wilayaSel?.addEventListener('change', function () {
-    const w = this.value;
-    if (communeSel) {
-      communeSel.innerHTML = '<option value="">Sélectionner une commune</option>';
-    }
-    updateShippingPrice();
-    if (w && wilayasData[w]) {
-      wilayasData[w].forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c; opt.textContent = c;
-        communeSel?.appendChild(opt);
-      });
-    }
-  });
-
-  typeSel?.addEventListener('change', updateShippingPrice);
-
-  orderForm?.addEventListener('submit', submitOrderForm);
-});
-
-// ========== Responsive Enhancements ==========
-document.addEventListener('DOMContentLoaded', () => {
-  if ('ontouchstart' in window) {
-    document.body.classList.add('touch-device');
-  }
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-});
-
-// ========== Image Optimization ==========
-function optimizeImages() {
-  const images = document.querySelectorAll('.product-image, .detail-image, .slide-image');
-  const screenWidth = window.innerWidth;
-  images.forEach(img => {
-    img.loading = screenWidth < 768 ? 'eager' : 'lazy';
-  });
-}
-window.addEventListener('load', optimizeImages);
-window.addEventListener('resize', () => {
-  clearTimeout(window.resizeTimer);
-  window.resizeTimer = setTimeout(optimizeImages, 250);
-});
-
-// ========== Slider Touch Swipe ==========
-let touchStartX = 0, touchEndX = 0;
-const slider = document.getElementById('heroSlider');
-if (slider) {
-  slider.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
-  slider.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-  }, { passive: true });
-}
-function handleSwipe() {
-  const threshold = 50;
-  if (touchEndX < touchStartX - threshold) document.getElementById('nextBtn')?.click();
-  if (touchEndX > touchStartX + threshold) document.getElementById('prevBtn')?.click();
-}
-
-// ========== Shipping Modal Functions ==========
-function openShippingModal() {
-  const modal = document.getElementById('shippingModal');
-  if (modal) {
-    modal.classList.add('active');
-    renderShippingTable('domicile');
-    document.getElementById('shippingSearch').value = '';
-  }
-}
-function closeShippingModal() {
-  const modal = document.getElementById('shippingModal');
-  if (modal) modal.classList.remove('active');
-}
-function switchShippingType(type, btn) {
-  document.querySelectorAll('.btn-shipping-type').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderShippingTable(type);
-}
+// ========== 🚚 Shipping Modal Functions ==========
 function renderShippingTable(type) {
   const tbody = document.getElementById('shippingTableBody');
   if (!tbody) return;
@@ -954,43 +915,38 @@ function renderShippingTable(type) {
     return `<tr><td>${code}</td><td>${name}</td><td style="text-align:center;font-weight:700;color:var(--secondary-color);">${prices[wilaya]} DA</td></tr>`;
   }).join('');
 }
+
 function filterShippingTable() {
   const search = document.getElementById('shippingSearch')?.value.toLowerCase() || '';
   document.querySelectorAll('#shippingTableBody tr').forEach(row => {
     row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
   });
 }
+
 document.addEventListener('click', (e) => {
   const modal = document.getElementById('shippingModal');
   if (modal && e.target === modal) closeShippingModal();
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeShippingModal(); });
 
-// ========== Social Toggle ==========
-document.addEventListener('DOMContentLoaded', function() {
-  const socialToggleBtn = document.getElementById('socialToggleBtn');
-  const socialLinksMenu = document.getElementById('socialLinksMenu');
-  if (socialToggleBtn && socialLinksMenu) {
-    socialToggleBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const isActive = socialLinksMenu.classList.toggle('active');
-      socialToggleBtn.setAttribute('aria-expanded', isActive);
-      socialLinksMenu.setAttribute('aria-hidden', !isActive);
-    });
-    document.addEventListener('click', function(e) {
-      if (!socialToggleBtn.contains(e.target) && !socialLinksMenu.contains(e.target)) {
-        socialLinksMenu.classList.remove('active');
-        socialToggleBtn.setAttribute('aria-expanded', 'false');
-        socialLinksMenu.setAttribute('aria-hidden', 'true');
-      }
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && socialLinksMenu.classList.contains('active')) {
-        socialLinksMenu.classList.remove('active');
-        socialToggleBtn.setAttribute('aria-expanded', 'false');
-        socialLinksMenu.setAttribute('aria-hidden', 'true');
-        socialToggleBtn.focus();
-      }
-    });
-  }
-});
+// ========== 🖼️ Image Optimization ==========
+function optimizeImages() {
+  const images = document.querySelectorAll('.product-image, .detail-image, .slide-image');
+  const screenWidth = window.innerWidth;
+  images.forEach(img => { img.loading = screenWidth < 768 ? 'eager' : 'lazy'; });
+}
+
+// ========== 🌐 Export Global Functions ==========
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.updateQuantity = updateQuantity;
+window.quickView = quickView;
+window.toggleWishlist = toggleWishlist;
+window.selectCat = selectCat;
+window.loadMoreProducts = loadMoreProducts;
+window.openOrderForm = openOrderForm;
+window.closeOrderForm = closeOrderForm;
+window.openShippingModal = openShippingModal;
+window.closeShippingModal = closeShippingModal;
+window.switchShippingType = switchShippingType;
+window.filterShippingTable = filterShippingTable;
