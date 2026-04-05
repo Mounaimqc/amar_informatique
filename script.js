@@ -1,8 +1,7 @@
 /**
  * Amar Informatique - Premium Tech Store
- * script.js - Version 3.1 ✅ Fixed & Optimized
+ * script.js - Version 3.2 ✅ Fixed & Clean (Pixel Removed)
  * Dernière mise à jour: 2026
- * 🔧 إصلاح: openShippingModal + حماية Meta Pixel من أخطاء 422
  */
 
 // ========== 🌐 VARIABLES GLOBALES ==========
@@ -16,15 +15,10 @@ let filteredProducts = [];
 const PRODUCTS_PER_PAGE = 10;
 window.sliderInitialized = false;
 
-// ========== 🚚 دوال مودال الشحن (عامة - خارج DOMContentLoaded) ==========
-// ✅ تم نقلها للخارج لتكون متاحة دائماً وتجنب خطأ "is not defined"
-
+// ========== 🚚 دوال مودال الشحن (عامة لتجنب ReferenceError) ==========
 window.openShippingModal = function() {
     const modal = document.getElementById('shippingModal');
-    if (modal) { 
-        modal.classList.add('active'); 
-        if (typeof renderShippingTable === 'function') renderShippingTable('domicile'); 
-    }
+    if (modal) { modal.classList.add('active'); if (typeof renderShippingTable === 'function') renderShippingTable('domicile'); }
 };
 
 window.closeShippingModal = function() {
@@ -34,7 +28,7 @@ window.closeShippingModal = function() {
 
 window.switchShippingType = function(type, btn) {
     document.querySelectorAll('.btn-shipping-type').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
+    btn?.classList.add('active');
     if (typeof renderShippingTable === 'function') renderShippingTable(type);
 };
 
@@ -56,7 +50,7 @@ function catLabel(c) { return (CAT_META[c] || {}).label || c || 'Général'; }
 function catIcon(c) { return (CAT_META[c] ? CAT_META[c].icon : '<i class="fas fa-tag"></i>'); }
 function catBadgeClass(c) { return (CAT_META[c] ? CAT_META[c].cls : 'cat-badge-default'); }
 
-// ========== 🗺️ Wilayas & Communes Data ==========
+// ========== 🗺️ بيانات الولايات والبلديات ==========
 const wilayasData = {
     "01 - Adrar": ["Adrar", "Aoulef", "Charouine", "Reggane", "Tamentit", "Tsabit", "Zaouiet Kounta"],
     "02 - Chlef": ["Chlef", "Abou", "Ain Merane", "Boukadir", "El Karimia", "Oued Fodda", "Tadjena", "Zeboudja"],
@@ -118,7 +112,7 @@ const wilayasData = {
     "58 - El Meniaa": ["El Meniaa", "Hassi Gara", "Hassi Fehal"]
 };
 
-// ========== 💰 PRIX DE LIVRAISON ==========
+// ========== 💰 أسعار الشحن ==========
 const shippingPrices = {
     "01 - Adrar": 1500, "02 - Chlef": 700, "03 - Laghouat": 900, "04 - Oum El Bouaghi": 800,
     "05 - Batna": 700, "06 - Béjaïa": 700, "07 - Biskra": 900, "08 - Béchar": 1200,
@@ -301,18 +295,15 @@ async function loadProductsFromFirebase() {
         const grid = document.getElementById('productsGrid');
         if (grid) {
             if (error.code === 'permission-denied') {
-                grid.innerHTML = `
-                <div style="text-align:center; grid-column:1/-1; padding:30px; color:#ef4444;">
+                grid.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:30px; color:#ef4444;">
                     <i class="fas fa-lock fa-3x"></i><br><br>
                     <strong>Accès refusé à la base de données</strong><br>
                     <small>Vérifiez les Rules dans Firebase Console → Firestore → Rules</small><br>
-                    <button onclick="location.reload()" 
-                            style="margin-top:15px; padding:10px 20px; background:#6366f1; color:#fff; border:none; border-radius:8px; cursor:pointer;">
-                    <i class="fas fa-redo"></i> Réessayer
-                    </button>
-                </div>`;
+                    <button onclick="location.reload()" style="margin-top:15px; padding:10px 20px; background:#6366f1; color:#fff; border:none; border-radius:8px; cursor:pointer;">
+                    <i class="fas fa-redo"></i> Réessayer</button></div>`;
             } else {
-                grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:red; padding:20px;">❌ Erreur: ${error.message}<br><button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">Actualiser</button></p>`;
+                grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:red; padding:20px;">❌ Erreur: ${error.message}<br>
+                <button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">Actualiser</button></p>`;
             }
         }
     }
@@ -373,10 +364,8 @@ function loadProducts(productsToDisplay = null, resetPagination = true) {
 
         const actions = document.createElement('div');
         actions.className = 'product-actions';
-        actions.innerHTML = `
-        <button class="action-btn wishlist" onclick="event.stopPropagation();toggleWishlist('${product.id}')" title="Favoris"><i class="far fa-heart"></i></button>
-        <button class="action-btn" onclick="event.stopPropagation();quickView('${product.id}')" title="Aperçu"><i class="fas fa-eye"></i></button>
-        `;
+        actions.innerHTML = `<button class="action-btn wishlist" onclick="event.stopPropagation();toggleWishlist('${product.id}')" title="Favoris"><i class="far fa-heart"></i></button>
+        <button class="action-btn" onclick="event.stopPropagation();quickView('${product.id}')" title="Aperçu"><i class="fas fa-eye"></i></button>`;
         imgWrapper.appendChild(actions);
         imgWrapper.appendChild(img);
 
@@ -384,19 +373,13 @@ function loadProducts(productsToDisplay = null, resetPagination = true) {
         info.className = 'product-info';
         const price = parseFloat(product.price) || 0;
 
-        info.innerHTML = `
-        <span class="product-category ${catBadgeClass(product.category)}">${catIcon(product.category)} ${product.category ? catLabel(product.category) : 'Général'}</span>
+        info.innerHTML = `<span class="product-category ${catBadgeClass(product.category)}">${catIcon(product.category)} ${product.category ? catLabel(product.category) : 'Général'}</span>
         <h3 class="product-name">${product.name}</h3>
         <p class="product-description">${product.description || ''}</p>
         <div class="product-footer" style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;">
-            <div class="price-container">
-            <span class="product-price">${product.oldPrice ? `<old>${product.oldPrice.toLocaleString('fr-FR')}</old>` : ''}${price.toLocaleString('fr-FR')} DA</span>
-            </div>
-            <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${product.id}')" title="Ajouter au panier">
-            <i class="fas fa-cart-plus"></i>
-            </button>
-        </div>
-        `;
+            <div class="price-container"><span class="product-price">${product.oldPrice ? `<old>${product.oldPrice.toLocaleString('fr-FR')}</old>` : ''}${price.toLocaleString('fr-FR')} DA</span></div>
+            <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${product.id}')" title="Ajouter au panier"><i class="fas fa-cart-plus"></i></button>
+        </div>`;
 
         card.appendChild(imgWrapper);
         card.appendChild(info);
@@ -472,16 +455,12 @@ function initHeroSlider() {
     featuredProducts.forEach((product, index) => {
         const slide = document.createElement('div');
         slide.className = 'slide';
-        slide.innerHTML = `
-        <img src="${product.image || 'https://via.placeholder.com/200'}" alt="${product.name}" class="slide-image" loading="lazy">
-        <div class="slide-content">
-            ${product.promo ? '<span class="slide-badge">PROMO</span>' : ''}
-            <h3 class="slide-title">${product.name}</h3>
-            <p class="slide-desc">${(product.description || '').substring(0, 100)}...</p>
-            <div class="slide-price">${product.oldPrice ? `<old>${product.oldPrice.toLocaleString('fr-FR')}</old>` : ''}${(parseFloat(product.price) || 0).toLocaleString('fr-FR')} DA</div>
-            <button class="btn-slider" onclick="event.stopPropagation(); window.location.href='produit.html?id=${product.id}'">Voir le produit</button>
-        </div>
-        `;
+        slide.innerHTML = `<img src="${product.image || 'https://via.placeholder.com/200'}" alt="${product.name}" class="slide-image" loading="lazy">
+        <div class="slide-content">${product.promo ? '<span class="slide-badge">PROMO</span>' : ''}
+        <h3 class="slide-title">${product.name}</h3>
+        <p class="slide-desc">${(product.description || '').substring(0, 100)}...</p>
+        <div class="slide-price">${product.oldPrice ? `<old>${product.oldPrice.toLocaleString('fr-FR')}</old>` : ''}${(parseFloat(product.price) || 0).toLocaleString('fr-FR')} DA</div>
+        <button class="btn-slider" onclick="event.stopPropagation(); window.location.href='produit.html?id=${product.id}'">Voir le produit</button></div>`;
         sliderWrapper.appendChild(slide);
         slides.push(slide);
 
@@ -584,14 +563,6 @@ function addToCart(productId) {
     saveCartToStorage();
     updateCartCount();
     showNotification(`✅ ${product.name} ajouté au panier!`, 'success');
-    
-    // ✅ Meta Pixel محمي
-    safePixelTrack('AddToCart', {
-        content_ids: [productId],
-        content_type: 'product',
-        value: parseFloat(product.price) || 0,
-        currency: 'DZD'
-    });
 }
 
 function updateQuantity(productId, change) {
@@ -633,20 +604,12 @@ function displayCart() {
         
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
-        cartItem.innerHTML = `
-        <img src="${item.image || 'https://via.placeholder.com/60'}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60'">
-        <div class="cart-item-info">
-            <div class="cart-item-name">${item.name || 'Produit inconnu'}</div>
-            <div class="cart-item-price">${price.toLocaleString('fr-FR')} DA</div>
-            <div class="cart-item-qty">
-            <button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
-            <span>${quantity}</span>
-            <button class="qty-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
-            </div>
-        </div>
+        cartItem.innerHTML = `<img src="${item.image || 'https://via.placeholder.com/60'}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60'">
+        <div class="cart-item-info"><div class="cart-item-name">${item.name || 'Produit inconnu'}</div>
+        <div class="cart-item-price">${price.toLocaleString('fr-FR')} DA</div>
+        <div class="cart-item-qty"><button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">-</button><span>${quantity}</span><button class="qty-btn" onclick="updateQuantity('${item.id}', 1)">+</button></div></div>
         <div style="font-weight:bold; color:var(--secondary-color);">${itemTotal.toLocaleString('fr-FR')} DA</div>
-        <i class="fas fa-trash cart-item-remove" onclick="removeFromCart('${item.id}')" title="Supprimer"></i>
-        `;
+        <i class="fas fa-trash cart-item-remove" onclick="removeFromCart('${item.id}')" title="Supprimer"></i>`;
         cartItems.appendChild(cartItem);
     });
     
@@ -868,14 +831,6 @@ async function submitOrderForm(e) {
         if (shippingPriceEl) shippingPriceEl.textContent = '0 DA';
         showNotification('✅ Commande envoyée avec succès!', 'success');
 
-        // ✅ Meta Pixel محمي تماماً
-        safePixelTrack('Purchase', { 
-            value: grandTotal, 
-            currency: 'DZD',
-            content_ids: cart.map(i => i.id), 
-            content_type: 'product'
-        });
-
     } catch (error) {
         console.error("❌ Erreur Firebase:", error);
         alert("Erreur lors de l'envoi. Vérifiez votre connexion.");
@@ -889,14 +844,7 @@ async function submitOrderForm(e) {
 function showNotification(message, type = 'info') {
     const notif = document.createElement('div');
     const bgColor = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#6366f1';
-    notif.style.cssText = `
-    position: fixed; top: 20px; right: 20px;
-    background: ${bgColor}; color: white; padding: 15px 25px;
-    border-radius: 12px; z-index: 10000;
-    animation: slideIn 0.3s ease-out;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    font-weight: 500;
-    `;
+    notif.style.cssText = `position: fixed; top: 20px; right: 20px; background: ${bgColor}; color: white; padding: 15px 25px; border-radius: 12px; z-index: 10000; animation: slideIn 0.3s ease-out; box-shadow: 0 4px 20px rgba(0,0,0,0.2); font-weight: 500;`;
     notif.textContent = message;
     document.body.appendChild(notif);
     setTimeout(() => {
@@ -907,18 +855,10 @@ function showNotification(message, type = 'info') {
 
 // ========== 🎨 Animation Styles ==========
 const style = document.createElement('style');
-style.textContent = `
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-.product-card {
-    opacity: 0; transform: translateY(30px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-.product-card.visible { opacity: 1; transform: translateY(0); }
-`;
+style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } } .product-card { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; } .product-card.visible { opacity: 1; transform: translateY(0); }`;
 document.head.appendChild(style);
 
-// ========== 🚚 Shipping Modal Functions ==========
+// ========== 🚚 Shipping Modal Table ==========
 function renderShippingTable(type) {
     const tbody = document.getElementById('shippingTableBody');
     if (!tbody) return;
@@ -937,67 +877,14 @@ function optimizeImages() {
     images.forEach(img => { img.loading = screenWidth < 768 ? 'eager' : 'lazy'; });
 }
 
-// ========== 🔐 Meta Pixel Safe Track (لمنع أخطاء 422) ==========
-// ========== 🔐 Meta Pixel Safe Track (نسخة مُحسّنة لمنع 422) ==========
-function safePixelTrack(eventName, params = {}) {
-    // ✅ 1. تخطي إذا لم يكن البيكسل موجوداً
-    if (typeof fbq !== 'function') {
-        console.log('⚠️ fbq not loaded');
-        return;
-    }
-    
-    // ✅ 2. تخطي في بيئة التطوير
-    const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
-    const isFile = window.location.protocol === 'file:';
-    if (isLocal || isFile) {
-        console.log(`🧪 [DEV] Pixel event skipped: ${eventName}`, params);
-        return;
-    }
-
-    try {
-        // ✅ 3. توليد eventID فريد
-        const eventID = `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // ✅ 4. تنظيف المعاملات
-        const cleanParams = {
-            eventID: eventID,
-            eventTime: Math.floor(Date.now() / 1000), // Unix timestamp بالثواني
-            currency: ['USD', 'EUR', 'DZD'].includes(params.currency) ? params.currency : 'USD',
-            value: typeof params.value === 'number' ? parseFloat(params.value.toFixed(2)) : 0,
-        };
-
-        // ✅ 5. إضافة content_ids إذا وجدت
-        if (params.content_ids && Array.isArray(params.content_ids) && params.content_ids.length > 0) {
-            cleanParams.content_ids = params.content_ids.filter(id => id); // إزالة القيم الفارغة
-            cleanParams.content_type = params.content_type || 'product';
-        }
-
-        // ✅ 6. إزالة الحقول غير الصالحة
-        Object.keys(cleanParams).forEach(key => {
-            if (cleanParams[key] === null || cleanParams[key] === undefined || cleanParams[key] === '') {
-                delete cleanParams[key];
-            }
-        });
-
-        // ✅ 7. إرسال الحدث
-        console.log(`📡 [Pixel] Sending: ${eventName}`, cleanParams);
-        fbq('track', eventName, cleanParams);
-        
-    } catch (e) {
-        console.warn(`⚠️ [Pixel] ${eventName} failed:`, e.message);
-        // ✅ لا توقف التطبيق بسبب خطأ البيكسل
-    }
-}
-
-// ========== 🌐 Export Global Functions (اختياري - للتأكيد فقط) ==========
-// ✅ الدوال موجودة أصلاً على window، هذا للتوضيح فقط
-window.addToCart = typeof addToCart === 'function' ? addToCart : window.addToCart;
-window.removeFromCart = typeof removeFromCart === 'function' ? removeFromCart : window.removeFromCart;
-window.updateQuantity = typeof updateQuantity === 'function' ? updateQuantity : window.updateQuantity;
-window.quickView = typeof quickView === 'function' ? quickView : window.quickView;
-window.toggleWishlist = typeof toggleWishlist === 'function' ? toggleWishlist : window.toggleWishlist;
-window.selectCat = typeof selectCat === 'function' ? selectCat : window.selectCat;
-window.loadMoreProducts = typeof loadMoreProducts === 'function' ? loadMoreProducts : window.loadMoreProducts;
-window.openOrderForm = typeof openOrderForm === 'function' ? openOrderForm : window.openOrderForm;
-window.closeOrderForm = typeof closeOrderForm === 'function' ? closeOrderForm : window.closeOrderForm;
-// ✅ دوال الشحن موجودة مسبقاً في الأعلى - لا حاجة لإعادة تعريفها
+// ========== 🌐 Export Global Functions ==========
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.updateQuantity = updateQuantity;
+window.quickView = quickView;
+window.toggleWishlist = toggleWishlist;
+window.selectCat = selectCat;
+window.loadMoreProducts = loadMoreProducts;
+window.openOrderForm = openOrderForm;
+window.closeOrderForm = closeOrderForm;
+// دوال الشحن معرفة مسبقاً في الأعلى كـ window.openShippingModal إلخ
