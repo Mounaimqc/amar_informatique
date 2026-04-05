@@ -283,12 +283,12 @@ async function loadProductsFromFirebase() {
             return;
         }
 
-        products = [];
+        produits = [];
         snapshot.forEach(doc => {
             const data = doc.data();
             console.log(`📄 منتج: ${doc.id}`, data); // سجل البيانات للمراجعة
             
-            products.push({
+            produits.push({
                 id: doc.id,
                 name: data.name || 'Produit sans nom',
                 category: data.category || '',
@@ -303,13 +303,13 @@ async function loadProductsFromFirebase() {
         });
 
         // 2️⃣ الترتيب محلياً بدلاً من Firestore
-        products.sort((a, b) => {
+        produits.sort((a, b) => {
             const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
             const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
             return dateB - dateA;
         });
 
-        shuffleArray(products);
+        shuffleArray(produits);
         loadProducts();
         updateCatCounts();
         console.log("✅ تم تحميل وعرض المنتجات بنجاح!");
