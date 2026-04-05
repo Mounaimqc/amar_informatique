@@ -261,17 +261,34 @@ function shuffleArray(array) {
     return array;
 }
 
-// ========== 📦 تحميل المنتجات من Firebase ==========
 async function loadProductsFromFirebase() {
     try {
         const grid = document.getElementById('productsGrid');
-        if (!grid) { console.warn("⚠️ #productsGrid non trouvé"); return; }
+        if (!grid) { 
+            console.error("❌ #productsGrid غير موجود في HTML"); 
+            return; 
+        }
 
+        console.log("🔄 جاري تحميل المنتجات من Firebase...");
+        
         const snapshot = await db.collection("products").orderBy('createdAt', 'desc').get();
+        
+        console.log(`📦 عدد المنتجات المسترجعة: ${snapshot.size}`);
+        
+        if (snapshot.empty) {
+            grid.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:30px; color:var(--text-muted);">
+                <i class="fas fa-box-open fa-3x" style="margin-bottom:15px; opacity:0.5;"></i><br>
+                <strong>لا توجد منتجات حالياً</strong><br>
+                <small>أضف منتجات من لوحة التحكم أو تحقق من قواعد Firestore</small>
+            </div>`;
+            return;
+        }
         
         products = [];
         snapshot.forEach(doc => {
             const data = doc.data();
+            console.log(`✅ منتج: ${data.name || 'بدون اسم'} - السعر: ${data.price}`);
+            
             products.push({
                 id: doc.id,
                 name: data.name || 'Produit sans nom',
@@ -289,26 +306,35 @@ async function loadProductsFromFirebase() {
         shuffleArray(products);
         loadProducts();
         updateCatCounts();
+        console.log("✅ تم تحميل المنتجات بنجاح");
         
     } catch (error) {
-        console.error("❌ Erreur chargement produits:", error.code, error.message);
+        console.error("❌ خطأ في تحميل المنتجات:", error.code, error.message);
+        
         const grid = document.getElementById('productsGrid');
         if (grid) {
+            let errorMsg = "خطأ غير معروف";
             if (error.code === 'permission-denied') {
-                grid.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:30px; color:#ef4444;">
-                    <i class="fas fa-lock fa-3x"></i><br><br>
-                    <strong>Accès refusé à la base de données</strong><br>
-                    <small>Vérifiez les Rules dans Firebase Console → Firestore → Rules</small><br>
-                    <button onclick="location.reload()" style="margin-top:15px; padding:10px 20px; background:#6366f1; color:#fff; border:none; border-radius:8px; cursor:pointer;">
-                    <i class="fas fa-redo"></i> Réessayer</button></div>`;
-            } else {
-                grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:red; padding:20px;">❌ Erreur: ${error.message}<br>
-                <button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">Actualiser</button></p>`;
+                errorMsg = "❌ الوصول مرفوض: تحقق من قواعد Firestore";
+            } else if (error.code === 'not-found') {
+                errorMsg = "❌ مجموعة 'products' غير موجودة";
+            } else if (error.code === 'unavailable') {
+                errorMsg = "❌ مشكلة في الاتصال: تحقق من الإنترنت";
             }
+            
+            grid.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:30px; color:#ef4444;">
+                <i class="fas fa-exclamation-triangle fa-3x"></i><br><br>
+                <strong>${errorMsg}</strong><br>
+                <small style="display:block; margin-top:10px; color:var(--text-muted);">
+                    ${error.message}
+                </small>
+                <button onclick="location.reload()" style="margin-top:15px; padding:10px 20px; background:#6366f1; color:#fff; border:none; border-radius:8px; cursor:pointer;">
+                    <i class="fas fa-redo"></i> إعادة المحاولة
+                </button>
+            </div>`;
         }
     }
 }
-
 // ========== 🎨 عرض المنتجات مع Pagination ==========
 function loadProducts(productsToDisplay = null, resetPagination = true) {
     const grid = document.getElementById('productsGrid');
