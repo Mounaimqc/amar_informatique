@@ -2,7 +2,6 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="facebook-domain-verification" content="qivdt86tqxbbfker2d8mp0o9647twe">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -41,38 +40,6 @@
     window.db = db;
     window.storage = storage;
   </script>
-  
-  <!-- ✅ Meta Pixel - محمي ومصحح -->
-  <script>
-    (function() {
-      if (window.location.hostname === 'localhost' || 
-          window.location.hostname === '127.0.0.1' ||
-          window.location.protocol === 'file:') {
-        console.log('🔇 Meta Pixel disabled in development mode');
-        window.fbq = function() { return function() {}; };
-        return;
-      }
-      try {
-        !function(f,b,e,v,n,t,s){
-          if(f.fbq)return;n=f.fbq=function(){
-            n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)
-          };
-          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-          n.queue=[];t=b.createElement(e);t.async=!0;
-          t.src=v;s=b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t,s)
-        }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init','1226041376399363');
-        fbq('track','PageView');
-      } catch(e) {
-        console.warn('⚠️ Meta Pixel error:', e.message);
-      }
-    })();
-  </script>
-  <noscript>
-    <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1226041376399363&ev=PageView&noscript=1"/>
-  </noscript>
 
   <style>
     :root {
