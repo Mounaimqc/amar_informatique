@@ -266,29 +266,20 @@ async function loadProductsFromFirebase() {
         const grid = document.getElementById('productsGrid');
         if (!grid) { console.warn("⚠️ #productsGrid غير موجود"); return; }
 
-        console.log("🔄 جاري تحميل المنتجات من Firebase...");
+        console.log("🔄 جاري تحميل المنتجات من مجموعة 'produits'...");
+        // ✅ التصحيح هنا: produits بدل products
+        const snapshot = await db.collection("produits").orderBy('createdAt', 'desc').get();
         
-        // 1️⃣ جلب البيانات بدون orderBy لتجنب مشاكل الفهارس
-        const snapshot = await db.collection("products").get();
-        
-        console.log(`📦 عدد المستندات في مجموعة 'products': ${snapshot.size}`);
-        
+        console.log(`📦 عدد المنتجات المسترجعة: ${snapshot.size}`);
         if (snapshot.empty) {
-            console.warn("⚠️ المجموعة فارغة أو اسمها مختلف!");
-            grid.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:30px; color:var(--text-muted);">
-                <i class="fas fa-box-open fa-3x" style="margin-bottom:15px; opacity:0.5;"></i><br>
-                <strong>لا توجد منتجات حالياً</strong><br>
-                <small>تأكد أن اسم المجموعة في Firebase هو <code>products</code> (بحروف صغيرة)</small>
-            </div>`;
+            grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:var(--text-muted);">Aucun produit disponible pour le moment.</p>';
             return;
         }
 
-        produits = [];
+        products = [];
         snapshot.forEach(doc => {
             const data = doc.data();
-            console.log(`📄 منتج: ${doc.id}`, data); // سجل البيانات للمراجعة
-            
-            produits.push({
+            products.push({
                 id: doc.id,
                 name: data.name || 'Produit sans nom',
                 category: data.category || '',
@@ -302,25 +293,17 @@ async function loadProductsFromFirebase() {
             });
         });
 
-        // 2️⃣ الترتيب محلياً بدلاً من Firestore
-        produits.sort((a, b) => {
-            const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
-            const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
-            return dateB - dateA;
-        });
-
-        shuffleArray(produits);
+        shuffleArray(products);
         loadProducts();
         updateCatCounts();
-        console.log("✅ تم تحميل وعرض المنتجات بنجاح!");
-
+        console.log("✅ تم تحميل المنتجات بنجاح!");
     } catch (error) {
         console.error("❌ خطأ في تحميل المنتجات:", error.code, error.message);
         const grid = document.getElementById('productsGrid');
         if (grid) {
             grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:#ef4444; padding:20px;">
-                ❌ خطأ: ${error.message}<br>
-                <button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">إعادة المحاولة</button>
+                ❌ Erreur: ${error.message}<br>
+                <button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">Actualiser</button>
             </p>`;
         }
     }
