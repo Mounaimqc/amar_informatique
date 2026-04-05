@@ -264,30 +264,29 @@ function shuffleArray(array) {
 async function loadProductsFromFirebase() {
     try {
         const grid = document.getElementById('productsGrid');
-        if (!grid) { 
-            console.error("❌ #productsGrid غير موجود في HTML"); 
-            return; 
-        }
+        if (!grid) { console.warn("⚠️ #productsGrid غير موجود"); return; }
 
         console.log("🔄 جاري تحميل المنتجات من Firebase...");
         
-        const snapshot = await db.collection("products").orderBy('createdAt', 'desc').get();
+        // 1️⃣ جلب البيانات بدون orderBy لتجنب مشاكل الفهارس
+        const snapshot = await db.collection("products").get();
         
-        console.log(`📦 عدد المنتجات المسترجعة: ${snapshot.size}`);
+        console.log(`📦 عدد المستندات في مجموعة 'products': ${snapshot.size}`);
         
         if (snapshot.empty) {
+            console.warn("⚠️ المجموعة فارغة أو اسمها مختلف!");
             grid.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:30px; color:var(--text-muted);">
                 <i class="fas fa-box-open fa-3x" style="margin-bottom:15px; opacity:0.5;"></i><br>
                 <strong>لا توجد منتجات حالياً</strong><br>
-                <small>أضف منتجات من لوحة التحكم أو تحقق من قواعد Firestore</small>
+                <small>تأكد أن اسم المجموعة في Firebase هو <code>products</code> (بحروف صغيرة)</small>
             </div>`;
             return;
         }
-        
+
         products = [];
         snapshot.forEach(doc => {
             const data = doc.data();
-            console.log(`✅ منتج: ${data.name || 'بدون اسم'} - السعر: ${data.price}`);
+            console.log(`📄 منتج: ${doc.id}`, data); // سجل البيانات للمراجعة
             
             products.push({
                 id: doc.id,
@@ -302,36 +301,27 @@ async function loadProductsFromFirebase() {
                 createdAt: data.createdAt || new Date()
             });
         });
-        
+
+        // 2️⃣ الترتيب محلياً بدلاً من Firestore
+        products.sort((a, b) => {
+            const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+            const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+            return dateB - dateA;
+        });
+
         shuffleArray(products);
         loadProducts();
         updateCatCounts();
-        console.log("✅ تم تحميل المنتجات بنجاح");
-        
+        console.log("✅ تم تحميل وعرض المنتجات بنجاح!");
+
     } catch (error) {
         console.error("❌ خطأ في تحميل المنتجات:", error.code, error.message);
-        
         const grid = document.getElementById('productsGrid');
         if (grid) {
-            let errorMsg = "خطأ غير معروف";
-            if (error.code === 'permission-denied') {
-                errorMsg = "❌ الوصول مرفوض: تحقق من قواعد Firestore";
-            } else if (error.code === 'not-found') {
-                errorMsg = "❌ مجموعة 'products' غير موجودة";
-            } else if (error.code === 'unavailable') {
-                errorMsg = "❌ مشكلة في الاتصال: تحقق من الإنترنت";
-            }
-            
-            grid.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:30px; color:#ef4444;">
-                <i class="fas fa-exclamation-triangle fa-3x"></i><br><br>
-                <strong>${errorMsg}</strong><br>
-                <small style="display:block; margin-top:10px; color:var(--text-muted);">
-                    ${error.message}
-                </small>
-                <button onclick="location.reload()" style="margin-top:15px; padding:10px 20px; background:#6366f1; color:#fff; border:none; border-radius:8px; cursor:pointer;">
-                    <i class="fas fa-redo"></i> إعادة المحاولة
-                </button>
-            </div>`;
+            grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:#ef4444; padding:20px;">
+                ❌ خطأ: ${error.message}<br>
+                <button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">إعادة المحاولة</button>
+            </p>`;
         }
     }
 }
