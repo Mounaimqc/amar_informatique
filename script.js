@@ -938,30 +938,54 @@ function optimizeImages() {
 }
 
 // ========== 🔐 Meta Pixel Safe Track (لمنع أخطاء 422) ==========
-function safePixelTrack(eventName, params) {
-    // ✅ التحقق من وجود البيكسل وظروف التشغيل
-    if (typeof fbq !== 'function') return;
-    if (['localhost', '127.0.0.1'].includes(window.location.hostname)) return;
-    if (window.location.protocol === 'file:') return;
+// ========== 🔐 Meta Pixel Safe Track (نسخة مُحسّنة لمنع 422) ==========
+function safePixelTrack(eventName, params = {}) {
+    // ✅ 1. تخطي إذا لم يكن البيكسل موجوداً
+    if (typeof fbq !== 'function') {
+        console.log('⚠️ fbq not loaded');
+        return;
+    }
     
+    // ✅ 2. تخطي في بيئة التطوير
+    const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
+    const isFile = window.location.protocol === 'file:';
+    if (isLocal || isFile) {
+        console.log(`🧪 [DEV] Pixel event skipped: ${eventName}`, params);
+        return;
+    }
+
     try {
-        // ✅ تنظيف وتأكيد نوع البيانات لتجنب أخطاء 422
-        const cleanParams = {
-            ...params,
-            value: params.value ? parseFloat(params.value) : 0,
-            currency: params.currency || 'DZD'
-        };
+        // ✅ 3. توليد eventID فريد
+        const eventID = `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
-        // ✅ إزالة القيم غير الصالحة
+        // ✅ 4. تنظيف المعاملات
+        const cleanParams = {
+            eventID: eventID,
+            eventTime: Math.floor(Date.now() / 1000), // Unix timestamp بالثواني
+            currency: ['USD', 'EUR', 'DZD'].includes(params.currency) ? params.currency : 'USD',
+            value: typeof params.value === 'number' ? parseFloat(params.value.toFixed(2)) : 0,
+        };
+
+        // ✅ 5. إضافة content_ids إذا وجدت
+        if (params.content_ids && Array.isArray(params.content_ids) && params.content_ids.length > 0) {
+            cleanParams.content_ids = params.content_ids.filter(id => id); // إزالة القيم الفارغة
+            cleanParams.content_type = params.content_type || 'product';
+        }
+
+        // ✅ 6. إزالة الحقول غير الصالحة
         Object.keys(cleanParams).forEach(key => {
-            if (cleanParams[key] === null || cleanParams[key] === undefined) {
+            if (cleanParams[key] === null || cleanParams[key] === undefined || cleanParams[key] === '') {
                 delete cleanParams[key];
             }
         });
-        
+
+        // ✅ 7. إرسال الحدث
+        console.log(`📡 [Pixel] Sending: ${eventName}`, cleanParams);
         fbq('track', eventName, cleanParams);
+        
     } catch (e) {
-        console.warn(`⚠️ Pixel ${eventName} skipped:`, e.message);
+        console.warn(`⚠️ [Pixel] ${eventName} failed:`, e.message);
+        // ✅ لا توقف التطبيق بسبب خطأ البيكسل
     }
 }
 
