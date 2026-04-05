@@ -253,10 +253,21 @@ function shuffleArray(array) {
 async function loadProductsFromFirebase() {
     try {
         const grid = document.getElementById('productsGrid');
-        if (!grid) { console.warn("⚠️ #productsGrid non trouvé"); return; }
+        if (!grid) return;
 
-        const snapshot = await db.collection("produits").orderBy('createdAt', 'desc').get();
-        console.log(`📦 Nombre de produits chargés: ${snapshot.size}`);
+        console.log("🔄 Chargement depuis Firestore...");
+        
+        // ✅ Récupération SANS orderBy (évite les erreurs d'index silencieuses)
+        const snapshot = await db.collection("produits").get();
+        console.log(`📦 Documents trouvés: ${snapshot.size}`);
+
+        if (snapshot.empty) {
+            grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; padding:20px; color:var(--text-muted);">
+                ⚠️ La collection <code>produits</code> est vide ou n'existe pas.<br>
+                <small>Vérifiez Firebase Console > Firestore Database</small>
+            </p>`;
+            return;
+        }
 
         products = [];
         snapshot.forEach(doc => {
@@ -274,22 +285,25 @@ async function loadProductsFromFirebase() {
                 createdAt: data.createdAt || new Date()
             });
         });
-        
+
+        // ✅ Tri local par date (plus fiable que Firestore)
+        products.sort((a, b) => {
+            const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+            const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+            return dateB - dateA;
+        });
+
         shuffleArray(products);
         loadProducts();
         updateCatCounts();
+        console.log("✅ Produits chargés et affichés !");
+
     } catch (error) {
-        console.error("❌ Erreur chargement produits:", error.code, error.message);
+        console.error("❌ Erreur chargement:", error.code, error.message);
         const grid = document.getElementById('productsGrid');
-        if (grid) {
-            grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:#ef4444; padding:20px;">
-                ❌ Erreur: ${error.message}<br>
-                <button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;">Actualiser</button>
-            </p>`;
-        }
+        if (grid) grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; color:#ef4444;">❌ ${error.message}</p>`;
     }
 }
-
 // ========== 🎨 Affichage & Pagination ==========
 function loadProducts(productsToDisplay = null, resetPagination = true) {
     const grid = document.getElementById('productsGrid');
