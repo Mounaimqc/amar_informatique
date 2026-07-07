@@ -214,6 +214,14 @@
         }
       });
 
+      // Auto-track order if URL parameter matches
+      const params = new URLSearchParams(window.location.search);
+      const urlId = params.get('id') || params.get('orderNumber');
+      if (urlId) {
+        orderIdInput.value = urlId.trim();
+        trackOrder(urlId.trim());
+      }
+
       function initDarkModeTheme() {
         const isDark = localStorage.getItem('theme') === 'true';
         if (isDark) {

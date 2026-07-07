@@ -1118,11 +1118,13 @@ function computeShippingCost(type, wilaya) {
 
 function generateOrderNumber() {
     const now = new Date();
-    const datePart = now.toISOString().slice(2, 10).replace(/-/g, '');
+    const year = now.getFullYear().toString().slice(-2);
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
     let count = localStorage.getItem(LATEST_ORDER_COUNT_KEY) || '0';
     count = String(parseInt(count) + 1).padStart(3, '0');
     localStorage.setItem(LATEST_ORDER_COUNT_KEY, count);
-    return `AM${datePart}${count}`;
+    return `AM-${year}${month}${day}-${count}`;
 }
 
 async function submitOrderForm(e) {
@@ -1173,8 +1175,19 @@ async function submitOrderForm(e) {
         // Ouvrir le modal de confirmation
         const confirmModal = document.getElementById('confirmModal');
         const orderNumEl = document.getElementById('orderNumber');
-        if (confirmModal) confirmModal.classList.add('active');
+        const trackBtn = document.getElementById('trackOrderDirectBtn');
+        const whatsappBtn = document.getElementById('confirmWhatsappBtn');
+
         if (orderNumEl) orderNumEl.textContent = orderNumber;
+        if (trackBtn) trackBtn.href = `tracking.html?id=${orderNumber}`;
+        if (whatsappBtn) {
+            const firstItemName = cart[0] ? cart[0].name : "Produits";
+            const message = encodeURIComponent(`Bonjour Amar Informatique, je viens de valider mon panier.\nNuméro de commande : ${orderNumber}\nArticles : ${firstItemName}...`);
+            whatsappBtn.href = `https://wa.me/213559469956?text=${message}`;
+        }
+
+        if (confirmModal) confirmModal.classList.add('active');
+        if (window.lucide) lucide.createIcons();
 
         // Vider le panier
         cart = [];
@@ -1193,6 +1206,13 @@ async function submitOrderForm(e) {
         }
     }
 }
+
+window.copyOrderNumberToClipboard = function() {
+    const text = document.getElementById('orderNumber').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        alert("📋 Numéro de suivi copié dans le presse-papier !");
+    });
+};
 
 // ========== 🔍 DETAILED QUICK VIEW MODAL ==========
 window.openQuickView = function(productId) {

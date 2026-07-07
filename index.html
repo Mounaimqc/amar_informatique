@@ -738,13 +738,17 @@
       <div style="background: var(--bg-input); border: 1px solid var(--border); padding: 18px; border-radius: 12px; margin-bottom: 20px;">
         <p style="margin-bottom: 5px; font-size: 0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Numéro de suivi de commande :</p>
         <strong id="orderNumber" style="font-size: 1.6rem; color: var(--accent); letter-spacing: 2px;"></strong>
+        <div style="margin-top:10px;">
+          <button class="btn-card-buy" style="background:none; border:none; width:auto; height:auto; color:var(--primary); font-size:0.85rem; font-weight:700; display:inline-flex; align-items:center; gap:5px;" onclick="copyOrderNumberToClipboard()">
+            <i data-lucide="copy" style="width:14px;"></i> Copier le numéro
+          </button>
+        </div>
       </div>
       
-      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 25px; display:flex; align-items:center; justify-content:center; gap:6px;">
-        <i data-lucide="camera"></i> <span>Prenez une capture d'écran de ce numéro.</span>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <a id="trackOrderDirectBtn" href="tracking.html" class="btn-checkout" style="margin-top:0; padding:12px;"><i data-lucide="compass"></i> Suivre mon colis en temps réel</a>
+        <a id="confirmWhatsappBtn" href="https://wa.me/213559469956" target="_blank" class="btn-submit" style="margin-top:0; padding:12px; background-color:#25D366; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fab fa-whatsapp"></i> Envoyer sur WhatsApp</a>
       </div>
-      
-      <button class="btn-checkout" onclick="location.reload()">Continuer mes achats</button>
     </div>
   </div>
 
