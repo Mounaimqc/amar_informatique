@@ -2544,3 +2544,34 @@ body.dark-mode .admin-data-table tr:hover {
     gap: 15px;
   }
 }
+
+/* ==========================================
+ * 📱 RESPONSIVE ACTIONS & REVIEWS GRIDS
+ * ========================================== */
+.product-detail-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 15px;
+  margin-bottom: 35px;
+}
+
+@media (max-width: 480px) {
+  .product-detail-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.reviews-layout-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .reviews-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

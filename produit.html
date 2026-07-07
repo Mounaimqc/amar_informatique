@@ -488,7 +488,7 @@
 
                     <p class="product-description" style="margin-bottom:30px;">${p.description || 'Aucune description disponible pour ce produit informatique.'}</p>
 
-                    <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:15px; margin-bottom:35px;">
+                    <div class="product-detail-actions-grid">
                         <button class="btn-checkout" style="margin-top:0; padding:16px 20px; font-size:1rem;" onclick="addProductToCartFromDetails()">
                             <i data-lucide="shopping-cart"></i> Ajouter au panier
                         </button>
@@ -650,7 +650,7 @@
 
                 <!-- Reviews Panel -->
                 <div class="tab-pane" id="reviewsTab">
-                    <div style="display:grid; grid-template-columns:280px 1fr; gap:30px; align-items:start;" class="form-row">
+                    <div class="reviews-layout-grid">
                         <!-- Stats left -->
                         <div class="skeleton-card" style="animation:none; text-align:center; background:var(--bg-card); padding:30px; position:sticky; top:20px;">
                             <h2 style="font-size:3rem; color:var(--accent);" id="avgRatingDisplay">0.0</h2>
