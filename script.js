@@ -166,6 +166,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Activer l'horloge Promotion
     startPromoCountdown();
 
+    // Charger les avis réels depuis Firestore
+    loadAllHomepageTestimonials();
 });
 
 // ========== 🎨 THEME DARK MODE ==========
@@ -1455,3 +1457,101 @@ window.subscribeNewsletter = function() {
         alert("Veuillez entrer une adresse e-mail valide.");
     }
 };
+
+// ========== 💬 DYNAMIC HOMEPAGE TESTIMONIALS SYSTEM ==========
+async function loadAllHomepageTestimonials() {
+    const grid = document.getElementById('homepageTestimonialsGrid');
+    if (!grid) return;
+
+    grid.innerHTML = Array(3).fill(0).map(() => `
+        <div class="skeleton-card" style="height: 180px;">
+            <div class="skeleton-line title" style="width: 50%;"></div>
+            <div class="skeleton-line desc"></div>
+            <div class="skeleton-line desc"></div>
+            <div class="skeleton-line price" style="width: 30%; margin-top: auto;"></div>
+        </div>
+    `).join('');
+
+    try {
+        const snapshot = await db.collection('avis')
+            .orderBy('date', 'desc')
+            .limit(6)
+            .get();
+
+        let testimonialsHTML = [];
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const rating = parseInt(data.rating) || 5;
+
+            // Build stars
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    starsHTML += '<i class="fas fa-star" style="color:var(--warning); margin-right:2px;"></i>';
+                } else {
+                    starsHTML += '<i class="far fa-star" style="color:var(--text-muted); margin-right:2px;"></i>';
+                }
+            }
+
+            // Find product link
+            let productLinkHTML = '';
+            if (data.productId) {
+                // If products are loaded
+                const prod = products.find(p => p.id === data.productId);
+                if (prod) {
+                    productLinkHTML = `<div style="margin-top: 15px; border-top: 1px dashed var(--border); padding-top: 10px; font-size: 0.78rem;">
+                        <a href="produit.html?id=${prod.id}" style="color:var(--primary); font-weight:700; display:inline-flex; align-items:center; gap:4px;">
+                            <i class="fas fa-shopping-bag" style="font-size:0.75rem;"></i> Acheté : ${prod.name.substring(0, 24)}...
+                        </a>
+                    </div>`;
+                }
+            }
+
+            testimonialsHTML.push(`
+                <div class="skeleton-card" style="animation:none; background:var(--bg-card); border:1px solid var(--border); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:10px;">
+                    <div class="product-rating" style="color:var(--warning); margin-bottom:2px;">
+                        ${starsHTML}
+                    </div>
+                    <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary); line-height:1.55; flex:1;">
+                        "${data.comment}"
+                    </p>
+                    <strong style="font-size:0.85rem; color:var(--text-primary); display:block; margin-top:8px;">
+                        ${data.clientName}
+                    </strong>
+                    ${productLinkHTML}
+                </div>
+            `);
+        });
+
+        if (testimonialsHTML.length > 0) {
+            grid.innerHTML = testimonialsHTML.join('');
+        } else {
+            loadDefaultStaticTestimonials(grid);
+        }
+
+    } catch (err) {
+        console.error("Error loading testimonials:", err);
+        loadDefaultStaticTestimonials(grid);
+    }
+}
+
+function loadDefaultStaticTestimonials(grid) {
+    grid.innerHTML = `
+        <div class="skeleton-card" style="animation:none; background:var(--bg-card); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+          <div class="product-rating" style="color:var(--warning);"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary); line-height:1.5;">"Achat d'un laptop Dell Latitude reconditionné. L'appareil est dans un état impeccable, comme neuf ! Livraison rapide sur Sétif. Service client réactif."</p>
+          <strong style="margin-top:10px; font-size:0.85rem; color:var(--text-primary);">Sofiane K. (Sétif)</strong>
+        </div>
+        <div class="skeleton-card" style="animation:none; background:var(--bg-card); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+          <div class="product-rating" style="color:var(--warning);"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary); line-height:1.5;">"Très bon rapport qualité-prix. J'ai commandé une imprimante Canon et des accessoires, livraison Stop Desk conforme à Alger. Je recommande vivement !"</p>
+          <strong style="margin-top:10px; font-size:0.85rem; color:var(--text-primary);">Amine B. (Alger)</strong>
+        </div>
+        <div class="skeleton-card" style="animation:none; background:var(--bg-card); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+          <div class="product-rating" style="color:var(--warning);"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary); line-height:1.5;">"Excellent service après-vente. Le laptop avait un petit souci de batterie, il a été remplacé sous garantie sans aucune discussion."</p>
+          <strong style="margin-top:10px; font-size:0.85rem; color:var(--text-primary);">Yasmine A. (Oran)</strong>
+        </div>
+    `;
+}

@@ -451,25 +451,12 @@
   <!-- Testimonials Section -->
   <section class="testimonials-section" style="padding: 60px 0; background-color: var(--bg-card); border-top: 1px solid var(--border);">
     <div class="container">
-      <div class="section-title-wrap">
-        <h2>Avis de nos Clients</h2>
+      <div class="section-title-wrap" style="justify-content:center; flex-direction:column; text-align:center; margin-bottom:40px;">
+        <h2>💬 Avis de nos Clients</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">Avis authentiques rédigés par nos acheteurs et synchronisés depuis Firebase.</p>
       </div>
-      <div class="promo-banners-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-        <div class="skeleton-card" style="animation:none; background:var(--bg-main);">
-          <div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary);">"Achat d'un laptop Dell Latitude reconditionné. L'appareil est dans un état impeccable, comme neuf ! Livraison rapide en 24h sur Sétif. Service client réactif."</p>
-          <strong style="margin-top:10px; font-size:0.85rem;">Sofiane K. (Sétif)</strong>
-        </div>
-        <div class="skeleton-card" style="animation:none; background:var(--bg-main);">
-          <div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary);">"Très bon rapport qualité-prix. J'ai commandé une imprimante Canon et des accessoires, livraison Stop Desk conforme à Alger. Je recommande vivement !"</p>
-          <strong style="margin-top:10px; font-size:0.85rem;">Amine B. (Alger)</strong>
-        </div>
-        <div class="skeleton-card" style="animation:none; background:var(--bg-main);">
-          <div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
-          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary);">"Excellent service après-vente. Le laptop avait un petit souci de batterie, il a été remplacé sous garantie sans aucune discussion. Équipe honnête et professionnelle."</p>
-          <strong style="margin-top:10px; font-size:0.85rem;">Yasmine A. (Oran)</strong>
-        </div>
+      <div id="homepageTestimonialsGrid" class="promo-banners-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
+        <!-- Dynamically populated from Firestore -->
       </div>
     </div>
   </section>

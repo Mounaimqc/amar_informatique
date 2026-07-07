@@ -1134,90 +1134,102 @@
 
         listContainer.innerHTML = '<div style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);"></i></div>';
 
+        let snapshot = null;
+        let useLocalFallback = false;
+
         try {
-            const snapshot = await db.collection('avis')
+            snapshot = await db.collection('avis')
                 .where('productId', '==', productId)
                 .get();
+        } catch (err) {
+            console.warn("⚠️ Firestore access blocked (Missing permissions). Using LocalStorage fallback:", err);
+            useLocalFallback = true;
+        }
 
-            let totalRating = 0;
-            let count = 0;
-            let reviewsHTML = [];
+        let reviewsData = [];
 
+        if (useLocalFallback) {
+            const localReviews = JSON.parse(localStorage.getItem('localProductReviews') || '[]');
+            reviewsData = localReviews.filter(r => r.productId === productId);
+        } else if (snapshot) {
             snapshot.forEach(doc => {
-                const data = doc.data();
-                const rating = parseInt(data.rating) || 5;
-                totalRating += rating;
-                count++;
-
-                // Format date
-                let formattedDate = 'Récemment';
-                if (data.date) {
-                    try {
-                        formattedDate = new Date(data.date).toLocaleDateString('fr-FR');
-                    } catch {}
-                }
-
-                // Build stars
-                let starsHTML = '';
-                for (let i = 1; i <= 5; i++) {
-                    if (i <= rating) {
-                        starsHTML += '<i class="fas fa-star" style="color:var(--warning); margin-right:2px;"></i>';
-                    } else {
-                        starsHTML += '<i class="far fa-star" style="color:var(--text-muted); margin-right:2px;"></i>';
-                    }
-                }
-
-                reviewsHTML.push(`
-                    <div style="background:var(--bg-card); border:1px solid var(--border); padding:20px; border-radius:var(--radius-sm); position:relative;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <strong style="font-size:0.95rem; color:var(--text-primary);">${data.clientName}</strong>
-                            <span style="font-size:0.75rem; color:var(--text-muted);">${formattedDate}</span>
-                        </div>
-                        <div style="margin-bottom:10px; font-size:0.8rem;">
-                            ${starsHTML}
-                        </div>
-                        <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.5;">${data.comment}</p>
-                    </div>
-                `);
+                reviewsData.push({ id: doc.id, ...doc.data() });
             });
+        }
 
-            if (count > 0) {
-                const avg = (totalRating / count).toFixed(1);
-                document.getElementById('avgRatingDisplay').textContent = avg;
-                document.getElementById('reviewCountDisplay').textContent = `Basé sur ${count} avis client(s)`;
-                document.getElementById('listReviewCount').textContent = `${count} avis`;
+        let totalRating = 0;
+        let count = 0;
+        let reviewsHTML = [];
 
-                // Render average stars
-                let avgStarsHTML = '';
-                const roundedAvg = Math.round(parseFloat(avg));
-                for (let i = 1; i <= 5; i++) {
-                    if (i <= roundedAvg) {
-                        avgStarsHTML += '<i class="fas fa-star" style="margin-right:2px;"></i>';
-                    } else {
-                        avgStarsHTML += '<i class="far fa-star" style="margin-right:2px;"></i>';
-                    }
-                }
-                document.getElementById('avgStarsDisplay').innerHTML = avgStarsHTML;
-                listContainer.innerHTML = reviewsHTML.join('');
-            } else {
-                // Default empty state
-                document.getElementById('avgRatingDisplay').textContent = '5.0';
-                document.getElementById('reviewCountDisplay').textContent = `Basé sur des avis certifiés`;
-                document.getElementById('listReviewCount').textContent = `0 avis`;
-                document.getElementById('avgStarsDisplay').innerHTML = '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>';
+        reviewsData.forEach(data => {
+            const rating = parseInt(data.rating) || 5;
+            totalRating += rating;
+            count++;
 
-                listContainer.innerHTML = `
-                    <div style="text-align:center; padding:40px 20px; border:1px dashed var(--border); border-radius:var(--radius-sm); color:var(--text-muted);">
-                        <i class="far fa-comments" style="font-size:2.5rem; margin-bottom:10px; color:var(--text-muted);"></i>
-                        <p style="font-size:0.9rem;">Aucun avis pour le moment sur ce produit.</p>
-                        <p style="font-size:0.78rem; margin-top:2px;">Soyez le premier à partager votre expérience d'achat !</p>
-                    </div>
-                `;
+            // Format date
+            let formattedDate = 'Récemment';
+            if (data.date) {
+                try {
+                    formattedDate = new Date(data.date).toLocaleDateString('fr-FR');
+                } catch {}
             }
 
-        } catch (err) {
-            console.error("Error loading reviews:", err);
-            listContainer.innerHTML = `<p style="color:var(--danger); text-align:center; padding:20px;">Impossible de charger les avis.</p>`;
+            // Build stars
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    starsHTML += '<i class="fas fa-star" style="color:var(--warning); margin-right:2px;"></i>';
+                } else {
+                    starsHTML += '<i class="far fa-star" style="color:var(--text-muted); margin-right:2px;"></i>';
+                }
+            }
+
+            reviewsHTML.push(`
+                <div style="background:var(--bg-card); border:1px solid var(--border); padding:20px; border-radius:var(--radius-sm); position:relative;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <strong style="font-size:0.95rem; color:var(--text-primary);">${data.clientName}</strong>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">${formattedDate}</span>
+                    </div>
+                    <div style="margin-bottom:10px; font-size:0.8rem;">
+                        ${starsHTML}
+                    </div>
+                    <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.5;">${data.comment}</p>
+                </div>
+            `);
+        });
+
+        if (count > 0) {
+            const avg = (totalRating / count).toFixed(1);
+            document.getElementById('avgRatingDisplay').textContent = avg;
+            document.getElementById('reviewCountDisplay').textContent = `Basé sur ${count} avis client(s)`;
+            document.getElementById('listReviewCount').textContent = `${count} avis`;
+
+            // Render average stars
+            let avgStarsHTML = '';
+            const roundedAvg = Math.round(parseFloat(avg));
+            for (let i = 1; i <= 5; i++) {
+                if (i <= roundedAvg) {
+                    avgStarsHTML += '<i class="fas fa-star" style="margin-right:2px;"></i>';
+                } else {
+                    avgStarsHTML += '<i class="far fa-star" style="margin-right:2px;"></i>';
+                }
+            }
+            document.getElementById('avgStarsDisplay').innerHTML = avgStarsHTML;
+            listContainer.innerHTML = reviewsHTML.join('');
+        } else {
+            // Default empty state
+            document.getElementById('avgRatingDisplay').textContent = '5.0';
+            document.getElementById('reviewCountDisplay').textContent = `Basé sur des avis certifiés`;
+            document.getElementById('listReviewCount').textContent = `0 avis`;
+            document.getElementById('avgStarsDisplay').innerHTML = '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>';
+
+            listContainer.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; border:1px dashed var(--border); border-radius:var(--radius-sm); color:var(--text-muted);">
+                    <i class="far fa-comments" style="font-size:2.5rem; margin-bottom:10px; color:var(--text-muted);"></i>
+                    <p style="font-size:0.9rem;">Aucun avis pour le moment sur ce produit.</p>
+                    <p style="font-size:0.78rem; margin-top:2px;">Soyez le premier à partager votre expérience d'achat !</p>
+                </div>
+            `;
         }
     }
 
@@ -1246,19 +1258,29 @@
             date: new Date().toISOString()
         };
 
+        let dbSuccess = false;
         try {
             await db.collection('avis').add(reviewDoc);
-            alert("✅ Merci ! Votre évaluation a été publiée avec succès.");
-            document.getElementById('addReviewForm').reset();
-            // Reload reviews list
-            loadProductReviews(activeProduct.id);
+            dbSuccess = true;
         } catch (err) {
-            console.error("Error saving review:", err);
-            alert("Erreur de connexion. Impossible de publier l'évaluation.");
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publier l\'évaluation';
+            console.error("Error saving review to Firestore:", err);
+            // Save to localStorage fallback
+            const localReviews = JSON.parse(localStorage.getItem('localProductReviews') || '[]');
+            localReviews.push(reviewDoc);
+            localStorage.setItem('localProductReviews', JSON.stringify(localReviews));
+            
+            // alert warning developer instructions
+            alert("⚠️ Note : Votre évaluation a été enregistrée localement car les permissions d'écriture Firestore sont restreintes.\n\n👉 Pour l'enregistrer de manière permanente et la rendre visible par tout le monde, veuillez ajouter cette règle dans l'onglet 'Rules' de la base Firestore sur votre console Firebase :\n\nmatch /avis/{document} {\n  allow read, write: if true;\n}");
         }
+
+        if (dbSuccess) {
+            alert("✅ Merci ! Votre évaluation a été publiée avec succès.");
+        }
+
+        document.getElementById('addReviewForm').reset();
+        loadProductReviews(activeProduct.id);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publier l\'évaluation';
     };
   </script>
 </body>
