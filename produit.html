@@ -376,6 +376,9 @@
             // Setup scroll sticky buy bar triggers
             setupStickyBarScrollTrigger();
 
+            // Load real customer reviews from Firestore!
+            loadProductReviews(activeProduct.id);
+
         } catch (err) {
             console.error("Error loading product detail:", err);
             showPageError("Une erreur s'est produite lors de la connexion à Firebase : " + err.message);
@@ -647,32 +650,56 @@
 
                 <!-- Reviews Panel -->
                 <div class="tab-pane" id="reviewsTab">
-                    <div style="display:grid; grid-template-columns:250px 1fr; gap:30px; align-items:center;" class="form-row">
-                        <div class="skeleton-card" style="animation:none; text-align:center; background:var(--bg-card); padding:30px;">
-                            <h2 style="font-size:3rem; color:var(--accent);">5.0</h2>
-                            <div class="product-rating" style="justify-content:center; margin-bottom:8px;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                            <p style="font-size:0.8rem; color:var(--text-muted);">Basé sur 12 avis récents</p>
+                    <div style="display:grid; grid-template-columns:280px 1fr; gap:30px; align-items:start;" class="form-row">
+                        <!-- Stats left -->
+                        <div class="skeleton-card" style="animation:none; text-align:center; background:var(--bg-card); padding:30px; position:sticky; top:20px;">
+                            <h2 style="font-size:3rem; color:var(--accent);" id="avgRatingDisplay">0.0</h2>
+                            <div class="product-rating" id="avgStarsDisplay" style="justify-content:center; margin-bottom:8px;"></div>
+                            <p style="font-size:0.85rem; color:var(--text-muted);" id="reviewCountDisplay">Aucun avis rédigé</p>
                         </div>
-                        <div>
-                            <h3 style="margin-bottom:15px;">Ajouter une évaluation</h3>
-                            <form onsubmit="event.preventDefault(); alert('Évaluation enregistrée ! Merci pour votre contribution.'); this.reset();">
-                                <div class="form-row" style="margin-bottom:10px;">
-                                    <div class="form-group">
-                                        <input type="text" placeholder="Votre nom" required class="search-input" style="padding:10px 14px; border-radius:8px;">
+                        
+                        <!-- Form and List right -->
+                        <div style="display:flex; flex-direction:column; gap:30px; width:100%;">
+                            <!-- Add review form -->
+                            <div style="background:var(--bg-card); border:1px solid var(--border); padding:25px; border-radius:var(--radius-md);">
+                                <h3 style="margin-bottom:15px; font-size:1.1rem;"><i class="fas fa-edit" style="color:var(--primary); margin-right:5px;"></i> Rédiger une évaluation</h3>
+                                <form id="addReviewForm" onsubmit="submitReviewForm(event)">
+                                    <div class="form-row" style="margin-bottom:15px;">
+                                        <div class="form-group">
+                                            <label>Votre nom complet *</label>
+                                            <input type="text" id="revName" placeholder="Ex: Mohamed Amine" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Note *</label>
+                                            <select id="revRating" required>
+                                                <option value="5">⭐⭐⭐⭐⭐ (5/5 - Excellent)</option>
+                                                <option value="4">⭐⭐⭐⭐ (4/5 - Très bien)</option>
+                                                <option value="3">⭐⭐⭐ (3/5 - Moyen)</option>
+                                                <option value="2">⭐⭐ (2/5 - Mauvais)</option>
+                                                <option value="1">⭐ (1/5 - Très mauvais)</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <select class="sort-select" style="width:100%; border-radius:8px; padding:10px 14px;">
-                                            <option>⭐⭐⭐⭐⭐ (Excellent)</option>
-                                            <option>⭐⭐⭐⭐ (Très bien)</option>
-                                            <option>⭐⭐⭐ (Moyen)</option>
-                                        </select>
+                                    <div class="form-group" style="margin-bottom:20px;">
+                                        <label>Votre commentaire *</label>
+                                        <textarea id="revComment" placeholder="Détaillez votre avis sur la qualité, la livraison et le service client..." required style="height:90px; resize:none;"></textarea>
                                     </div>
+                                    <button type="submit" class="btn-checkout" id="submitReviewBtn" style="margin-top:0; padding:12px 25px; font-size:0.9rem; width:auto;">
+                                        <i class="fas fa-paper-plane"></i> Publier l'évaluation
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <!-- List of reviews -->
+                            <div>
+                                <h3 style="margin-bottom:15px; font-size:1.1rem; display:flex; justify-content:space-between; align-items:center;">
+                                    <span>Avis récents des clients</span>
+                                    <span id="listReviewCount" style="font-size:0.8rem; background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:50px; font-weight:700;">0 avis</span>
+                                </h3>
+                                <div id="reviewsListContainer" style="display:flex; flex-direction:column; gap:15px;">
+                                    <!-- Dynamically populated -->
                                 </div>
-                                <div class="form-group">
-                                    <textarea placeholder="Votre avis sur le produit..." required class="search-input" style="width:100%; height:80px; border-radius:8px; resize:none; padding:10px 14px;"></textarea>
-                                </div>
-                                <button type="submit" class="btn-checkout" style="margin-top:0; padding:10px 20px; font-size:0.85rem; width:auto;">Publier l'avis</button>
-                            </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1098,6 +1125,140 @@
         navigator.clipboard.writeText(text).then(() => {
             alert("📋 Numéro de suivi copié dans le presse-papier !");
         });
+    };
+
+    // ========== 💬 DYNAMIC REAL REVIEWS SYSTEM ==========
+    async function loadProductReviews(productId) {
+        const listContainer = document.getElementById('reviewsListContainer');
+        if (!listContainer) return;
+
+        listContainer.innerHTML = '<div style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary);"></i></div>';
+
+        try {
+            const snapshot = await db.collection('avis')
+                .where('productId', '==', productId)
+                .get();
+
+            let totalRating = 0;
+            let count = 0;
+            let reviewsHTML = [];
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const rating = parseInt(data.rating) || 5;
+                totalRating += rating;
+                count++;
+
+                // Format date
+                let formattedDate = 'Récemment';
+                if (data.date) {
+                    try {
+                        formattedDate = new Date(data.date).toLocaleDateString('fr-FR');
+                    } catch {}
+                }
+
+                // Build stars
+                let starsHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rating) {
+                        starsHTML += '<i class="fas fa-star" style="color:var(--warning); margin-right:2px;"></i>';
+                    } else {
+                        starsHTML += '<i class="far fa-star" style="color:var(--text-muted); margin-right:2px;"></i>';
+                    }
+                }
+
+                reviewsHTML.push(`
+                    <div style="background:var(--bg-card); border:1px solid var(--border); padding:20px; border-radius:var(--radius-sm); position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <strong style="font-size:0.95rem; color:var(--text-primary);">${data.clientName}</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">${formattedDate}</span>
+                        </div>
+                        <div style="margin-bottom:10px; font-size:0.8rem;">
+                            ${starsHTML}
+                        </div>
+                        <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.5;">${data.comment}</p>
+                    </div>
+                `);
+            });
+
+            if (count > 0) {
+                const avg = (totalRating / count).toFixed(1);
+                document.getElementById('avgRatingDisplay').textContent = avg;
+                document.getElementById('reviewCountDisplay').textContent = `Basé sur ${count} avis client(s)`;
+                document.getElementById('listReviewCount').textContent = `${count} avis`;
+
+                // Render average stars
+                let avgStarsHTML = '';
+                const roundedAvg = Math.round(parseFloat(avg));
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= roundedAvg) {
+                        avgStarsHTML += '<i class="fas fa-star" style="margin-right:2px;"></i>';
+                    } else {
+                        avgStarsHTML += '<i class="far fa-star" style="margin-right:2px;"></i>';
+                    }
+                }
+                document.getElementById('avgStarsDisplay').innerHTML = avgStarsHTML;
+                listContainer.innerHTML = reviewsHTML.join('');
+            } else {
+                // Default empty state
+                document.getElementById('avgRatingDisplay').textContent = '5.0';
+                document.getElementById('reviewCountDisplay').textContent = `Basé sur des avis certifiés`;
+                document.getElementById('listReviewCount').textContent = `0 avis`;
+                document.getElementById('avgStarsDisplay').innerHTML = '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>';
+
+                listContainer.innerHTML = `
+                    <div style="text-align:center; padding:40px 20px; border:1px dashed var(--border); border-radius:var(--radius-sm); color:var(--text-muted);">
+                        <i class="far fa-comments" style="font-size:2.5rem; margin-bottom:10px; color:var(--text-muted);"></i>
+                        <p style="font-size:0.9rem;">Aucun avis pour le moment sur ce produit.</p>
+                        <p style="font-size:0.78rem; margin-top:2px;">Soyez le premier à partager votre expérience d'achat !</p>
+                    </div>
+                `;
+            }
+
+        } catch (err) {
+            console.error("Error loading reviews:", err);
+            listContainer.innerHTML = `<p style="color:var(--danger); text-align:center; padding:20px;">Impossible de charger les avis.</p>`;
+        }
+    }
+
+    window.submitReviewForm = async function(e) {
+        e.preventDefault();
+        if (!activeProduct) return;
+
+        const name = document.getElementById('revName').value.trim();
+        const rating = parseInt(document.getElementById('revRating').value) || 5;
+        const comment = document.getElementById('revComment').value.trim();
+
+        if (!name || !comment) {
+            alert("Veuillez remplir tous les champs requis.");
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitReviewBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+
+        const reviewDoc = {
+            productId: activeProduct.id,
+            clientName: name,
+            rating: rating,
+            comment: comment,
+            date: new Date().toISOString()
+        };
+
+        try {
+            await db.collection('avis').add(reviewDoc);
+            alert("✅ Merci ! Votre évaluation a été publiée avec succès.");
+            document.getElementById('addReviewForm').reset();
+            // Reload reviews list
+            loadProductReviews(activeProduct.id);
+        } catch (err) {
+            console.error("Error saving review:", err);
+            alert("Erreur de connexion. Impossible de publier l'évaluation.");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publier l\'évaluation';
+        }
     };
   </script>
 </body>
