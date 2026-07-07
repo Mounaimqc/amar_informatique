@@ -524,7 +524,7 @@
                             <div id="qStep2" style="display:none;">
                                 <div class="form-group">
                                     <label>Type de livraison *</label>
-                                    <select id="qOrderType" required onchange="updateQuickShippingPrice()">
+                                    <select id="qOrderType" onchange="updateQuickShippingPrice()">
                                         <option value="domicile">Livraison à domicile (Yalidine)</option>
                                         <option value="stopdesk">Stop Desk (Retrait au bureau Yalidine)</option>
                                     </select>
@@ -532,11 +532,11 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Wilaya *</label>
-                                        <select id="qWilaya" required onchange="loadQuickCommunes(this.value); updateQuickShippingPrice();"></select>
+                                        <select id="qWilaya"></select>
                                     </div>
                                     <div class="form-group">
                                         <label>Commune *</label>
-                                        <select id="qCommune" required></select>
+                                        <select id="qCommune"></select>
                                     </div>
                                 </div>
                                 <div class="shipping-price active" style="margin-top:15px;">
