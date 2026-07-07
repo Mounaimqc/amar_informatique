@@ -823,59 +823,33 @@
             previewEl.innerHTML = '<div style="text-align:center; padding:10px;"><i class="fas fa-spinner fa-spin"></i> Téléchargement...</div>';
         }
 
-        let uploadSuccess = false;
-
-        // 1. Try Firebase Storage first
         try {
-            const storage = firebase.storage();
-            storage.setMaxUploadRetryTime(3000); // 3 seconds timeout
-            storage.setMaxOperationRetryTime(3000);
+            const formData = new FormData();
+            formData.append('image', file);
             
-            const storageRef = storage.ref();
-            const fileRef = storageRef.child('produits/' + Date.now() + '_' + file.name);
-            const snapshot = await fileRef.put(file);
-            const downloadUrl = await snapshot.ref.getDownloadURL();
-
-            targetInput.value = downloadUrl;
-            if (previewEl) {
-                previewEl.innerHTML = `<img src="${downloadUrl}" style="max-height:100%; object-fit:contain;">`;
-            }
-            uploadSuccess = true;
-            showNotificationPopup("✅ Image hébergée avec succès sur le cloud !");
-        } catch (err) {
-            console.warn("⚠️ Firebase Storage Upload failed. Trying ImgBB fallback...", err);
-        }
-
-        // 2. Try ImgBB fallback if Firebase Storage failed
-        if (!uploadSuccess) {
-            try {
-                const formData = new FormData();
-                formData.append('image', file);
-                
-                // ImgBB API key: bf6d2105151528ec8027732a39e3cb1b
-                const res = await fetch('https://api.imgbb.com/1/upload?key=bf6d2105151528ec8027732a39e3cb1b', {
-                    method: 'POST',
-                    body: formData
-                });
-                const json = await res.json();
-                
-                if (json.success && json.data && json.data.url) {
-                    const imgUrl = json.data.url;
-                    targetInput.value = imgUrl;
-                    if (previewEl) {
-                        previewEl.innerHTML = `<img src="${imgUrl}" style="max-height:100%; object-fit:contain;">`;
-                    }
-                    showNotificationPopup("✅ Image hébergée avec succès (Service ImgBB) !");
-                } else {
-                    throw new Error(json.error ? json.error.message : "Erreur inconnue");
-                }
-            } catch (fallbackErr) {
-                console.error("ImgBB upload failed too:", fallbackErr);
+            // ImgBB API key: bf6d2105151528ec8027732a39e3cb1b
+            const res = await fetch('https://api.imgbb.com/1/upload?key=bf6d2105151528ec8027732a39e3cb1b', {
+                method: 'POST',
+                body: formData
+            });
+            const json = await res.json();
+            
+            if (json.success && json.data && json.data.url) {
+                const imgUrl = json.data.url;
+                targetInput.value = imgUrl;
                 if (previewEl) {
-                    previewEl.innerHTML = '<span style="color:var(--text-muted); font-size:0.8rem;">Échec du téléchargement</span>';
+                    previewEl.innerHTML = `<img src="${imgUrl}" style="max-height:100%; object-fit:contain;">`;
                 }
-                alert("❌ Impossible d'héberger l'image.\nPour utiliser Firebase Storage, assurez-vous d'avoir activé le Storage dans votre console Firebase et d'avoir autorisé les accès publics.");
+                showNotificationPopup("✅ Image hébergée avec succès (Méthode Gratuite ImgBB) !");
+            } else {
+                throw new Error(json.error ? json.error.message : "Erreur serveur");
             }
+        } catch (err) {
+            console.error("ImgBB upload error:", err);
+            if (previewEl) {
+                previewEl.innerHTML = '<span style="color:var(--text-muted); font-size:0.8rem;">Échec du téléchargement</span>';
+            }
+            alert("❌ Impossible d'héberger l'image. Veuillez vérifier votre connexion Internet.");
         }
     };
   </script>
