@@ -53,6 +53,19 @@
 
 <body>
 
+  <!-- Marketing Campaign Banner -->
+  <div id="marketingCampaignBanner" style="display:none; background:linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); color:white; padding:12px 20px; font-size:0.92rem; text-align:center; position:relative; z-index:2000; box-shadow:var(--shadow-md);">
+    <div class="container" style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:wrap; position:relative; padding-right:40px;">
+      <span style="font-weight:700; display:flex; align-items:center; gap:6px;">
+        🎉 Promotion Spéciale ! Utilisez le code <strong id="bannerPromoCode" style="background:rgba(255,255,255,0.25); padding:2px 8px; border-radius:4px; margin:0 4px; border:1px solid rgba(255,255,255,0.4);"></strong> et profitez de <strong id="bannerPromoDiscount"></strong> de réduction sur votre commande.
+      </span>
+      <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.2); padding:4px 12px; border-radius:30px; font-size:0.82rem; font-weight:700;">
+        ⏱️ Expire dans : <span id="bannerCountdown">00j 00h 00m 00s</span>
+      </div>
+      <button onclick="closeCampaignBanner()" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); background:none; border:none; color:white; cursor:pointer; font-size:1.2rem; opacity:0.8; transition:0.2s;"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
   <!-- Top Announcement Bar -->
   <div class="top-bar">
     <div class="container">
@@ -379,6 +392,9 @@
             // Load real customer reviews from Firestore!
             loadProductReviews(activeProduct.id);
 
+            // Check for active promotional campaigns for the banner
+            if (typeof checkActiveCampaigns === 'function') checkActiveCampaigns();
+
         } catch (err) {
             console.error("Error loading product detail:", err);
             showPageError("Une erreur s'est produite lors de la connexion à Firebase : " + err.message);
@@ -587,6 +603,16 @@
 
                             <!-- Step 3: Validate -->
                             <div id="qStep3" style="display:none;">
+                                <!-- Promo Code Input Group -->
+                                <div class="form-group" style="margin-bottom:20px;">
+                                    <label>Code Promo (Optionnel)</label>
+                                    <div style="display:flex; gap:10px;">
+                                        <input type="text" id="qPromoCodeInput" class="search-input" placeholder="Entrez votre code (ex: WELCOME5)" style="text-transform:uppercase; flex:1; height:42px;">
+                                        <button type="button" class="btn-checkout" id="qApplyPromoBtn" onclick="applyQuickPromoCode()" style="width:auto; margin-top:0; padding:10px 20px; font-size:0.85rem; height:42px;">Appliquer</button>
+                                    </div>
+                                    <div id="qPromoStatusMessage" style="font-size:0.8rem; margin-top:5px; font-weight:600; display:none;"></div>
+                                </div>
+
                                 <div class="order-summary-box" style="margin-top:0; margin-bottom:20px; background:var(--bg-main);">
                                     <div class="summary-row">
                                         <span>Produit:</span>
@@ -595,6 +621,10 @@
                                     <div class="summary-row">
                                         <span>Prix unitaire:</span>
                                         <span>${price.toLocaleString('fr-FR')} DA</span>
+                                    </div>
+                                    <div class="summary-row" id="qSummaryDiscountRow" style="display:none; color:var(--success);">
+                                        <span>Remise Coupon (<span id="qSummaryPromoCode"></span>) :</span>
+                                        <span id="qSummaryDiscountVal">-0 DA</span>
                                     </div>
                                     <div class="summary-row">
                                         <span>Frais de port:</span>
@@ -991,11 +1021,7 @@
             i3.className = 'step-item active';
 
             // Resumé totals
-            const shipping = computeQuickShippingCost(type, wilaya);
-            const total = activeProduct.price + shipping;
-
-            document.getElementById('qSummaryShipping').textContent = shipping.toLocaleString('fr-FR') + ' DA';
-            document.getElementById('qSummaryTotal').textContent = total.toLocaleString('fr-FR') + ' DA';
+            updateQuickCheckoutSummaryTotals();
 
         } else {
             q1.style.display = 'block';
@@ -1056,7 +1082,36 @@
         const wilaya = document.getElementById('qWilaya').value;
         const commune = document.getElementById('qCommune').value;
         const shipping = computeQuickShippingCost(type, wilaya);
-        const total = activeProduct.price + shipping;
+        
+        let discount = 0;
+        let appliedCodeName = null;
+
+        if (window.quickAppliedPromo) {
+            try {
+                // Secure database validation against usage limits
+                const promoRef = db.collection('codes_promo').doc(window.quickAppliedPromo.id);
+                const promoSnap = await promoRef.get();
+                if (promoSnap.exists) {
+                    const promoData = promoSnap.data();
+                    if ((promoData.usedCount || 0) >= (promoData.maxUses || 0)) {
+                        alert("❌ Désolé, ce code promo a atteint sa limite d'utilisation maximale juste avant votre validation.");
+                        window.quickAppliedPromo = null;
+                        updateQuickCheckoutSummaryTotals();
+                        return;
+                    }
+                    // Atomically increment usage
+                    await promoRef.update({
+                        usedCount: firebase.firestore.FieldValue.increment(1)
+                    });
+                    discount = calculateQuickPromoDiscount(window.quickAppliedPromo, activeProduct.price);
+                    appliedCodeName = window.quickAppliedPromo.code;
+                }
+            } catch (err) {
+                console.error("Error updating promo code usage:", err);
+            }
+        }
+
+        const total = activeProduct.price - discount + shipping;
 
         const now = new Date();
         const year = now.getFullYear().toString().slice(-2);
@@ -1083,6 +1138,8 @@
                 quantity: 1
             }],
             cartTotal: activeProduct.price,
+            promoCode: appliedCodeName,
+            discountAmount: discount,
             shippingPrice: shipping,
             grandTotal: total,
             date: new Date().toISOString(),
@@ -1111,6 +1168,23 @@
 
             if (confirmModal) confirmModal.classList.add('active');
             if (window.lucide) lucide.createIcons();
+
+            // Clear promo state
+            window.quickAppliedPromo = null;
+            const qPromoInput = document.getElementById('qPromoCodeInput');
+            if (qPromoInput) {
+                qPromoInput.value = '';
+                qPromoInput.disabled = false;
+            }
+            const qPromoBtn = document.getElementById('qApplyPromoBtn');
+            if (qPromoBtn) {
+                qPromoBtn.textContent = 'Appliquer';
+                qPromoBtn.style.backgroundColor = 'var(--primary)';
+            }
+            const qPromoMsg = document.getElementById('qPromoStatusMessage');
+            if (qPromoMsg) {
+                qPromoMsg.style.display = 'none';
+            }
 
         } catch (err) {
             console.error("Quick order submit err:", err);
@@ -1281,6 +1355,250 @@
         loadProductReviews(activeProduct.id);
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publier l\'évaluation';
+    };
+
+    window.quickAppliedPromo = null;
+
+    window.applyQuickPromoCode = async function() {
+        const input = document.getElementById('qPromoCodeInput');
+        const btn = document.getElementById('qApplyPromoBtn');
+        const statusMsg = document.getElementById('qPromoStatusMessage');
+        
+        if (!input || !btn || !activeProduct) return;
+
+        if (window.quickAppliedPromo) {
+            window.quickAppliedPromo = null;
+            input.value = '';
+            input.disabled = false;
+            btn.textContent = 'Appliquer';
+            btn.style.backgroundColor = 'var(--primary)';
+            if (statusMsg) {
+                statusMsg.style.display = 'none';
+            }
+            showQuickNotification("Coupon retiré avec succès.", "success");
+            updateQuickCheckoutSummaryTotals();
+            return;
+        }
+
+        const code = input.value.trim().toUpperCase();
+        if (!code) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        try {
+            const snapshot = await db.collection('codes_promo')
+                .where('code', '==', code)
+                .where('isActive', '==', true)
+                .limit(1)
+                .get();
+
+            if (snapshot.empty) {
+                showQuickPromoError("❌ Code promo invalide ou inexistant.");
+                return;
+            }
+
+            const doc = snapshot.docs[0];
+            const data = doc.data();
+            const now = new Date().toISOString().split('T')[0];
+
+            // Validate expiration
+            if (data.startDate > now) {
+                showQuickPromoError("❌ Ce code promo n'est pas encore actif.");
+                return;
+            }
+            if (data.endDate < now) {
+                showQuickPromoError("❌ Code promo expiré.");
+                return;
+            }
+
+            // Validate usage limits
+            if ((data.usedCount || 0) >= (data.maxUses || 0)) {
+                showQuickPromoError("❌ Ce code promo a expiré ou atteint sa limite d'utilisations.");
+                return;
+            }
+
+            // Validate min order amount
+            if (activeProduct.price < (data.minOrderAmount || 0)) {
+                showQuickPromoError(`❌ Le montant minimum de commande est de ${(data.minOrderAmount).toLocaleString('fr-FR')} DA.`);
+                return;
+            }
+
+            // Validate category eligibility
+            if (data.applicableCategory !== 'all' && activeProduct.category !== data.applicableCategory) {
+                showQuickPromoError(`❌ Ce code est uniquement applicable sur la catégorie : ${data.applicableCategory}.`);
+                return;
+            }
+
+            // If valid!
+            window.quickAppliedPromo = { id: doc.id, ...data };
+            input.disabled = true;
+            btn.textContent = 'Retirer';
+            btn.style.backgroundColor = 'var(--danger)';
+            
+            if (statusMsg) {
+                statusMsg.textContent = `✅ Code promo "${code}" appliqué !`;
+                statusMsg.style.color = 'var(--success)';
+                statusMsg.style.display = 'block';
+            }
+
+            const savedAmount = calculateQuickPromoDiscount(window.quickAppliedPromo, activeProduct.price);
+            const savedText = data.discountType === 'percentage' ? `${data.discountValue}%` : `${savedAmount.toLocaleString('fr-FR')} DA`;
+            showQuickNotification(`✅ Code promo appliqué. Vous économisez ${savedText} !`, "success");
+
+            updateQuickCheckoutSummaryTotals();
+
+        } catch (err) {
+            console.error("Error applying quick promo code:", err);
+            showQuickPromoError("❌ Erreur. Impossible d'appliquer le code.");
+        } finally {
+            btn.disabled = false;
+        }
+
+        function showQuickPromoError(msg) {
+            if (statusMsg) {
+                statusMsg.textContent = msg;
+                statusMsg.style.color = 'var(--danger)';
+                statusMsg.style.display = 'block';
+            }
+            showQuickNotification(msg, "error");
+            window.quickAppliedPromo = null;
+            updateQuickCheckoutSummaryTotals();
+        }
+    };
+
+    function calculateQuickPromoDiscount(promo, itemPrice) {
+        if (!promo) return 0;
+        if (promo.discountType === 'percentage') {
+            return itemPrice * (promo.discountValue / 100);
+        } else {
+            return Math.min(promo.discountValue, itemPrice);
+        }
+    }
+
+    function updateQuickCheckoutSummaryTotals() {
+        const type = document.getElementById('qOrderType').value;
+        const wilaya = document.getElementById('qWilaya').value;
+        if (!type || !wilaya || !activeProduct) return;
+
+        const shipping = computeQuickShippingCost(type, wilaya);
+        
+        let discount = 0;
+        if (window.quickAppliedPromo) {
+            discount = calculateQuickPromoDiscount(window.quickAppliedPromo, activeProduct.price);
+        }
+
+        const total = activeProduct.price - discount + shipping;
+
+        document.getElementById('qSummaryShipping').textContent = shipping.toLocaleString('fr-FR') + ' DA';
+        document.getElementById('qSummaryTotal').textContent = total.toLocaleString('fr-FR') + ' DA';
+
+        const discRow = document.getElementById('qSummaryDiscountRow');
+        const discPromoCode = document.getElementById('qSummaryPromoCode');
+        const discVal = document.getElementById('qSummaryDiscountVal');
+        
+        if (discount > 0) {
+            if (discPromoCode) discPromoCode.textContent = window.quickAppliedPromo.code;
+            if (discVal) discVal.textContent = `-${discount.toLocaleString('fr-FR')} DA`;
+            if (discRow) discRow.style.display = 'flex';
+        } else {
+            if (discRow) discRow.style.display = 'none';
+        }
+    }
+
+    function showQuickNotification(msg, type = "success") {
+        if (typeof showNotification === 'function') {
+            showNotification(msg, type);
+        } else {
+            const pop = document.createElement('div');
+            const color = type === 'success' ? 'var(--primary)' : 'var(--danger)';
+            pop.style.cssText = `position:fixed; top:20px; right:20px; background-color:${color}; color:white; padding:12px 20px; border-radius:8px; font-weight:700; z-index:10000; animation:slideIn 300ms ease;`;
+            pop.textContent = msg;
+            document.body.appendChild(pop);
+            setTimeout(() => pop.remove(), 3000);
+        }
+    }
+
+    window.checkActiveCampaigns = async function() {
+        const banner = document.getElementById('marketingCampaignBanner');
+        if (!banner) return;
+
+        if (sessionStorage.getItem('campaignClosed') === 'true') {
+            banner.style.display = 'none';
+            return;
+        }
+
+        try {
+            const now = new Date().toISOString().split('T')[0];
+            const snapshot = await db.collection('codes_promo')
+                .where('isActive', '==', true)
+                .where('showBanner', '==', true)
+                .get();
+
+            let activeCampaign = null;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.startDate <= now && data.endDate >= now) {
+                    activeCampaign = data;
+                }
+            });
+
+            if (activeCampaign) {
+                const codeEl = document.getElementById('bannerPromoCode');
+                const discountEl = document.getElementById('bannerPromoDiscount');
+                
+                if (codeEl) codeEl.textContent = activeCampaign.code;
+                
+                const discountText = activeCampaign.discountType === 'percentage' 
+                    ? `${activeCampaign.discountValue}%` 
+                    : `${activeCampaign.discountValue.toLocaleString('fr-FR')} DA`;
+                
+                if (discountEl) discountEl.textContent = discountText;
+
+                banner.style.display = 'block';
+
+                // Start countdown
+                startCampaignCountdown(activeCampaign.endDate);
+            } else {
+                banner.style.display = 'none';
+            }
+        } catch (err) {
+            console.error("Error loading active campaign banner:", err);
+            banner.style.display = 'none';
+        }
+    };
+
+    function startCampaignCountdown(endDateStr) {
+        const countdownEl = document.getElementById('bannerCountdown');
+        if (!countdownEl) return;
+
+        // Target date is the end of the endDate day
+        const targetDate = new Date(endDateStr + "T23:59:59").getTime();
+
+        const interval = setInterval(() => {
+            const now = new Date().getTime();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                clearInterval(interval);
+                const banner = document.getElementById('marketingCampaignBanner');
+                if (banner) banner.style.display = 'none';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            countdownEl.textContent = `${days}j ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+        }, 1000);
+    }
+
+    window.closeCampaignBanner = function() {
+        const banner = document.getElementById('marketingCampaignBanner');
+        if (banner) banner.style.display = 'none';
+        sessionStorage.setItem('campaignClosed', 'true');
     };
   </script>
 </body>

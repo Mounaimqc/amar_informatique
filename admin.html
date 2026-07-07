@@ -78,6 +78,7 @@
       </div>
       <div style="display:flex; gap:10px;">
         <button class="btn-submit" onclick="openAddProductModal()" style="width:auto; margin-top:0; padding:10px 20px; font-size:0.85rem; background-color:var(--success)"><i data-lucide="plus"></i> Nouveau Produit</button>
+        <button class="btn-checkout" onclick="openPromoCodesModal()" style="width:auto; margin-top:0; padding:10px 20px; font-size:0.85rem; background-color:var(--primary);"><i data-lucide="ticket"></i> Codes Promo</button>
         <button class="btn-slider-cta" onclick="exportCommandes()" style="width:auto; padding:10px 20px; font-size:0.85rem;"><i data-lucide="download"></i> Exporter CSV</button>
       </div>
     </div>
@@ -228,6 +229,10 @@
         <!-- Billing summary -->
         <div class="order-summary-box" style="margin-top:10px;">
           <div class="summary-row"><span>Sous-total articles :</span><span id="detailCartTotal">0 DA</span></div>
+          <div class="summary-row" id="detailPromoRow" style="display:none; color:var(--success);">
+            <span>Réduction (<strong id="detailPromoCode"></strong>) :</span>
+            <span id="detailPromoDiscount">0 DA</span>
+          </div>
           <div class="summary-row"><span>Frais de Yalidine :</span><span id="detailShipping">0 DA</span></div>
           <div class="summary-row total"><span>Total à payer cash :</span><span id="detailTotal" style="color:var(--accent);">0 DA</span></div>
         </div>
@@ -333,6 +338,126 @@
         <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:20px;">
           <button type="button" class="btn-cancel" onclick="closeEditProductModal()" style="padding:10px 20px; border-radius:8px;">Annuler</button>
           <button type="button" class="btn-submit" onclick="saveEditProduct()" style="width:auto; margin-top:0; padding:10px 25px; border-radius:8px;"><i class="fas fa-save" style="margin-right:6px;"></i> Mettre à jour</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Promo Codes List Modal -->
+  <div class="modal" id="promoCodesModal">
+    <div class="modal-content" style="max-width:850px; padding:30px;">
+      <button class="close-modal" onclick="closePromoCodesModal()"><i data-lucide="x"></i></button>
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:15px; margin-bottom:20px;">
+        <h2 style="display:flex; align-items:center; gap:8px; border:none; margin:0;"><i data-lucide="ticket" style="color:var(--primary)"></i> Codes Promotionnels</h2>
+        <button class="btn-submit" onclick="openAddPromoCodeModal()" style="width:auto; margin:0; padding:8px 16px; font-size:0.8rem; background-color:var(--success);"><i data-lucide="plus"></i> Nouveau Code</button>
+      </div>
+      
+      <div style="overflow-x:auto; max-height:450px;">
+        <table class="orders-table" style="width:100%; border-collapse:collapse; text-align:left; font-size:0.88rem;">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Réduction</th>
+              <th>Validité</th>
+              <th>Utilisations</th>
+              <th>Min. Commande</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="promoCodesTableBody">
+            <tr>
+              <td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">Chargement...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit Promo Code Modal -->
+  <div class="modal" id="addPromoCodeModal">
+    <div class="modal-content" style="max-width:600px; padding:30px;">
+      <button class="close-modal" onclick="closeAddPromoCodeModal()"><i data-lucide="x"></i></button>
+      <h2 id="promoModalTitle" style="display:flex; align-items:center; gap:8px; border:none; margin-bottom:20px;"><i data-lucide="plus-circle" style="color:var(--success)"></i> Créer un code promo</h2>
+      
+      <form id="promoCodeForm" onsubmit="savePromoCode(event)">
+        <input type="hidden" id="promoId">
+        
+        <div class="form-row" style="margin-bottom:15px;">
+          <div class="form-group" style="flex:1;">
+            <label>Code Promo *</label>
+            <input type="text" id="promoCode" placeholder="Ex: AMAR10" required style="text-transform:uppercase;">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Statut *</label>
+            <select id="promoActive" required>
+              <option value="true">Actif</option>
+              <option value="false">Inactif</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row" style="margin-bottom:15px;">
+          <div class="form-group" style="flex:1;">
+            <label>Type de Remise *</label>
+            <select id="promoType" required onchange="togglePromoTypeLabel()">
+              <option value="percentage">Pourcentage (%)</option>
+              <option value="fixed">Montant Fixe (DA)</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label id="promoValueLabel">Valeur de la Remise (%) *</label>
+            <input type="number" id="promoValue" required min="1" step="any">
+          </div>
+        </div>
+        
+        <div class="form-row" style="margin-bottom:15px;">
+          <div class="form-group" style="flex:1;">
+            <label>Achat Minimum (DA)</label>
+            <input type="number" id="promoMinAmount" value="0" min="0">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Catégorie Éligible</label>
+            <select id="promoCategory">
+              <option value="all">Toutes les catégories</option>
+              <option value="laptop">Laptops</option>
+              <option value="imprimantes">Imprimantes</option>
+              <option value="accessoires">Accessoires</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row" style="margin-bottom:15px;">
+          <div class="form-group" style="flex:1;">
+            <label>Date de Début *</label>
+            <input type="date" id="promoStartDate" required>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Date d'Expiration *</label>
+            <input type="date" id="promoEndDate" required>
+          </div>
+        </div>
+        
+        <div class="form-row" style="margin-bottom:15px;">
+          <div class="form-group" style="flex:1;">
+            <label>Utilisations Max *</label>
+            <input type="number" id="promoMaxUses" value="100" min="1" required>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Max par Client *</label>
+            <input type="number" id="promoMaxUsesPerCustomer" value="1" min="1" required>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px; flex-direction:row; align-items:center; gap:8px;">
+          <input type="checkbox" id="promoShowBanner" style="width:auto; margin:0;">
+          <label for="promoShowBanner" style="margin:0; text-transform:none; font-weight:normal; cursor:pointer;">Afficher en bannière promotionnelle (Campagne Marketing)</label>
+        </div>
+        
+        <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:20px;">
+          <button type="button" class="btn-cancel" onclick="closeAddPromoCodeModal()" style="padding:10px 20px; border-radius:8px;">Annuler</button>
+          <button type="submit" class="btn-submit" style="background-color:var(--success); width:auto; margin-top:0; padding:10px 25px; border-radius:8px;"><i class="fas fa-save" style="margin-right:6px;"></i> Enregistrer</button>
         </div>
       </form>
     </div>
@@ -548,6 +673,18 @@
       }
 
       setText('detailCartTotal', (cmd.cartTotal || 0).toLocaleString('fr-FR') + ' DA');
+      
+      const promoRow = document.getElementById('detailPromoRow');
+      const promoCodeEl = document.getElementById('detailPromoCode');
+      const promoDiscountEl = document.getElementById('detailPromoDiscount');
+      if (cmd.promoCode && cmd.discountAmount > 0) {
+          if (promoCodeEl) promoCodeEl.textContent = cmd.promoCode;
+          if (promoDiscountEl) promoDiscountEl.textContent = `-${(cmd.discountAmount || 0).toLocaleString('fr-FR')} DA`;
+          if (promoRow) promoRow.style.display = 'flex';
+      } else {
+          if (promoRow) promoRow.style.display = 'none';
+      }
+
       setText('detailShipping', (cmd.shippingPrice || 0).toLocaleString('fr-FR') + ' DA');
       setText('detailTotal', (cmd.grandTotal || 0).toLocaleString('fr-FR') + ' DA');
 
@@ -810,6 +947,210 @@
         const el = document.getElementById(id);
         if (el) el.textContent = val ?? '—';
     }
+
+    // ========== 🎟️ PROMO CODES MANAGEMENT ==========
+    window.openPromoCodesModal = function() {
+        document.getElementById('promoCodesModal').classList.add('active');
+        loadPromoCodes();
+    };
+
+    window.closePromoCodesModal = function() {
+        document.getElementById('promoCodesModal').classList.remove('active');
+    };
+
+    let allPromoCodes = [];
+
+    async function loadPromoCodes() {
+        const tbody = document.getElementById('promoCodesTableBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+
+        try {
+            const snapshot = await db.collection('codes_promo').orderBy('code', 'asc').get();
+            allPromoCodes = [];
+            let html = [];
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                allPromoCodes.push({ id: doc.id, ...data });
+
+                const discountStr = data.discountType === 'percentage' 
+                    ? `${data.discountValue}%` 
+                    : `${data.discountValue.toLocaleString('fr-FR')} DA`;
+                
+                const validityStr = `<div style="font-size:0.75rem;">Du ${formatDateSimple(data.startDate)}<br>Au ${formatDateSimple(data.endDate)}</div>`;
+                const usageStr = `${data.usedCount || 0} / ${data.maxUses || 0} <span style="font-size:0.75rem; color:var(--text-muted);">(Max ${data.maxUsesPerCustomer || 1}/cli)</span>`;
+                const minAmountStr = data.minOrderAmount > 0 
+                    ? `${data.minOrderAmount.toLocaleString('fr-FR')} DA` 
+                    : 'Aucun';
+
+                const statusBadge = data.isActive 
+                    ? '<span class="status-badge status-accepted" style="cursor:pointer;" onclick="togglePromoActive(\'' + doc.id + '\', true)">Actif</span>' 
+                    : '<span class="status-badge status-returned" style="cursor:pointer;" onclick="togglePromoActive(\'' + doc.id + '\', false)">Inactif</span>';
+
+                html.push(`
+                    <tr>
+                        <td><strong>${data.code}</strong>${data.showBanner ? ' <span style="font-size:0.65rem; background:var(--accent); color:white; padding:2px 6px; border-radius:4px; font-weight:700;">CAMPAIGN</span>' : ''}</td>
+                        <td style="color:var(--accent); font-weight:700;">${discountStr}</td>
+                        <td>${validityStr}</td>
+                        <td>${usageStr}</td>
+                        <td>${minAmountStr}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn-details" onclick="openAddPromoCodeModal('${doc.id}')" style="padding:4px 8px; font-size:0.75rem;"><i class="fas fa-edit"></i></button>
+                                <button class="btn-delete" onclick="deletePromoCode('${doc.id}')" style="padding:4px 8px; font-size:0.75rem;"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            if (html.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">Aucun code promo créé.</td></tr>';
+            } else {
+                tbody.innerHTML = html.join('');
+            }
+            if (window.lucide) lucide.createIcons();
+        } catch (err) {
+            console.error("Error loading promo codes:", err);
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--danger);">Erreur de chargement.</td></tr>';
+        }
+    }
+
+    function formatDateSimple(dStr) {
+        if (!dStr) return '—';
+        try {
+            const parts = dStr.split('-');
+            if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            return new Date(dStr).toLocaleDateString('fr-FR');
+        } catch { return dStr; }
+    }
+
+    window.togglePromoActive = async function(id, currentStatus) {
+        try {
+            await db.collection('codes_promo').doc(id).update({
+                isActive: !currentStatus
+            });
+            showNotificationPopup("Statut du code promo mis à jour.");
+            loadPromoCodes();
+        } catch (err) {
+            alert("Erreur de modification : " + err.message);
+        }
+    };
+
+    window.openAddPromoCodeModal = function(editId = null) {
+        const form = document.getElementById('promoCodeForm');
+        if (!form) return;
+
+        form.reset();
+        document.getElementById('promoId').value = '';
+        document.getElementById('promoModalTitle').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--success); margin-right:6px;"></i> Créer un code promo';
+
+        if (editId) {
+            const codeData = allPromoCodes.find(c => c.id === editId);
+            if (codeData) {
+                document.getElementById('promoId').value = codeData.id;
+                document.getElementById('promoCode').value = codeData.code;
+                document.getElementById('promoActive').value = String(codeData.isActive);
+                document.getElementById('promoType').value = codeData.discountType;
+                document.getElementById('promoValue').value = codeData.discountValue;
+                document.getElementById('promoMinAmount').value = codeData.minOrderAmount || 0;
+                document.getElementById('promoCategory').value = codeData.applicableCategory || 'all';
+                document.getElementById('promoStartDate').value = codeData.startDate;
+                document.getElementById('promoEndDate').value = codeData.endDate;
+                document.getElementById('promoMaxUses').value = codeData.maxUses;
+                document.getElementById('promoMaxUsesPerCustomer').value = codeData.maxUsesPerCustomer || 1;
+                document.getElementById('promoShowBanner').checked = !!codeData.showBanner;
+
+                document.getElementById('promoModalTitle').innerHTML = '<i class="fas fa-edit" style="color:var(--primary); margin-right:6px;"></i> Modifier le code promo';
+            }
+        }
+
+        togglePromoTypeLabel();
+        document.getElementById('addPromoCodeModal').classList.add('active');
+    };
+
+    window.closeAddPromoCodeModal = function() {
+        document.getElementById('addPromoCodeModal').classList.remove('active');
+    };
+
+    window.togglePromoTypeLabel = function() {
+        const type = document.getElementById('promoType').value;
+        const label = document.getElementById('promoValueLabel');
+        if (type === 'percentage') {
+            label.textContent = "Valeur de la Remise (%) *";
+        } else {
+            label.textContent = "Valeur de la Remise (DA) *";
+        }
+    };
+
+    window.savePromoCode = async function(e) {
+        e.preventDefault();
+
+        const id = document.getElementById('promoId').value;
+        const code = document.getElementById('promoCode').value.trim().toUpperCase();
+        const isActive = document.getElementById('promoActive').value === 'true';
+        const discountType = document.getElementById('promoType').value;
+        const discountValue = parseFloat(document.getElementById('promoValue').value);
+        const minOrderAmount = parseFloat(document.getElementById('promoMinAmount').value) || 0;
+        const applicableCategory = document.getElementById('promoCategory').value;
+        const startDate = document.getElementById('promoStartDate').value;
+        const endDate = document.getElementById('promoEndDate').value;
+        const maxUses = parseInt(document.getElementById('promoMaxUses').value) || 100;
+        const maxUsesPerCustomer = parseInt(document.getElementById('promoMaxUsesPerCustomer').value) || 1;
+        const showBanner = document.getElementById('promoShowBanner').checked;
+
+        if (!code || isNaN(discountValue) || !startDate || !endDate) {
+            alert("Veuillez remplir tous les champs obligatoires.");
+            return;
+        }
+
+        const data = {
+            code,
+            isActive,
+            discountType,
+            discountValue,
+            minOrderAmount,
+            applicableCategory,
+            startDate,
+            endDate,
+            maxUses,
+            maxUsesPerCustomer,
+            showBanner
+        };
+
+        try {
+            if (id) {
+                // Update
+                await db.collection('codes_promo').doc(id).update(data);
+                showNotificationPopup("Code promo mis à jour avec succès.");
+            } else {
+                // Create
+                data.usedCount = 0;
+                await db.collection('codes_promo').add(data);
+                showNotificationPopup("Code promo créé avec succès.");
+            }
+
+            closeAddPromoCodeModal();
+            loadPromoCodes();
+        } catch (err) {
+            alert("Erreur de sauvegarde : " + err.message);
+        }
+    };
+
+    window.deletePromoCode = async function(id) {
+        if (!confirm("⚠️ Êtes-vous sûr de vouloir supprimer ce code promo ?")) return;
+
+        try {
+            await db.collection('codes_promo').doc(id).delete();
+            showNotificationPopup("Code promo supprimé.");
+            loadPromoCodes();
+        } catch (err) {
+            alert("Erreur de suppression : " + err.message);
+        }
+    };
 
     window.handleProductFileUpload = async function(fileInput, targetInputId) {
         const file = fileInput.files[0];

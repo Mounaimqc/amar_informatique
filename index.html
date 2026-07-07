@@ -45,6 +45,19 @@
 
 <body>
 
+  <!-- Marketing Campaign Banner -->
+  <div id="marketingCampaignBanner" style="display:none; background:linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); color:white; padding:12px 20px; font-size:0.92rem; text-align:center; position:relative; z-index:2000; box-shadow:var(--shadow-md);">
+    <div class="container" style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:wrap; position:relative; padding-right:40px;">
+      <span style="font-weight:700; display:flex; align-items:center; gap:6px;">
+        🎉 Promotion Spéciale ! Utilisez le code <strong id="bannerPromoCode" style="background:rgba(255,255,255,0.25); padding:2px 8px; border-radius:4px; margin:0 4px; border:1px solid rgba(255,255,255,0.4);"></strong> et profitez de <strong id="bannerPromoDiscount"></strong> de réduction sur votre commande.
+      </span>
+      <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.2); padding:4px 12px; border-radius:30px; font-size:0.82rem; font-weight:700;">
+        ⏱️ Expire dans : <span id="bannerCountdown">00j 00h 00m 00s</span>
+      </div>
+      <button onclick="closeCampaignBanner()" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); background:none; border:none; color:white; cursor:pointer; font-size:1.2rem; opacity:0.8; transition:0.2s;"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
   <!-- Top Announcement Bar -->
   <div class="top-bar">
     <div class="container">
@@ -674,6 +687,16 @@
 
         <!-- Step 3: Confirmation Summary -->
         <div id="checkoutStep3" style="display:none;">
+          <!-- Promo Code Input Group -->
+          <div class="form-group" style="margin-bottom:20px;">
+            <label>Code Promo (Optionnel)</label>
+            <div style="display:flex; gap:10px;">
+              <input type="text" id="promoCodeInput" class="search-input" placeholder="Entrez votre code (ex: WELCOME5)" style="text-transform:uppercase; flex:1; height:42px;">
+              <button type="button" class="btn-checkout" id="applyPromoBtn" onclick="applyPromoCode()" style="width:auto; margin-top:0; padding:10px 20px; font-size:0.85rem; height:42px;">Appliquer</button>
+            </div>
+            <div id="promoStatusMessage" style="font-size:0.8rem; margin-top:5px; font-weight:600; display:none;"></div>
+          </div>
+
           <div class="order-summary-box" style="margin-top:0; margin-bottom:20px;">
             <h4 style="margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px;">Résumé de Commande</h4>
             <div class="summary-row">
