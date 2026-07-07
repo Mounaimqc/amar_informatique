@@ -166,8 +166,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Activer l'horloge Promotion
     startPromoCountdown();
 
-    // Activer le Toast Social Purchase
-    startRecentPurchaseToast();
 });
 
 // ========== 🎨 THEME DARK MODE ==========
@@ -486,7 +484,10 @@ function initHeroSlider() {
     if (!wrapper || !dots) return;
 
     // Filtrer les laptops ou produits "featured" pour le slider principal (limité à 4)
-    const sliderProducts = products.filter(p => p.featured || p.promo).slice(0, 4);
+    let sliderProducts = products.filter(p => p.featured || p.promo).slice(0, 4);
+    if (sliderProducts.length === 0) {
+        sliderProducts = products.slice(0, 4);
+    }
     if (sliderProducts.length === 0) return;
 
     wrapper.innerHTML = '';
@@ -612,36 +613,7 @@ function startPromoCountdown() {
     updateTimer();
 }
 
-// ========== 🔔 RECENT ORDERS SOCIAL PROOF TOAST ==========
-function startRecentPurchaseToast() {
-    const toast = document.getElementById('socialProofToast');
-    const toastText = document.getElementById('toastText');
-    const toastImg = document.getElementById('toastProductImg');
 
-    if (!toast) return;
-
-    const names = ["Mohamed", "Kamel", "Yacine", "Karim", "Samir", "Amine", "Sarah", "Yasmine", "Chafik", "Omar"];
-    const wilayas = ["Alger", "Oran", "Constantine", "Sétif", "Béjaïa", "Tizi Ouzou", "Blida", "Tlemcen", "Jijel", "Annaba"];
-
-    setInterval(() => {
-        if (products.length === 0) return;
-        
-        // Choisir un produit aléatoire
-        const randProduct = products[Math.floor(Math.random() * products.length)];
-        const randName = names[Math.floor(Math.random() * names.length)];
-        const randWilaya = wilayas[Math.floor(Math.random() * wilayas.length)];
-
-        toastImg.src = randProduct.image || 'logo.png';
-        toastText.innerHTML = `<span class="social-proof-buyer">${randName}</span> (de ${randWilaya}) a acheté <br><strong>${randProduct.name.substring(0, 35)}...</strong>`;
-
-        toast.classList.add('show');
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 5000);
-
-    }, 28000); // Répéter toutes les 28s
-}
 
 // ========== 🔍 RECHERCHES HISTORIQUE MANAGEMENT ==========
 function loadSearchHistoryFromStorage() {
