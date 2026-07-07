@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#0F172A">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <title>Suivi de Commande - Amar Informatique</title>
+  
+  <!-- Global Stylesheet -->
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="logo.jpg" type="image/x-icon">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAUjSJTplPn9O8pK_YU5ydsyqUQ9HVfKXo",
@@ -35,573 +40,162 @@
     const db = firebase.firestore();
     window.db = db;
   </script>
-  
-  <!-- Meta Pixel Code -->
-  <script>
-    !function (f, b, e, v, n, t, s) {
-      if (f.fbq) return; n = f.fbq = function () {
-        n.callMethod ?
-          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-      };
-      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-      n.queue = []; t = b.createElement(e); t.async = !0;
-      t.src = v; s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s)
-    }(window, document, 'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1226041376399363');
-    fbq('track', 'PageView');
-  </script>
-  <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1226041376399363&ev=PageView&noscript=1" /></noscript>
-  <!-- End Meta Pixel Code -->
-  
-  <style>
-    /* ========== VARIABLES - THÈME CLAIR (INVERSÉ) ========== */
-    :root {
-      --bg-dark: #ffffff;
-      --bg-card: rgba(248, 248, 248, 0.95);
-      --primary-color: #000000;
-      --primary-glow: #333333;
-      --secondary-color: #444444;
-      --text-main: #000000;
-      --text-muted: #555555;
-      --success: #10b981;
-      --danger: #dc2626;
-      --glass-border: 1px solid rgba(0, 0, 0, 0.1);
-      --neon-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
-      --radius-md: 12px;
-      --radius-lg: 20px;
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* ========== BASE ========== */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(circle at 15% 50%, rgba(0, 0, 0, 0.04), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(0, 0, 0, 0.03), transparent 25%);
-      background-size: 200% 200%;
-      animation: bgPulse 15s ease-in-out infinite alternate;
-      color: var(--text-main);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    @keyframes bgPulse {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
-    }
-
-    /* ========== Header - Thème clair ========== */
-    header {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: var(--glass-border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 1rem 0;
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-    }
-
-    .navbar .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: min(92%, 1400px);
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo img { 
-      height: 42px; 
-      width: auto;
-      filter: grayscale(100%) brightness(0.85);
-    }
-    .logo h1 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #000, #444);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .btn-nav {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      background: rgba(0, 0, 0, 0.06);
-      color: var(--primary-color);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      text-decoration: none;
-      transition: var(--transition);
-      min-height: 44px;
-    }
-    .btn-nav:hover {
-      background: rgba(0, 0, 0, 0.12);
-      transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
-    }
-
-    /* ========== Container ========== */
-    .container {
-      width: min(92%, 1400px);
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-
-    /* ========== Tracking Container - Thème clair ========== */
-    .tracking-container {
-      max-width: 800px;
-      margin: 40px auto;
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      padding: 30px 25px;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--neon-shadow);
-      border: var(--glass-border);
-      animation: fadeIn 0.8s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .tracking-header { text-align: center; margin-bottom: 30px; }
-    .tracking-header h2 {
-      font-size: 2rem;
-      color: var(--text-main);
-      margin-bottom: 8px;
-      font-weight: 800;
-    }
-    .tracking-header p { color: var(--text-muted); font-size: 1rem; }
-
-    /* ========== Search Group - Thème clair ========== */
-    .search-group {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-
-    .search-input-tracking {
-      flex: 1;
-      padding: 14px 20px;
-      font-size: 1rem;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: 50px;
-      outline: none;
-      background: #fff;
-      color: var(--text-main);
-      transition: var(--transition);
-    }
-    .search-input-tracking::placeholder { color: var(--text-muted); }
-    .search-input-tracking:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.12);
-    }
-
-    .search-btn {
-      padding: 0 25px;
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: var(--transition);
-      white-space: nowrap;
-    }
-    .search-btn:hover {
-      background: var(--primary-glow);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    }
-
-    /* ========== Result Box - Thème clair ========== */
-    .result-box {
-      margin-top: 25px;
-      display: none;
-      animation: slideUp 0.5s ease-out;
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .order-details {
-      background: rgba(0, 0, 0, 0.03);
-      padding: 20px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      margin-bottom: 25px;
-    }
-
-    .order-info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-    }
-
-    .info-item label {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .info-item span {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    /* ========== Status Badges - Thème clair ========== */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .status-pending { background: #f59e0b; }
-    .status-accepted { background: #3b82f6; }
-    .status-shipped { background: #7c3aed; }
-    .status-arrived { background: #10b981; }
-    .status-returned { background: #ef4444; }
-
-    /* ========== Timeline - Thème clair ========== */
-    .timeline {
-      position: relative;
-      margin-top: 30px;
-      padding-left: 25px;
-    }
-    .timeline::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 27px;
-      height: 100%;
-      width: 2px;
-      background: rgba(0, 0, 0, 0.12);
-      z-index: 0;
-    }
-
-    .timeline-step {
-      position: relative;
-      margin-bottom: 25px;
-      display: flex;
-      align-items: flex-start;
-      opacity: 0.5;
-      transition: opacity 0.3s;
-    }
-    .timeline-step.active { opacity: 1; }
-
-    .timeline-dot {
-      width: 18px;
-      height: 18px;
-      background: #fff;
-      border: 2px solid var(--text-muted);
-      border-radius: 50%;
-      margin-right: 15px;
-      z-index: 1;
-      position: relative;
-      flex-shrink: 0;
-    }
-    .timeline-step.active .timeline-dot {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    }
-    .timeline-step.completed .timeline-dot {
-      background: var(--success);
-      border-color: var(--success);
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-    }
-
-    .timeline-content h4 {
-      font-size: 1rem;
-      margin-bottom: 4px;
-      color: var(--text-main);
-      font-weight: 600;
-    }
-    .timeline-content p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    /* ========== Delivery Person Card - Thème clair ========== */
-    .delivery-card {
-      display: none;
-      margin-top: 20px;
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      border-radius: var(--radius-md);
-      padding: 18px 20px;
-      animation: slideUp 0.4s ease-out;
-    }
-
-    .delivery-card-title {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #059669;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .delivery-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .delivery-info-item label {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .delivery-info-item span {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    @media (max-width: 480px) {
-      .delivery-info-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ========== No Result Box - Thème clair ========== */
-    #noResultBox {
-      display: none;
-      text-align: center;
-      padding: 25px;
-      background: rgba(220, 38, 38, 0.08);
-      border-radius: 12px;
-      border: 1px solid rgba(220, 38, 38, 0.2);
-      color: var(--text-main);
-    }
-
-    /* ========== Footer - Thème clair ========== */
-    footer {
-      border-top: 1px solid rgba(0, 0, 0, 0.08);
-      margin-top: 60px;
-      padding: 2rem 0;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      background: #fafafa;
-    }
-
-    /* ========== Responsive ========== */
-    @media (max-width: 768px) {
-      .tracking-container { margin: 30px 15px; padding: 25px 20px; }
-      .tracking-header h2 { font-size: 1.6rem; }
-      .tracking-header p { font-size: 0.95rem; }
-      .search-group { flex-direction: column; gap: 10px; }
-      .search-input-tracking { width: 100%; padding: 14px 18px; font-size: 1rem; }
-      .search-btn { width: 100%; justify-content: center; padding: 14px; font-size: 1rem; }
-      .order-info-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-      .info-item span { font-size: 0.95rem; }
-      .timeline { padding-left: 20px; }
-      .timeline::before { left: 24px; }
-      .timeline-dot { width: 16px; height: 16px; margin-right: 12px; }
-      .timeline-content h4 { font-size: 0.95rem; }
-      .timeline-content p { font-size: 0.8rem; }
-      .status-badge { padding: 6px 14px; font-size: 0.8rem; }
-    }
-
-    @media (max-width: 480px) {
-      .navbar .container { padding: 0 0.8rem; }
-      .logo img { height: 36px; }
-      .logo h1 { font-size: 1.2rem; }
-      .btn-nav { padding: 10px; width: 44px; height: 44px; justify-content: center; }
-      .btn-nav i { display: block; font-size: 1.2rem; }
-      .btn-nav span { display: none; }
-      .tracking-container { margin: 20px 10px; padding: 20px 15px; border-radius: var(--radius-md); }
-      .tracking-header h2 { font-size: 1.4rem; }
-      .tracking-header p { font-size: 0.9rem; }
-      .search-input-tracking { padding: 12px 16px; font-size: 1rem; }
-      .search-btn { padding: 12px; font-size: 0.95rem; }
-      .order-info-grid { grid-template-columns: 1fr; gap: 10px; }
-      .info-item label { font-size: 0.75rem; }
-      .info-item span { font-size: 0.9rem; }
-      .timeline { padding-left: 18px; }
-      .timeline::before { left: 22px; width: 1.5px; }
-      .timeline-dot { width: 14px; height: 14px; margin-right: 10px; }
-      .timeline-content h4 { font-size: 0.9rem; }
-      .timeline-content p { font-size: 0.75rem; }
-      .status-badge { padding: 5px 12px; font-size: 0.75rem; }
-      #noResultBox { padding: 20px 15px; font-size: 0.9rem; }
-      footer { margin-top: 40px; padding: 1.5rem 0; font-size: 0.85rem; background: #f8f8f8; }
-      body { overflow-x: hidden; }
-      .search-btn, .btn-nav { min-height: 44px; }
-    }
-
-    @media (max-width: 319px) {
-      .logo h1 { font-size: 1rem; }
-      .logo img { height: 32px; }
-      .tracking-header h2 { font-size: 1.2rem; }
-      .search-input-tracking { padding: 10px 14px; }
-      .search-btn { padding: 10px; font-size: 0.9rem; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-      body { background-image: none !important; }
-    }
-
-    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-      .logo img { image-rendering: -webkit-optimize-contrast; }
-    }
-  </style>
 </head>
 
 <body>
 
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-promo">
+        <span class="badge-promo">SUIVI</span>
+        <span>Suivez l'acheminement de votre colis en temps réel</span>
+      </div>
+      <div class="top-bar-links">
+        <a href="tel:0559469956" class="top-bar-link">
+          <i data-lucide="phone"></i> <span>0559 46 99 56</span>
+        </a>
+        <a href="https://wa.me/213559469956" target="_blank" class="top-bar-link">
+          <i class="fab fa-whatsapp" style="color: #25D366;"></i> <span>WhatsApp Support</span>
+        </a>
+        <a href="index.html" class="top-bar-link">
+          <i data-lucide="shopping-bag"></i> <span>Boutique</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Header -->
   <header>
-    <nav class="navbar">
-      <div class="container">
-        <div class="logo">
-          <img src="logo.jpg" alt="Logo Amar Informatique">
-          <h1>Amar Informatique</h1>
-        </div>
-        <div class="nav-items">
-          <a href="index.html" class="btn-nav btn-track">
-            <i class="fas fa-arrow-left"></i> <span class="hide-mobile">Retour</span>
+    <div class="navbar">
+      <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+        <a href="index.html" class="logo">
+          <img src="logo.png" alt="Logo Amar Informatique" onerror="this.src='logo.jpg'">
+          <div class="logo-text">
+            <h1>Amar Info</h1>
+            <span>PREMIUM TECH STORE</span>
+          </div>
+        </a>
+        
+        <div style="display:flex; gap:15px; align-items:center;">
+          <!-- Theme Toggle -->
+          <button class="header-action-btn" id="darkModeToggle" title="Basculer le thème" aria-label="Toggle Theme">
+            <i data-lucide="moon" class="dark-icon"></i>
+            <i data-lucide="sun" class="light-icon" style="display:none;"></i>
+          </button>
+          
+          <a href="index.html" class="cart-btn-premium" style="background-color:var(--bg-input); color:var(--text-primary); box-shadow:none; border:1px solid var(--border);">
+            <i data-lucide="arrow-left"></i> <span>Retour boutique</span>
           </a>
         </div>
       </div>
-    </nav>
+    </div>
   </header>
 
-  <main>
-    <div class="container">
-      <div class="tracking-container">
-        <div class="tracking-header">
-          <h2><i class="fas fa-search-location"></i> Suivi de Commande</h2>
-          <p>Entrez votre numéro pour connaître son statut</p>
-        </div>
+  <!-- Interactive Tracking Stepper Content -->
+  <main class="container" style="flex:1;">
+    <div class="tracking-stepper-box">
+      <div style="text-align:center; margin-bottom:35px;">
+        <h2 style="font-size:2rem; color:var(--text-primary); margin-bottom:8px;"><i data-lucide="search-code" style="color:var(--primary); display:inline; vertical-align:middle;"></i> Suivi de Commande</h2>
+        <p style="color:var(--text-secondary); font-size:0.95rem;">Renseignez le numéro de facture pour localiser votre colis.</p>
+      </div>
 
-        <div class="search-group">
-          <input type="text" id="orderIdInput" class="search-input-tracking" placeholder="Ex: AM260101001"
-            inputmode="text" autocomplete="off">
-          <button id="trackBtn" class="search-btn">
-            <i class="fas fa-search"></i> <span>Rechercher</span>
-          </button>
-        </div>
+      <!-- Input box -->
+      <div style="display:flex; gap:12px; margin-bottom:35px; flex-wrap:wrap;">
+        <input type="text" id="orderIdInput" class="search-input" placeholder="Exemple : AM260101001" style="flex:1; border-radius:30px; padding:14px 20px;" autocomplete="off">
+        <button id="trackBtn" class="btn-checkout" style="width:auto; margin-top:0; padding:14px 30px; border-radius:30px;">
+          <i data-lucide="search"></i> Rechercher
+        </button>
+      </div>
 
-        <div id="resultBox" class="result-box">
-          <div class="order-details">
-            <div class="order-info-grid">
-              <div class="info-item">
-                <label>Numéro</label>
-                <span id="displayOrderId"></span>
-              </div>
-              <div class="info-item">
-                <label>Date</label>
-                <span id="displayOrderDate"></span>
-              </div>
-              <div class="info-item">
-                <label>Total</label>
-                <span id="displayOrderTotal"></span>
-              </div>
-            </div>
-            <div style="margin-top: 15px; text-align: center;">
-              <span id="displayStatusBadge" class="status-badge"></span>
-            </div>
-          </div>
+      <!-- No results alert -->
+      <div id="noResultBox" style="display:none; text-align:center; padding:24px; border-radius:var(--radius-md); background-color:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); color:var(--danger); margin-bottom:25px;">
+        <i data-lucide="alert-circle" style="margin:0 auto 10px; width:36px; height:36px;"></i>
+        <h4 style="font-size:1rem; font-weight:700;">Commande introuvable</h4>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">Assurez-vous que l'identifiant saisi est correct (Ex: AM260101001).</p>
+      </div>
 
-          <!-- Delivery Person Card -->
-          <div class="delivery-card" id="deliveryCard">
-            <div class="delivery-card-title"><i class="fas fa-motorcycle"></i> Informations Livreur</div>
-            <div class="delivery-info-grid">
-              <div class="delivery-info-item">
-                <label>Nom du livreur</label>
-                <span id="displayDeliveryName">—</span>
-              </div>
-              <div class="delivery-info-item">
-                <label>Téléphone</label>
-                <span id="displayDeliveryPhone">—</span>
-              </div>
+      <!-- Result Information Panel -->
+      <div id="resultBox" style="display:none;">
+        <div class="order-summary-box" style="margin-top:0; margin-bottom:30px; background-color:var(--bg-main); border:1px solid var(--border);">
+          <h4 style="margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span>Détails d'acheminement</span>
+            <span id="displayStatusBadge" class="status-badge" style="font-size:0.75rem;"></span>
+          </h4>
+          <div class="order-info-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:15px;">
+            <div class="info-item">
+              <label style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:2px;">Facture N°</label>
+              <span id="displayOrderId" style="font-weight:700;"></span>
             </div>
-          </div>
-
-          <div class="timeline">
-            <div class="timeline-step" id="step-pending">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Commande Reçue</h4>
-                <p>Nous avons reçu votre commande</p>
-              </div>
+            <div class="info-item">
+              <label style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:2px;">Date Commande</label>
+              <span id="displayOrderDate" style="font-weight:700;"></span>
             </div>
-            <div class="timeline-step" id="step-accepted">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Confirmée</h4>
-                <p>Votre commande a été vérifiée</p>
-              </div>
-            </div>
-            <div class="timeline-step" id="step-shipped">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Expédiée</h4>
-                <p>Colis en route vers vous</p>
-              </div>
-            </div>
-            <div class="timeline-step" id="step-arrived">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <h4>Livrée</h4>
-                <p>Commande livrée avec succès</p>
-              </div>
+            <div class="info-item">
+              <label style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:2px;">Montant Total</label>
+              <span id="displayOrderTotal" style="font-weight:700; color:var(--accent);"></span>
             </div>
           </div>
         </div>
 
-        <div id="noResultBox">
-          <i class="fas fa-exclamation-circle" style="font-size: 1.8rem; color: var(--danger); margin-bottom: 8px;"></i>
-          <p>Commande introuvable. Vérifiez le numéro.</p>
+        <!-- Delivery driver card -->
+        <div class="courier-badge-card" id="deliveryCard" style="display:none; margin-bottom:30px;">
+          <div class="courier-avatar"><i class="fas fa-shipping-fast"></i></div>
+          <div class="courier-details">
+            <label style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block;">Coursier en charge :</label>
+            <h4 id="displayDeliveryName">—</h4>
+            <p><i class="fas fa-phone-alt" style="margin-right:5px; color:var(--success)"></i> <span id="displayDeliveryPhone">—</span></p>
+          </div>
+        </div>
+
+        <!-- Vertical Progress Timeline -->
+        <div class="vertical-timeline">
+          <div class="timeline-item-step" id="step-pending">
+            <div class="timeline-item-step-info">
+              <h4>⏳ En attente de traitement</h4>
+              <p>Votre commande a été reçue par notre équipe commerciale.</p>
+            </div>
+          </div>
+          <div class="timeline-item-step" id="step-accepted">
+            <div class="timeline-item-step-info">
+              <h4>✓ Commande validée</h4>
+              <p>Votre facture a été validée et le matériel est en préparation.</p>
+            </div>
+          </div>
+          <div class="timeline-item-step" id="step-shipped">
+            <div class="timeline-item-step-info">
+              <h4>🚚 Expédiée / En route</h4>
+              <p>Votre colis a été remis au transporteur Yalidine Express.</p>
+            </div>
+          </div>
+          <div class="timeline-item-step" id="step-arrived">
+            <div class="timeline-item-step-info">
+              <h4>📦 Colis livré</h4>
+              <p>La commande a été remise en mains propres et acquittée.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </main>
 
-  <footer>
-    <div class="container">
+  <!-- Footer -->
+  <footer style="margin-top:60px;">
+    <div class="container" style="text-align:center;">
       <p>&copy; 2026 Amar Informatique. Tous droits réservés.</p>
     </div>
   </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Init theme settings
+      initDarkModeTheme();
+      document.getElementById('darkModeToggle')?.addEventListener('click', toggleDarkMode);
+
       const trackBtn = document.getElementById('trackBtn');
       const orderIdInput = document.getElementById('orderIdInput');
 
-      // Prévenir le zoom sur iOS
+      // Prevent viewport keyboard layout zoom on mobile iOS
       orderIdInput?.addEventListener('focus', function () {
         if (window.innerWidth < 480) {
           this.style.fontSize = '16px';
@@ -620,6 +214,29 @@
         }
       });
 
+      function initDarkModeTheme() {
+        const isDark = localStorage.getItem('theme') === 'true';
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            document.querySelector('#darkModeToggle .dark-icon').style.display = 'none';
+            document.querySelector('#darkModeToggle .light-icon').style.display = 'block';
+        }
+      }
+
+      function toggleDarkMode() {
+          const isDark = document.body.classList.toggle('dark-mode');
+          localStorage.setItem('theme', isDark);
+          const darkIcon = document.querySelector('#darkModeToggle .dark-icon');
+          const lightIcon = document.querySelector('#darkModeToggle .light-icon');
+          if (isDark) {
+              darkIcon.style.display = 'none';
+              lightIcon.style.display = 'block';
+          } else {
+              darkIcon.style.display = 'block';
+              lightIcon.style.display = 'none';
+          }
+      }
+
       async function trackOrder(orderId) {
         const resultBox = document.getElementById('resultBox');
         const noResultBox = document.getElementById('noResultBox');
@@ -627,15 +244,14 @@
         resultBox.style.display = 'none';
         noResultBox.style.display = 'none';
 
-        // Reset timeline
-        document.querySelectorAll('.timeline-step').forEach(step => {
-          step.classList.remove('active', 'completed');
-          step.style.opacity = '0.5';
+        // Reset timeline steps
+        document.querySelectorAll('.timeline-item-step').forEach(step => {
+          step.className = 'timeline-item-step';
         });
 
-        // Loading state
-        const originalBtnText = trackBtn.innerHTML;
-        trackBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recherche...';
+        // Loading button state
+        const originalText = trackBtn.innerHTML;
+        trackBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
         trackBtn.disabled = true;
 
         try {
@@ -653,11 +269,12 @@
             noResultBox.style.display = 'block';
           }
         } catch (error) {
-          console.error("❌ Error tracking:", error);
-          alert("Erreur de connexion. Veuillez réessayer.");
+          console.error("❌ Error tracking order:", error);
+          alert("Une erreur s'est produite. Veuillez vérifier votre connexion.");
         } finally {
-          trackBtn.innerHTML = originalBtnText;
+          trackBtn.innerHTML = originalText;
           trackBtn.disabled = false;
+          if (window.lucide) lucide.createIcons();
         }
       }
 
@@ -670,7 +287,7 @@
           } catch { setText('displayOrderDate', '—'); }
         }
 
-        setText('displayOrderTotal', (data.grandTotal || 0) + ' DA');
+        setText('displayOrderTotal', (data.grandTotal || 0).toLocaleString('fr-FR') + ' DA');
 
         const badge = document.getElementById('displayStatusBadge');
         const status = data.status || 'pending';
@@ -679,12 +296,12 @@
           badge.className = 'status-badge status-' + status;
         }
 
-        // Delivery person card
+        // Courier driver info box
         const deliveryCard = document.getElementById('deliveryCard');
         if (deliveryCard) {
           const hasDeliveryInfo = data.orderType === 'domicile' &&
             (data.deliveryPersonName || data.deliveryPersonPhone);
-          deliveryCard.style.display = hasDeliveryInfo ? 'block' : 'none';
+          deliveryCard.style.display = hasDeliveryInfo ? 'flex' : 'none';
           if (hasDeliveryInfo) {
             setText('displayDeliveryName', data.deliveryPersonName || '—');
             setText('displayDeliveryPhone', data.deliveryPersonPhone || '—');
@@ -701,13 +318,13 @@
 
       function getStatusLabel(status) {
         const labels = {
-          'pending': '⏳ En attente',
-          'accepted': '✓ Acceptée',
-          'shipped': '🚚 En route',
+          'pending': '⏳ Traitement en cours',
+          'accepted': '✓ Validée',
+          'shipped': '🚚 En cours d\'acheminement',
           'arrived': '📦 Livrée',
-          'returned': '↩️ Retournée'
+          'returned': '↩️ Colis retourné'
         };
-        return labels[status] || '⏳ En attente';
+        return labels[status] || '⏳ Traitement en cours';
       }
 
       function updateTimeline(status) {
@@ -719,15 +336,17 @@
           if (!stepEl) return;
 
           if (stepId === status) {
-            stepEl.classList.add('active');
-            stepEl.style.opacity = '1';
+            stepEl.className = 'timeline-item-step active';
             foundActive = true;
           } else if (!foundActive) {
-            stepEl.classList.add('completed');
-            stepEl.style.opacity = '1';
+            stepEl.className = 'timeline-item-step completed';
+          } else {
+            stepEl.className = 'timeline-item-step';
           }
         });
       }
+
+      if (window.lucide) lucide.createIcons();
     });
   </script>
 </body>

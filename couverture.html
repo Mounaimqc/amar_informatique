@@ -1,16 +1,30 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#ffffff">
-  <title>خريطة التوصيل - Amar Informatique</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  
+  <title>خريطة التوصيل - Zones de Livraison - Amar Informatique</title>
+  
+  <!-- Global Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="logo.jpg" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
   <script>
     // Robust capturer for amCharts geodata
     window.algeriaGeoJSON = null;
@@ -18,473 +32,332 @@
       for (let key in modules) {
         try {
           modules[key]({}, {}, {});
-          console.log("Executed module:", key);
         } catch (e) {
-          console.warn("Module exec warning for " + key + ":", e);
+          // Silent warning
         }
       }
       if (window.am4geodata_algeriaHigh) {
         window.algeriaGeoJSON = window.am4geodata_algeriaHigh;
-        console.log("Map data captured via execution.");
       }
     };
   </script>
   <script src="algeria_data.js" defer></script>
   
-  <!-- Meta Pixel Code -->
-  <script>
-    !function (f, b, e, v, n, t, s) {
-      if (f.fbq) return; n = f.fbq = function () {
-        n.callMethod ?
-        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-      };
-      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-      n.queue = []; t = b.createElement(e); t.async = !0;
-      t.src = v; s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s)
-    }(window, document, 'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1226041376399363');
-    fbq('track', 'PageView');
-  </script>
-  <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1226041376399363&ev=PageView&noscript=1" /></noscript>
-  <!-- End Meta Pixel Code -->
-  
+  <!-- Local map styling overrides that support dark mode -->
   <style>
-    /* ========== VARIABLES - THÈME CLAIR (INVERSÉ) ========== */
-    :root {
-      --bg-dark: #ffffff;
-      --bg-card: rgba(248, 248, 248, 0.9);
-      --primary-color: #000000;
-      --primary-glow: #333333;
-      --text-main: #000000;
-      --text-muted: #555555;
-      --glass-border: 1px solid rgba(0, 0, 0, 0.1);
-      --neon-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      --radius-lg: 20px;
-      --transition: all 0.3s ease;
-      --glass-bg: rgba(0, 0, 0, 0.02);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-    }
-
-    header {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: var(--glass-border);
-      padding: 1rem 0;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-    }
-
-    .navbar .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: min(92%, 1400px);
-      margin: 0 auto;
-    }
-
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo img { 
-      height: 42px; 
-      filter: grayscale(100%) brightness(0.85);
-    }
-    .logo h1 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #000, #444);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .btn-nav {
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-weight: 600;
-      background: rgba(0, 0, 0, 0.06);
-      color: var(--primary-color);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      text-decoration: none;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 44px;
-    }
-    .btn-nav:hover {
-      background: rgba(0, 0, 0, 0.12);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
-    }
-
     .coverage-section {
-      padding: 60px 20px;
-      max-width: 1400px;
-      margin: auto;
+      padding: 40px 0;
       text-align: center;
     }
-
+    
     .coverage-title {
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       font-weight: 800;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #000, #444);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+      color: var(--text-primary);
     }
-
+    
     .coverage-subtitle {
-      color: var(--text-muted);
-      margin-bottom: 40px;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+      font-size: 1rem;
     }
 
-    .search-input {
-      width: 100%;
-      max-width: 500px;
-      padding: 15px 25px;
-      border-radius: 50px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      background: #fff;
-      color: #000;
-      margin-bottom: 40px;
-      outline: none;
-      transition: var(--transition);
-    }
-    .search-input::placeholder { color: var(--text-muted); }
-    .search-input:focus {
-      border-color: var(--primary-color);
-      box-shadow: var(--neon-shadow);
-    }
-
-    .content-grid {
-      display: flex;
-      flex-direction: column;
+    .map-page-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
       gap: 30px;
-      align-items: center;
-      width: 100%;
+      margin-top: 20px;
+      align-items: start;
     }
 
-    .map-wrapper {
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
+    .map-card-wrapper {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 0;
-      box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.08);
-      border: var(--glass-border);
+      box-shadow: var(--shadow-md);
       position: relative;
-      width: 100%;
-      max-width: 1200px;
-      height: 650px;
+      overflow: hidden;
+      height: 600px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      overflow: hidden;
     }
-
+    
     #map-svg-container {
       width: 100%;
-      height: auto;
+      height: 100%;
       position: relative;
-      background: #fafafa;
-      border-radius: var(--radius-lg);
+      background-color: #FAFAFA;
+      transition: background-color 300ms ease;
     }
-
+    body.dark-mode #map-svg-container {
+      background-color: #0E1626;
+    }
+    
     svg {
       width: 100%;
-      height: auto;
-      max-height: 700px;
-      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.05));
+      height: 100%;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.03));
     }
-
-    /* Map paths - thème clair */
+    
+    /* Interactive Map State Shapes */
     path {
-      transition: all 0.2s ease;
-      stroke: rgba(0, 0, 0, 0.2);
-      stroke-width: 0.5;
+      transition: fill 200ms ease, fill-opacity 200ms ease, stroke 200ms ease;
+      stroke: var(--border);
+      stroke-width: 0.75;
+      fill: var(--bg-main);
     }
     
     path:hover {
-      fill: rgba(0, 0, 0, 0.85) !important;
+      fill: var(--primary) !important;
+      fill-opacity: 0.95 !important;
       stroke: #fff;
       stroke-width: 1.5;
-      filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.3));
-      z-index: 10;
       cursor: pointer;
+      filter: drop-shadow(0 10px 25px rgba(37, 99, 235, 0.4));
     }
-
+    
     path.highlight {
-      fill: #000 !important;
+      fill: var(--accent) !important;
+      fill-opacity: 1 !important;
       stroke: #fff;
       stroke-width: 2;
-      filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.4));
-      animation: pulseHighlight 2s infinite;
+      filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.5));
     }
 
-    @keyframes pulseHighlight {
-      0%, 100% { filter: drop-shadow(0 0 5px rgba(0,0,0,0.2)); }
-      50% { filter: drop-shadow(0 0 20px rgba(0,0,0,0.4)); }
-    }
-
-    /* Category Colors - adaptés au thème clair */
+    /* Delivery Times colors */
     .speed-fast {
-      fill: #10b981;
-      fill-opacity: 0.25;
-      stroke: #059669;
-      stroke-width: 0.5;
+      fill: var(--success);
+      fill-opacity: 0.15;
+      stroke: rgba(16, 185, 129, 0.4);
     }
-    .speed-fast:hover { fill: #10b981 !important; fill-opacity: 0.8 !important; }
-
+    .speed-fast:hover {
+      fill: var(--success) !important;
+    }
+    
     .speed-medium {
-      fill: #f59e0b;
-      fill-opacity: 0.25;
-      stroke: #d97706;
-      stroke-width: 0.5;
+      fill: var(--warning);
+      fill-opacity: 0.15;
+      stroke: rgba(245, 158, 11, 0.4);
     }
-    .speed-medium:hover { fill: #f59e0b !important; fill-opacity: 0.8 !important; }
-
+    .speed-medium:hover {
+      fill: var(--warning) !important;
+    }
+    
     .speed-slow {
-      fill: #ef4444;
-      fill-opacity: 0.25;
-      stroke: #dc2626;
-      stroke-width: 0.5;
+      fill: var(--danger);
+      fill-opacity: 0.15;
+      stroke: rgba(239, 68, 68, 0.4);
     }
-    .speed-slow:hover { fill: #ef4444 !important; fill-opacity: 0.8 !important; }
-
-    #map-viewport { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-
-    /* Zoom Controls - thème clair */
-    .zoom-controls {
-      position: absolute;
-      bottom: 25px;
-      right: 25px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 100;
+    .speed-slow:hover {
+      fill: var(--danger) !important;
     }
-
-    .zoom-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: #fff;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      color: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: var(--transition);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    }
-    .zoom-btn:hover {
-      background: #000;
-      color: #fff;
-      transform: scale(1.1);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Legend Card - thème clair */
-    .legend-card {
-      margin-top: 10px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .legend-color {
-      width: 14px;
-      height: 14px;
-      border-radius: 3px;
-      border: 1px solid rgba(0, 0, 0, 0.2);
-    }
-
-    #sidebar {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      width: 100%;
-      max-width: 1200px;
-      margin-top: 20px;
-    }
-
-    .glass-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(12px);
+    
+    /* Sidebar cards */
+    .sidebar-info-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      border: var(--glass-border);
       padding: 25px;
+      box-shadow: var(--shadow-sm);
       text-align: left;
-      flex: 1;
-      min-width: 300px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
-
-    .glass-card h2 {
-      font-size: 1.25rem;
+    
+    .sidebar-info-card h3 {
+      font-size: 1.15rem;
       margin-bottom: 20px;
-      color: var(--primary-color);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border);
       padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-
-    .wilaya-detail-row {
+    
+    .wilaya-info-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 12px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      border-bottom: 1px solid var(--border);
     }
-    .wilaya-detail-row span:first-child { color: var(--text-muted); font-size: 0.9rem; }
-    .wilaya-detail-row span:last-child { font-weight: 600; color: var(--text-main); }
-
-    /* Tooltip - thème clair */
+    .wilaya-info-row span:first-child {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+    }
+    .wilaya-info-row span:last-child {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    /* Interactive Map Tooltip */
     .map-tooltip {
       position: fixed;
-      background: #fff;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       padding: 12px 18px;
-      border-radius: 10px;
-      opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      min-width: 180px;
+      box-shadow: var(--shadow-lg);
+      color: var(--text-primary);
+      font-size: 0.85rem;
       z-index: 2000;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(8px);
-      color: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 150ms ease;
     }
-    .map-tooltip.show { opacity: 1; }
-
+    .map-tooltip.show {
+      opacity: 1;
+    }
+    .tooltip-title {
+      font-weight: 700;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      font-family: 'Poppins', sans-serif;
+    }
     .tooltip-row {
       display: flex;
       justify-content: space-between;
-      margin: 4px 0;
-      font-size: 0.85rem;
-    }
-    .tooltip-title {
-      color: var(--primary-color);
-      font-weight: 800;
-      margin-bottom: 8px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      padding-bottom: 4px;
+      gap: 15px;
+      margin-bottom: 4px;
     }
 
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      margin-top: 60px;
-      color: var(--text-muted);
-      background: #f8f8f8;
-      border-top: 1px solid rgba(0, 0, 0, 0.08);
-    }
-
-    /* Loader - thème clair */
-    .loader {
-      color: var(--text-muted);
-      padding: 30px;
-      font-style: italic;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .content-grid { grid-template-columns: 1fr; }
-      #sidebar { order: -1; }
-      .btn-nav span { display: none; }
-      .btn-nav {
-        width: 44px; height: 44px; padding: 10px;
-        justify-content: center;
+    @media (max-width: 900px) {
+      .map-page-layout {
+        grid-template-columns: 1fr;
       }
-      .btn-nav i { font-size: 1.2rem; }
-    }
-
-    @media (max-width: 480px) {
-      .logo h1 { display: none; }
-      .coverage-title { font-size: 1.8rem; }
-      .map-wrapper { height: 500px; }
+      .map-card-wrapper {
+        height: 480px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <header>
-    <nav class="navbar">
-      <div class="container">
-        <div class="logo">
-          <img src="logo.jpg" alt="Logo">
-          <h1>Amar Informatique</h1>
-        </div>
-        <a href="index.html" class="btn-nav"><i class="fas fa-store"></i> <span>Boutique</span></a>
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-promo">
+        <span class="badge-promo">LIVRAISON</span>
+        <span>Livraison express à domicile ou stop desk Yalidine</span>
       </div>
-    </nav>
+      <div class="top-bar-links">
+        <a href="tel:0559469956" class="top-bar-link">
+          <i data-lucide="phone"></i> <span>0559 46 99 56</span>
+        </a>
+        <a href="https://wa.me/213559469956" target="_blank" class="top-bar-link">
+          <i class="fab fa-whatsapp" style="color: #25D366;"></i> <span>WhatsApp Support</span>
+        </a>
+        <a href="index.html" class="top-bar-link">
+          <i data-lucide="shopping-bag"></i> <span>Boutique</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Header -->
+  <header>
+    <div class="navbar">
+      <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+        <a href="index.html" class="logo">
+          <img src="logo.png" alt="Logo Amar Informatique" onerror="this.src='logo.jpg'">
+          <div class="logo-text">
+            <h1>Amar Info</h1>
+            <span>PREMIUM TECH STORE</span>
+          </div>
+        </a>
+        
+        <div style="display:flex; gap:15px; align-items:center;">
+          <!-- Theme Toggle -->
+          <button class="header-action-btn" id="darkModeToggle" title="Basculer le thème" aria-label="Toggle Theme">
+            <i data-lucide="moon" class="dark-icon"></i>
+            <i data-lucide="sun" class="light-icon" style="display:none;"></i>
+          </button>
+          
+          <a href="index.html" class="cart-btn-premium" style="background-color:var(--bg-input); color:var(--text-primary); box-shadow:none; border:1px solid var(--border);">
+            <i data-lucide="arrow-left"></i> <span>Retour boutique</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </header>
 
-  <section class="coverage-section">
-    <h1 class="coverage-title">📍 COUVERTURE DE LIVRAISON</h1>
-    <p class="coverage-subtitle">Nous couvrons 58 Wilayas du territoire national algérien</p>
+  <!-- Interactive Map Content Section -->
+  <main class="container">
+    <section class="coverage-section">
+      <h1 class="coverage-title">📍 COUVERTURE & TARIFS DE LIVRAISON</h1>
+      <p class="coverage-subtitle">Cliquez ou recherchez une Wilaya pour voir les délais et prix d'expédition Yalidine.</p>
 
-    <input type="text" id="wilayaSearch" class="search-input" placeholder="🔍 ابحث عن منطقة...">
+      <div class="search-container" style="margin:0 auto 30px; max-width:500px;">
+        <div class="search-wrapper">
+          <input type="text" id="wilayaSearch" placeholder="Rechercher une Wilaya (Ex: Alger, Sétif...)" class="search-input" aria-label="Rechercher Wilaya">
+          <button class="search-btn-icon" aria-label="Submit search"><i data-lucide="search"></i></button>
+        </div>
+      </div>
 
-    <div class="content-grid">
-      <div class="zoom-controls">
-        <button class="zoom-btn" onclick="adjustZoom(1.2)" title="Zoom In"><i class="fas fa-plus"></i></button>
-        <button class="zoom-btn" onclick="adjustZoom(1/1.2)" title="Zoom Out"><i class="fas fa-minus"></i></button>
-        <button class="zoom-btn" onclick="resetView()" title="Reset View"><i class="fas fa-expand-arrows-alt"></i></button>
+      <div class="map-page-layout">
+        <!-- Interactive Algeria SVG Map Wrapper -->
+        <div class="map-card-wrapper">
+          <div class="zoom-controls" style="position:absolute; bottom:20px; right:20px; display:flex; flex-direction:column; gap:8px; z-index:10;">
+            <button class="zoom-btn" onclick="adjustZoom(1.2)" title="Zoom In" style="width:40px; height:40px; border-radius:8px; background-color:var(--bg-card); border:1px solid var(--border); box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; color:var(--text-primary);"><i class="fas fa-plus"></i></button>
+            <button class="zoom-btn" onclick="adjustZoom(1/1.2)" title="Zoom Out" style="width:40px; height:40px; border-radius:8px; background-color:var(--bg-card); border:1px solid var(--border); box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; color:var(--text-primary);"><i class="fas fa-minus"></i></button>
+            <button class="zoom-btn" onclick="resetView()" title="Reset View" style="width:40px; height:40px; border-radius:8px; background-color:var(--bg-card); border:1px solid var(--border); box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; color:var(--text-primary);"><i class="fas fa-expand-arrows-alt"></i></button>
+          </div>
+          <div id="map-svg-container">
+            <div style="text-align:center; padding:150px 20px; color:var(--text-secondary);">
+              <i class="fas fa-spinner fa-spin fa-3x" style="margin-bottom:20px; color:var(--primary);"></i>
+              <p>Chargement des contours géographiques de l'Algérie...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <!-- Detail Box -->
+          <div class="sidebar-info-card">
+            <h3><i data-lucide="info"></i> Détails Wilaya</h3>
+            <div id="wilaya-info">
+              <p style="color:var(--text-muted); font-style:italic; text-align:center; padding:20px 0;">Survolez ou cliquez sur une Wilaya pour afficher les tarifs d'envoi.</p>
+            </div>
+          </div>
+
+          <!-- Legend Card -->
+          <div class="sidebar-info-card">
+            <h3><i data-lucide="truck"></i> Délais de livraison</h3>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="width:18px; height:18px; border-radius:4px; background-color:var(--success); opacity:0.6; display:inline-block; border:1px solid var(--success);"></span>
+                <span style="font-size:0.88rem; font-weight:600;">Expédition Rapide (24h - 48h)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="width:18px; height:18px; border-radius:4px; background-color:var(--warning); opacity:0.6; display:inline-block; border:1px solid var(--warning);"></span>
+                <span style="font-size:0.88rem; font-weight:600;">Expédition Moyenne (48h - 72h)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="width:18px; height:18px; border-radius:4px; background-color:var(--danger); opacity:0.6; display:inline-block; border:1px solid var(--danger);"></span>
+                <span style="font-size:0.88rem; font-weight:600;">Expédition Longue (72h+)</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="map-svg-container">
-        <div class="loader">Chargement de la carte...</div>
-      </div>
+    </section>
+  </main>
+
+  <div class="map-tooltip" id="mapTooltip"></div>
+
+  <!-- Footer -->
+  <footer style="margin-top:60px;">
+    <div class="container" style="text-align:center;">
+      <p style="font-size:0.8rem; color:var(--text-muted);">&copy; 2026 Amar Informatique. Premium Tech Store.</p>
     </div>
-
-    <div id="sidebar">
-      <div class="glass-card">
-        <h2><i class="fas fa-info-circle"></i> Détails Wilaya</h2>
-        <div id="wilaya-info">
-          <p style="color:var(--text-muted); font-style: italic;">Survolez une wilaya pour voir les détails</p>
-        </div>
-      </div>
-      <div class="glass-card legend-card">
-        <h2><i class="fas fa-layer-group"></i> Expédition</h2>
-        <div class="legend-item">
-          <div class="legend-color" style="background: #10b981;"></div>
-          <span style="font-size: 0.85rem;">Rapide (24h - 48h)</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background: #f59e0b;"></div>
-          <span style="font-size: 0.85rem;">Moyenne (48h - 72h)</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background: #ef4444;"></div>
-          <span style="font-size: 0.85rem;">Longue (72h+)</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="map-tooltip" id="mapTooltip"></div>
-  </section>
-
-  <footer>
-    &copy; 2026 Amar Informatique. Premium Tech Store.
   </footer>
 
+  <!-- Script for Coverages -->
   <script>
     const wilayasData = {
       "1": { name: "Adrar", nameAr: "أدرار", code: "01", time: "72h à 96h", home: 1500, desk: 1000 },
@@ -554,20 +427,46 @@
     let currentScale = 1;
     let currentTranslate = { x: 0, y: 0 };
 
-    async function loadMapData() {
-      console.log("Starting map data load process...");
+    document.addEventListener('DOMContentLoaded', () => {
+      initDarkModeTheme();
+      document.getElementById('darkModeToggle')?.addEventListener('click', toggleDarkMode);
+      if (window.lucide) lucide.createIcons();
+    });
 
+    function initDarkModeTheme() {
+        const isDark = localStorage.getItem('theme') === 'true';
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            document.querySelector('#darkModeToggle .dark-icon').style.display = 'none';
+            document.querySelector('#darkModeToggle .light-icon').style.display = 'block';
+        }
+    }
+
+    function toggleDarkMode() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', isDark);
+        const darkIcon = document.querySelector('#darkModeToggle .dark-icon');
+        const lightIcon = document.querySelector('#darkModeToggle .light-icon');
+        if (isDark) {
+            darkIcon.style.display = 'none';
+            lightIcon.style.display = 'block';
+        } else {
+            darkIcon.style.display = 'block';
+            lightIcon.style.display = 'none';
+        }
+    }
+
+    async function loadMapData() {
       for (let i = 0; i < 5; i++) {
         if (window.algeriaGeoJSON || window.am4geodata_algeriaHigh) {
           geoJsonData = window.algeriaGeoJSON || window.am4geodata_algeriaHigh;
-          console.log("Map data found in memory.");
           renderMap(geoJsonData);
           return;
         }
         await new Promise(r => setTimeout(r, 200));
       }
 
-      console.log("Local capture failed, trying CDN...");
+      // CDN Fallback
       try {
         const cdnPromise = new Promise((resolve, reject) => {
           const script = document.createElement("script");
@@ -586,15 +485,15 @@
         ]);
 
         if (cdnData) {
-          console.log("Map data loaded from CDN.");
           geoJsonData = cdnData;
           renderMap(geoJsonData);
           return;
         }
-      } catch (cdnError) {
-        console.warn("CDN fallback failed:", cdnError);
+      } catch (err) {
+        console.warn("CDN map fallback error:", err);
       }
 
+      // Local Fetch Fallback
       try {
         const response = await fetch('algeria_data.js');
         const text = await response.text();
@@ -604,23 +503,19 @@
           let endIndex = text.lastIndexOf('}]}');
           if (endIndex !== -1) {
             geoJsonData = JSON.parse(text.substring(startIndex, endIndex + 3));
-            console.log("Map data loaded via fetch fallback.");
             renderMap(geoJsonData);
             return;
           }
         }
-      } catch (fetchError) {
-        console.error("Fetch fallback failed:", fetchError);
+      } catch (err) {
+        console.error("Local map fetch fallback error:", err);
       }
 
       mapContainer.innerHTML = `
-        <div style="color:#dc2626;padding:30px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:15px;margin-top:20px;text-align:center;">
-          <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:15px;display:block;"></i>
-          <h3 style="margin-bottom:10px;">Impossible de charger la carte</h3>
-          <p style="color:var(--text-muted);font-size:0.9rem;">
-            La sécurité de votre navigateur bloque l'accès aux données locales.<br>
-            <b>Solution :</b> Utilisez un serveur local (Live Server) ou connectez-vous à Internet.
-          </p>
+        <div style="color:var(--danger); padding:30px; text-align:center;">
+          <i class="fas fa-exclamation-triangle" style="font-size:2.5rem; margin-bottom:15px; display:block;"></i>
+          <h3>Erreur : Impossible de charger les données géographiques</h3>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:5px;">Veuillez recharger la page ou vous connecter à Internet.</p>
         </div>`;
     }
 
@@ -630,8 +525,6 @@
       svg.setAttribute("viewBox", "0 0 800 650");
       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
       svg.style.cursor = "grab";
-      svg.style.width = "100%";
-      svg.style.height = "100%";
 
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
       g.setAttribute("id", "map-viewport");
@@ -640,7 +533,7 @@
       g.appendChild(zoomG);
       svg.appendChild(g);
 
-      // Pan & Zoom
+      // Pan dragging handlers
       let isDragging = false;
       let startX, startY;
 
@@ -683,24 +576,6 @@
         updateTransform();
       }, { passive: false });
 
-      svg.addEventListener('dblclick', e => {
-        const delta = 1.5;
-        const pt = svg.createSVGPoint();
-        pt.x = e.clientX; pt.y = e.clientY;
-        const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
-
-        const prevScale = currentScale;
-        currentScale *= delta;
-        currentScale = Math.max(0.5, Math.min(currentScale, 15));
-
-        const scaleDiff = currentScale / prevScale;
-        currentTranslate.x = svgPt.x - (svgPt.x - currentTranslate.x) * scaleDiff;
-        currentTranslate.y = svgPt.y - (svgPt.y - currentTranslate.y) * scaleDiff;
-
-        g.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        updateTransform();
-      });
-
       function updateTransform() {
         g.setAttribute("transform", `translate(${currentTranslate.x}, ${currentTranslate.y}) scale(${currentScale})`);
       }
@@ -713,19 +588,19 @@
         const scaleDiff = currentScale / prevScale;
         currentTranslate.x = 400 - (400 - currentTranslate.x) * scaleDiff;
         currentTranslate.y = 325 - (325 - currentTranslate.y) * scaleDiff;
-        g.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+        g.style.transition = 'transform 0.3s ease';
         updateTransform();
       };
 
       window.resetView = () => {
         currentScale = 1;
         currentTranslate = { x: 0, y: 0 };
-        g.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        g.style.transition = 'transform 0.4s ease';
         updateTransform();
         document.querySelectorAll('path').forEach(p => p.classList.remove('highlight'));
       };
 
-      // Calculate bounds
+      // Calculate path bounds
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       geoData.features.forEach(feature => {
         const coords = feature.geometry.coordinates;
@@ -767,7 +642,7 @@
         path.setAttribute("d", d);
         path.setAttribute("id", feature.id);
 
-        // Centroid for auto-zoom
+        // Centroid coordinates
         let cX = 0, cY = 0, count = 0;
         feature.geometry.coordinates.forEach(polygon => {
           const points = feature.geometry.type === "MultiPolygon" ? polygon[0] : polygon;
@@ -780,7 +655,7 @@
         path.setAttribute("data-cx", cX / count);
         path.setAttribute("data-cy", cY / count);
 
-        // Speed colors
+        // Map delivery speed color classes
         const wilayaNum = feature.id.split("-")[1];
         const wData = wilayasData[parseInt(wilayaNum)];
         if (wData) {
@@ -795,17 +670,20 @@
           const wilayaNum = feature.id.split("-")[1];
           const data = wilayasData[parseInt(wilayaNum)] || { name: feature.properties.name, nameAr: "", time: "N/A", home: "N/A", desk: "N/A" };
 
-          tooltip.innerHTML = `<div class="tooltip-title">${data.name} | ${data.nameAr}</div>
-                                 <div class="tooltip-row"><span>🏠 Home:</span><span>${data.home} DA</span></div>
-                                 <div class="tooltip-row"><span>🏪 Desk:</span><span>${data.desk} DA</span></div>`;
+          tooltip.innerHTML = `
+            <div class="tooltip-title">${data.name} | ${data.nameAr}</div>
+            <div class="tooltip-row"><span>🏠 Domicile :</span><span>${data.home} DA</span></div>
+            <div class="tooltip-row"><span>🏪 Bureau (Stop Desk) :</span><span>${data.desk} DA</span></div>
+          `;
           tooltip.classList.add('show');
 
           wilayaInfo.innerHTML = `
-                <div class="wilaya-detail-row"><span>Wilaya:</span><span>${data.name} (${data.code})</span></div>
-                <div class="wilaya-detail-row"><span>الولاية:</span><span>${data.nameAr}</span></div>
-                <div class="wilaya-detail-row"><span>Durée:</span><span>${data.time}</span></div>
-                <div class="wilaya-detail-row"><span>Prix Home:</span><span>${data.home} DA</span></div>
-                <div class="wilaya-detail-row"><span>Prix Desk:</span><span>${data.desk} DA</span></div>`;
+            <div class="wilaya-info-row"><span>Wilaya :</span><span>${data.name} (${data.code})</span></div>
+            <div class="wilaya-info-row"><span>الولاية :</span><span>${data.nameAr}</span></div>
+            <div class="wilaya-info-row"><span>Délai de Livraison :</span><span>${data.time}</span></div>
+            <div class="wilaya-info-row"><span>Tarif Domicile :</span><span>${data.home} DA</span></div>
+            <div class="wilaya-info-row"><span>Tarif Stop Desk :</span><span>${data.desk} DA</span></div>
+          `;
         });
 
         path.addEventListener('mousemove', (e) => {
@@ -814,6 +692,7 @@
         });
 
         path.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+        
         path.addEventListener('click', () => {
           document.querySelectorAll('path').forEach(p => p.classList.remove('highlight'));
           path.classList.add('highlight');
@@ -847,7 +726,7 @@
             if (!found) {
               const cx = parseFloat(path.getAttribute("data-cx"));
               const cy = parseFloat(path.getAttribute("data-cy"));
-              currentScale = 2.5;
+              currentScale = 2.8;
               currentTranslate.x = 400 - (cx * currentScale);
               currentTranslate.y = 325 - (cy * currentScale);
               updateTransform();
@@ -855,7 +734,7 @@
               found = true;
             }
           } else {
-            path.style.opacity = "0.15";
+            path.style.opacity = "0.18";
             path.classList.remove('highlight');
           }
         }

@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#0F172A">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
+  
   <title>Amar Informatique - Premium Tech Store</title>
+  
+  <!-- Global Stylesheet -->
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="logo.jpg" type="image/x-icon">
   
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -40,713 +41,807 @@
     window.db = db;
     window.storage = storage;
   </script>
-
-  <style>
-    :root {
-      --primary-color: #6366f1; --secondary-color: #f59e0b;
-      --bg-main: #0f0f1a; --bg-card: #1a1a2e; --bg-hover: #252542;
-      --text-main: #ffffff; --text-muted: #a0a0b0; --border: #333355;
-      --success: #22c55e; --danger: #ef4444; --shadow: 0 10px 40px rgba(0,0,0,0.3);
-      --radius: 20px; --transition: all 0.3s ease;
-    }
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg-main: #f8fafc; --bg-card: #ffffff; --bg-hover: #f1f5f9;
-        --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
-        --shadow: 0 10px 40px rgba(0,0,0,0.1);
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
-      background: var(--bg-main); color: var(--text-main);
-      line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column;
-    }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-    img { max-width: 100%; height: auto; display: block; }
-    button { font-family: inherit; cursor: pointer; border: none; background: none; }
-    a { text-decoration: none; color: inherit; transition: var(--transition); }
-    ul { list-style: none; }
-
-    /* Header */
-    header {
-      background: var(--bg-card); position: sticky; top: 0; z-index: 1000;
-      box-shadow: var(--shadow); border-bottom: 1px solid var(--border);
-    }
-    .navbar { padding: 12px 0; }
-    .navbar .container {
-      display: flex; justify-content: space-between; align-items: center; gap: 15px;
-    }
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo img { height: 45px; width: auto; border-radius: 10px; }
-    .logo h1 {
-      font-size: 1.3rem; font-weight: 800;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .nav-items { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .contact-info span {
-      font-size: 0.9rem; color: var(--text-muted);
-      display: flex; align-items: center; gap: 6px;
-    }
-    .contact-info i { color: var(--success); }
-    .btn-nav {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border-radius: 50px;
-      background: var(--bg-hover); color: var(--text-main);
-      font-size: 0.85rem; font-weight: 500; transition: var(--transition);
-      border: 1px solid var(--border);
-    }
-    .btn-nav:hover {
-      background: var(--primary-color); border-color: var(--primary-color);
-      transform: translateY(-2px);
-    }
-    .btn-nav i { font-size: 0.9rem; }
-    .cart-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 10px 18px; border-radius: 50px;
-      background: var(--primary-color); color: #fff;
-      font-weight: 600; font-size: 0.9rem; position: relative;
-      transition: var(--transition);
-    }
-    .cart-btn:hover {
-      transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.4);
-      filter: brightness(0.95);
-    }
-    .cart-count {
-      position: absolute; top: -8px; right: -8px;
-      background: var(--danger); color: #fff;
-      font-size: 0.7rem; font-weight: 700;
-      width: 20px; height: 20px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      border: 2px solid var(--bg-card);
-    }
-    @media (max-width: 768px) {
-      .navbar .container { flex-wrap: wrap; }
-      .nav-items { width: 100%; justify-content: center; gap: 8px; margin-top: 10px; }
-      .contact-info { display: none; }
-      .btn-nav span, .cart-btn span { display: none; }
-      .btn-nav, .cart-btn { padding: 10px 14px; }
-    }
-
-    /* Hero Slider */
-    .hero-slider {
-      position: relative; overflow: hidden;
-      background: linear-gradient(135deg, var(--bg-card), var(--bg-hover));
-      border-bottom: 1px solid var(--border);
-    }
-    .slider-wrapper { display: flex; transition: transform 0.5s ease; scroll-snap-type: x mandatory; }
-    .slide {
-      min-width: 100%; scroll-snap-align: start;
-      padding: 40px 20px; text-align: center;
-      display: flex; flex-direction: column; align-items: center; gap: 20px;
-    }
-    @media (min-width: 768px) {
-      .slide { flex-direction: row; justify-content: center; gap: 40px; text-align: left; }
-      .slide-content { max-width: 500px; }
-    }
-    .slide-image {
-      width: 200px; height: 200px; border-radius: 20px;
-      object-fit: contain; background: var(--bg-main);
-      box-shadow: var(--shadow); transition: var(--transition);
-    }
-    .slide-image:hover { transform: scale(1.05); }
-    .slide-badge {
-      display: inline-block; padding: 6px 14px;
-      background: var(--secondary-color); color: #000;
-      border-radius: 50px; font-size: 0.8rem; font-weight: 700; margin-bottom: 10px;
-    }
-    .slide-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
-    .slide-desc { color: var(--text-muted); margin-bottom: 20px; font-size: 1rem; }
-    .slide-price { font-size: 2rem; font-weight: 800; color: var(--secondary-color); margin-bottom: 20px; }
-    .slide-price old { font-size: 1rem; color: var(--text-muted); text-decoration: line-through; font-weight: 400; margin-right: 10px; }
-    .btn-slider {
-      padding: 12px 30px; border-radius: 50px;
-      background: var(--primary-color); color: #fff;
-      font-weight: 600; font-size: 1rem; transition: var(--transition);
-    }
-    .btn-slider:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.4); }
-    .slider-btn {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      width: 45px; height: 45px; border-radius: 50%;
-      background: var(--bg-card); color: var(--text-main);
-      font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
-      border: 2px solid var(--border); transition: var(--transition); z-index: 10;
-    }
-    .slider-btn:hover { background: var(--primary-color); border-color: var(--primary-color); }
-    .slider-btn.prev { left: 15px; }
-    .slider-btn.next { right: 15px; }
-    .slider-dots { display: flex; justify-content: center; gap: 8px; padding: 15px 0; }
-    .slider-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--border); cursor: pointer; transition: var(--transition);
-    }
-    .slider-dot.active { background: var(--primary-color); transform: scale(1.2); }
-
-    /* Products Section */
-    .products-section { padding: 40px 0; flex: 1; }
-    .products-section h2 { text-align: center; font-size: 2rem; font-weight: 800; margin-bottom: 30px; }
-    .filters { display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
-    .search-input {
-      flex: 1; min-width: 200px; padding: 12px 20px; border-radius: 50px;
-      border: 1px solid var(--border); background: var(--bg-card);
-      color: var(--text-main); font-size: 1rem; outline: none; transition: var(--transition);
-    }
-    .search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
-    .search-input::placeholder { color: var(--text-muted); }
-
-    /* Category Cards */
-    .cat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; }
-    @media (max-width: 768px) { .cat-cards { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 480px) { .cat-cards { grid-template-columns: 1fr 1fr; } }
-    .cat-card {
-      display: flex; align-items: center; gap: 12px; padding: 15px;
-      border-radius: 16px; background: var(--bg-card); border: 2px solid var(--border);
-      cursor: pointer; transition: var(--transition);
-    }
-    .cat-card:hover, .cat-card.active {
-      border-color: var(--primary-color); background: var(--bg-hover); transform: translateY(-2px);
-    }
-    .cat-card-icon {
-      width: 40px; height: 40px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.1rem;
-    }
-    .cat-card-info { flex: 1; }
-    .cat-card-name { font-weight: 600; font-size: 0.95rem; }
-    .cat-card-count { font-size: 0.8rem; color: var(--text-muted); }
-
-    /* Products Grid */
-    .products-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;
-    }
-    .product-card {
-      background: var(--bg-card); border-radius: var(--radius); overflow: hidden;
-      border: 1px solid var(--border); transition: var(--transition);
-      position: relative; display: flex; flex-direction: column; cursor: pointer;
-    }
-    .product-card:hover {
-      transform: translateY(-5px); box-shadow: var(--shadow); border-color: var(--primary-color);
-    }
-    .product-image-wrapper {
-      position: relative; padding-top: 100%; background: var(--bg-main); overflow: hidden;
-    }
-    .product-image {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      object-fit: contain; padding: 15px; transition: var(--transition);
-    }
-    .product-card:hover .product-image { transform: scale(1.08); }
-    .product-badge {
-      position: absolute; top: 12px; left: 12px;
-      padding: 5px 12px; border-radius: 50px;
-      background: var(--secondary-color); color: #000;
-      font-size: 0.75rem; font-weight: 700;
-    }
-    .product-actions {
-      position: absolute; top: 12px; right: 12px;
-      display: flex; flex-direction: column; gap: 8px;
-      opacity: 0; transform: translateX(10px); transition: var(--transition);
-    }
-    .product-card:hover .product-actions { opacity: 1; transform: translateX(0); }
-    .action-btn {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: var(--bg-card); border: 1px solid var(--border);
-      color: var(--text-main); display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem; transition: var(--transition);
-    }
-    .action-btn:hover { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
-    .action-btn.wishlist.active { color: var(--danger); }
-    .product-info { padding: 18px; flex: 1; display: flex; flex-direction: column; }
-    .product-category {
-      font-size: 0.8rem; color: var(--primary-color); font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
-    }
-    .product-name {
-      font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-      overflow: hidden; line-height: 1.4;
-    }
-    .product-description {
-      font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-      overflow: hidden; line-height: 1.4; flex: 1;
-    }
-    .product-price {
-      font-size: 1.4rem; font-weight: 800; color: var(--secondary-color); margin-bottom: 12px;
-    }
-    .product-price old {
-      font-size: 1rem; color: var(--text-muted); text-decoration: line-through;
-      font-weight: 400; margin-right: 8px;
-    }
-    .btn-add-cart {
-      width: 100%; padding: 12px; border-radius: 12px;
-      background: var(--primary-color); color: #fff; font-weight: 600;
-      font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: var(--transition);
-    }
-    .btn-add-cart:hover {
-      transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.4); filter: brightness(0.95);
-    }
-    .btn-add-cart:disabled {
-      background: var(--border); cursor: not-allowed; transform: none; box-shadow: none;
-    }
-
-    /* Modals */
-    .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7); z-index: 2000; align-items: center;
-      justify-content: center; padding: 20px; animation: fadeIn 0.3s ease;
-    }
-    .modal.active { display: flex; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal-content {
-      background: var(--bg-card); border-radius: 20px; max-width: 500px;
-      width: 100%; max-height: 90vh; overflow-y: auto; padding: 25px;
-      position: relative; border: 1px solid var(--border); animation: slideUp 0.3s ease;
-    }
-    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .close-modal {
-      position: absolute; top: 15px; right: 20px; font-size: 1.8rem;
-      color: var(--text-muted); cursor: pointer; transition: var(--transition);
-      width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
-      border-radius: 50%;
-    }
-    .close-modal:hover { background: var(--bg-hover); color: var(--danger); }
-    .modal-content h2 {
-      font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 15px;
-      border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;
-    }
-
-    /* Cart Modal */
-    .cart-items {
-      max-height: 300px; overflow-y: auto; margin-bottom: 20px;
-      display: flex; flex-direction: column; gap: 12px;
-    }
-    .cart-item {
-      display: flex; gap: 12px; padding: 12px; background: var(--bg-hover);
-      border-radius: 12px; align-items: center;
-    }
-    .cart-item img {
-      width: 60px; height: 60px; border-radius: 10px;
-      object-fit: contain; background: var(--bg-main);
-    }
-    .cart-item-info { flex: 1; }
-    .cart-item-name {
-      font-weight: 600; font-size: 0.95rem; margin-bottom: 4px;
-      display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .cart-item-price { color: var(--secondary-color); font-weight: 700; font-size: 0.9rem; }
-    .cart-item-qty { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
-    .qty-btn {
-      width: 28px; height: 28px; border-radius: 8px;
-      background: var(--bg-main); border: 1px solid var(--border);
-      color: var(--text-main); font-weight: 600;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .qty-btn:hover { background: var(--primary-color); border-color: var(--primary-color); }
-    .cart-item-remove {
-      color: var(--danger); cursor: pointer; padding: 5px;
-      border-radius: 50%; transition: var(--transition);
-    }
-    .cart-item-remove:hover { background: rgba(239,68,68,0.1); }
-    .cart-summary { padding-top: 15px; border-top: 1px solid var(--border); }
-    .btn-checkout {
-      width: 100%; padding: 14px; border-radius: 12px;
-      background: var(--success); color: #fff; font-weight: 700;
-      font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: var(--transition); margin-top: 10px;
-    }
-    .btn-checkout:hover {
-      transform: translateY(-2px); box-shadow: 0 10px 30px rgba(34,197,94,0.4); filter: brightness(0.95);
-    }
-
-    /* Order Form Modal */
-    .order-form-content { max-width: 600px; }
-    .form-group { margin-bottom: 18px; }
-    .form-group label {
-      display: block; margin-bottom: 6px; font-weight: 500;
-      font-size: 0.95rem; color: var(--text-main);
-    }
-    .form-group input, .form-group select {
-      width: 100%; padding: 12px 15px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--bg-main);
-      color: var(--text-main); font-size: 1rem; outline: none; transition: var(--transition);
-    }
-    .form-group input:focus, .form-group select:focus {
-      border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
-    }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
-    .shipping-info {
-      background: var(--bg-hover); padding: 12px 15px;
-      border-radius: 10px; margin: 15px 0;
-    }
-    .shipping-price {
-      display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
-    }
-    .shipping-price i { color: var(--primary-color); }
-    .shipping-price strong { margin-left: auto; color: var(--secondary-color); font-size: 1.1rem; }
-    .btn-actions { display: flex; gap: 12px; margin-top: 20px; }
-    .btn-cancel {
-      flex: 1; padding: 12px; border-radius: 12px;
-      background: var(--bg-hover); color: var(--text-main);
-      font-weight: 600; transition: var(--transition);
-    }
-    .btn-cancel:hover { background: var(--border); }
-    .btn-submit {
-      flex: 1; padding: 12px; border-radius: 12px;
-      background: var(--success); color: #fff;
-      font-weight: 700; transition: var(--transition);
-    }
-    .btn-submit:hover {
-      transform: translateY(-2px); box-shadow: 0 10px 30px rgba(34,197,94,0.4);
-    }
-
-    /* Product Detail Modal */
-    .product-detail-content { max-width: 900px; padding: 0; }
-    .detail-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-    @media (max-width: 768px) { .detail-layout { grid-template-columns: 1fr; } }
-    .detail-image-container {
-      padding: 25px; background: var(--bg-main);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .detail-image {
-      max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 15px;
-    }
-    .detail-info { padding: 25px; }
-    .product-category {
-      color: var(--primary-color); font-weight: 600;
-      margin-bottom: 10px; text-transform: capitalize;
-    }
-    .product-description.detail-description {
-      color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; font-size: 1rem;
-    }
-    .detail-price {
-      font-size: 2rem; font-weight: 800; color: var(--secondary-color); margin-bottom: 20px;
-    }
-    .btn-modal-cart {
-      width: 100%; padding: 14px; border-radius: 12px;
-      background: var(--primary-color); color: #fff; font-weight: 600;
-      font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: var(--transition);
-    }
-    .btn-modal-cart:hover {
-      transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.4);
-    }
-
-    /* Footer */
-    footer {
-      background: var(--bg-card); border-top: 1px solid var(--border);
-      padding: 30px 0 20px; margin-top: auto;
-    }
-    .footer-social { text-align: center; }
-    .footer-social h3 { color: var(--text-main); margin-bottom: 15px; font-size: 1.1rem; font-weight: 600; }
-    .social-links { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-    .social-link {
-      display: flex; align-items: center; gap: 8px; padding: 10px 18px;
-      border-radius: 50px; text-decoration: none; font-weight: 500; font-size: 0.9rem;
-      transition: var(--transition); border: 1px solid var(--border);
-      background: var(--bg-main); color: var(--text-main);
-    }
-    .social-link i { font-size: 1.1rem; width: 20px; text-align: center; }
-    .social-link.whatsapp { border-color: #25D366; }
-    .social-link.whatsapp:hover {
-      background: #25D366; color: #000; border-color: #25D366; transform: translateY(-2px);
-    }
-    .social-link.facebook { border-color: #1877F2; }
-    .social-link.facebook:hover {
-      background: #1877F2; color: #fff; border-color: #1877F2; transform: translateY(-2px);
-    }
-    .social-link.instagram { border-color: #E4405F; }
-    .social-link.instagram:hover {
-      background: #E4405F; color: #fff; border-color: #E4405F; transform: translateY(-2px);
-    }
-    .footer-contact {
-      text-align: center; margin-top: 25px; padding-top: 20px;
-      border-top: 1px solid var(--border);
-    }
-    .footer-contact p { margin: 5px 0; color: var(--text-muted); font-size: 0.9rem; }
-    .footer-contact i { color: var(--primary-color); margin-right: 6px; }
-    footer p:last-of-type {
-      text-align: center; margin-top: 20px; padding-top: 20px;
-      border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted);
-    }
-    @media (max-width: 480px) {
-      .social-links { gap: 10px; }
-      .social-link { padding: 8px 14px; font-size: 0.85rem; }
-      .social-link span { display: none; }
-      .social-link i { font-size: 1.2rem; }
-    }
-
-    /* Utilities */
-    .hidden { display: none !important; }
-    .text-center { text-align: center; }
-    .mt-20 { margin-top: 20px; }
-    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-    .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg-main); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
-
-    /* Load More Button */
-    .btn-load-more {
-      background: var(--primary-color); color: #fff; border: none;
-      padding: 12px 30px; border-radius: 50px; font-weight: 600;
-      font-size: 1rem; cursor: pointer; display: inline-flex;
-      align-items: center; gap: 10px; transition: var(--transition);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin: 0 auto;
-    }
-    .btn-load-more:hover {
-      transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-      filter: brightness(0.95);
-    }
-    .btn-load-more i { transition: transform 0.3s; }
-    .btn-load-more:hover i { transform: rotate(90deg); }
-    @media (max-width: 480px) {
-      .btn-load-more { width: 90%; justify-content: center; }
-    }
-  </style>
 </head>
 
 <body>
 
-  <!-- Header -->
-  <header>
-    <nav class="navbar">
-      <div class="container">
-        <div class="logo">
-          <img src="logo.png" alt="Logo Amar Informatique" onerror="this.src='logo.jpg'">
-          <h1>Amar Informatique</h1>
-        </div>
-        <div class="nav-items">
-          <div class="contact-info">
-            <span><i class="fas fa-phone-alt"></i> 0559 46 99 56</span>
-          </div>
-          <a href="couverture.html" class="btn-nav btn-track" title="Zones de Livraison">
-            <i class="fas fa-map-marked-alt"></i> <span>Zones de Livraison</span>
-          </a>
-          <a href="tracking.html" class="btn-nav btn-track">
-            <i class="fas fa-box-open"></i> <span>Suivi Commande</span>
-          </a>
-          <button class="cart-btn" id="cartBtn" aria-label="Panier">
-            <i class="fas fa-shopping-cart"></i> <span>Panier</span>
-            <span class="cart-count" id="cartCount">0</span>
-          </button>
-        </div>
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-promo">
+        <span class="badge-promo">OFFRE SPECIAL</span>
+        <span>Livraison express disponible sur 58 Wilayas !</span>
       </div>
-    </nav>
-  </header>
-
-  <!-- Hero Slider -->
-  <section class="hero-slider" id="heroSlider" aria-label="Produits en vedette">
-    <div class="slider-wrapper" id="sliderWrapper" role="region" aria-live="polite"></div>
-    <button class="slider-btn prev" id="prevBtn" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
-    <button class="slider-btn next" id="nextBtn" aria-label="Suivant"><i class="fas fa-chevron-right"></i></button>
-    <div class="slider-dots" id="sliderDots" role="tablist"></div>
-  </section>
-
-  <main>
-    <section class="products-section">
-      <div class="container">
-        <h2>Nos Produits</h2>
-        <div class="filters">
-          <input type="text" id="searchInput" placeholder="Rechercher un produit..." class="search-input" aria-label="Rechercher">
-          <input type="hidden" id="categoryFilter" value="">
-        </div>
-        <!-- Category Cards -->
-        <div class="cat-cards">
-          <div class="cat-card cat-all active" onclick="selectCat('', this)" id="btnAll">
-            <div class="cat-card-icon"><i class="fas fa-th-large"></i></div>
-            <div class="cat-card-info">
-              <div class="cat-card-name">Tous</div>
-              <div class="cat-card-count" id="countAll">—</div>
-            </div>
-          </div>
-          <div class="cat-card cat-laptop" onclick="selectCat('laptop', this)" id="btnLaptop">
-            <div class="cat-card-icon"><i class="fas fa-laptop"></i></div>
-            <div class="cat-card-info">
-              <div class="cat-card-name">Laptops</div>
-              <div class="cat-card-count" id="countLaptop">—</div>
-            </div>
-          </div>
-          <div class="cat-card cat-imprimantes" onclick="selectCat('imprimantes', this)" id="btnImprimantes">
-            <div class="cat-card-icon"><i class="fas fa-print"></i></div>
-            <div class="cat-card-info">
-              <div class="cat-card-name">Imprimantes</div>
-              <div class="cat-card-count" id="countImprimantes">—</div>
-            </div>
-          </div>
-          <div class="cat-card cat-accessoires" onclick="selectCat('accessoires', this)" id="btnAccessoires">
-            <div class="cat-card-icon"><i class="fas fa-plug"></i></div>
-            <div class="cat-card-info">
-              <div class="cat-card-name">Accessoires</div>
-              <div class="cat-card-count" id="countAccessoires">—</div>
-            </div>
-          </div>
-        </div>
-        <div class="products-grid" id="productsGrid" role="list">
-          <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);" role="status">
-            <i class="fas fa-spinner fa-spin fa-3x"></i><br><br>Chargement des produits...
-          </div>
-        </div>
-      </div>
-      <div style="text-align: center; margin-top: 30px;">
-        <button id="loadMoreBtn" class="btn-load-more" onclick="loadMoreProducts()" style="display: none;">
-          <i class="fas fa-plus"></i> Afficher plus de produits
-        </button>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modals -->
-  <div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle">
-    <div class="modal-content">
-      <span class="close-modal" aria-label="Fermer">&times;</span>
-      <h2 id="cartModalTitle"><i class="fas fa-shopping-bag"></i> Votre Panier</h2>
-      <div class="cart-items" id="cartItems" role="list"></div>
-      <div class="cart-summary">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.3rem; font-weight:700; color: var(--secondary-color);">
-          <span>Total:</span>
-          <span><span id="totalPrice">0.00</span> DA</span>
-        </div>
-        <button class="btn-checkout" id="checkoutBtn">Passer la Commande <i class="fas fa-arrow-right"></i></button>
+      <div class="top-bar-links">
+        <a href="tel:0559469956" class="top-bar-link">
+          <i data-lucide="phone"></i> <span>0559 46 99 56</span>
+        </a>
+        <a href="https://wa.me/213559469956" target="_blank" class="top-bar-link">
+          <i class="fab fa-whatsapp" style="color: #25D366;"></i> <span>WhatsApp Support</span>
+        </a>
+        <a href="couverture.html" class="top-bar-link">
+          <i data-lucide="map-pin"></i> <span>Zones & Tarifs</span>
+        </a>
       </div>
     </div>
   </div>
 
+  <!-- Main Navigation Header -->
+  <header>
+    <div class="navbar">
+      <div class="container">
+        <!-- Logo -->
+        <a href="index.html" class="logo">
+          <img src="logo.png" alt="Logo Amar Informatique" onerror="this.src='logo.jpg'">
+          <div class="logo-text">
+            <h1>Amar Info</h1>
+            <span>PREMIUM TECH STORE</span>
+          </div>
+        </a>
+
+        <!-- Search Container -->
+        <div class="search-container">
+          <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="Rechercher un produit, une marque, un processeur..." class="search-input" aria-label="Rechercher">
+            <button class="search-btn-icon" aria-label="Search Submit"><i data-lucide="search"></i></button>
+          </div>
+          
+          <!-- Recent Searches Dropdown -->
+          <div class="search-history-panel" id="searchHistoryPanel">
+            <div class="search-history-title">
+              <span>Recherches Récentes</span>
+              <span style="cursor:pointer;" onclick="clearSearchHistory()">Effacer</span>
+            </div>
+            <div class="search-history-list" id="searchHistoryList">
+              <!-- Dynamically populated in script.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <!-- Dark Mode Toggle -->
+          <button class="header-action-btn" id="darkModeToggle" title="Basculer le thème" aria-label="Toggle Theme">
+            <i data-lucide="moon" class="dark-icon"></i>
+            <i data-lucide="sun" class="light-icon" style="display:none;"></i>
+          </button>
+
+          <!-- Notifications Center -->
+          <button class="header-action-btn" id="notificationsBtn" title="Notifications" aria-label="Notifications">
+            <i data-lucide="bell"></i>
+            <span class="badge-count">1</span>
+          </button>
+
+          <!-- Wishlist Sidebar Trigger -->
+          <button class="header-action-btn" id="wishlistBtn" title="Favoris" aria-label="Wishlist">
+            <i data-lucide="heart"></i>
+            <span class="badge-count" id="wishlistCount">0</span>
+          </button>
+
+          <!-- Cart Trigger Button -->
+          <button class="cart-btn-premium" id="cartBtn" aria-label="Panier">
+            <i data-lucide="shopping-cart"></i>
+            <span>Panier</span>
+            <span class="badge-count" id="cartCount">0</span>
+          </button>
+
+          <!-- Mobile Menu Trigger -->
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu Mobile">
+            <i data-lucide="menu"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mega Menu Category Bar -->
+    <div class="navbar-categories">
+      <div class="container">
+        <ul class="cat-nav-list" id="catNavList">
+          <li class="cat-nav-item" onclick="selectCat('', this)" id="btnAll">
+            <a href="#" class="cat-nav-link">Tous nos produits</a>
+          </li>
+          <li class="cat-nav-item" onclick="selectCat('laptop', this)" id="btnLaptop">
+            <a href="#" class="cat-nav-link">Laptops & Portables</a>
+            <div class="mega-menu">
+              <div class="mega-menu-column">
+                <h3>Marques populaires</h3>
+                <ul class="mega-menu-links">
+                  <li><a href="#" onclick="applyQuickFilter('brand', 'Dell')">Dell</a></li>
+                  <li><a href="#" onclick="applyQuickFilter('brand', 'HP')">HP</a></li>
+                  <li><a href="#" onclick="applyQuickFilter('brand', 'Lenovo')">Lenovo</a></li>
+                  <li><a href="#" onclick="applyQuickFilter('brand', 'Asus')">Asus</a></li>
+                </ul>
+              </div>
+              <div class="mega-menu-column">
+                <h3>Gammes</h3>
+                <ul class="mega-menu-links">
+                  <li><a href="#" onclick="applyQuickFilter('desc', 'Gaming')">Laptops Gamer 🎮</a></li>
+                  <li><a href="#" onclick="applyQuickFilter('desc', 'Ultrabook')">Ultrabooks & Slim</a></li>
+                  <li><a href="#" onclick="applyQuickFilter('desc', 'Workstation')">Workstations Pro</a></li>
+                </ul>
+              </div>
+              <div class="mega-menu-column">
+                <h3>Processeurs</h3>
+                <ul class="mega-menu-links">
+                  <li><a href="#" onclick="applyQuickFilter('desc', 'i7')">Intel Core i7</a></li>
+                  <li><a href="#" onclick="applyQuickFilter('desc', 'i5')">Intel Core i5</a></li>
+                  <li><a href="#" onclick="applyQuickFilter('desc', 'Ryzen')">AMD Ryzen</a></li>
+                </ul>
+              </div>
+              <div class="mega-menu-column">
+                <h3>Offres Actuelles</h3>
+                <ul class="mega-menu-links">
+                  <li><a href="#" onclick="applyQuickFilter('promo', true)">Promotions exceptionnelles</a></li>
+                  <li><a href="#" onclick="applyQuickFilter('featured', true)">Modèles recommandés</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="cat-nav-item" onclick="selectCat('imprimantes', this)" id="btnImprimantes">
+            <a href="#" class="cat-nav-link">Imprimantes</a>
+          </li>
+          <li class="cat-nav-item" onclick="selectCat('accessoires', this)" id="btnAccessoires">
+            <a href="#" class="cat-nav-link">Accessoires & Périphériques</a>
+          </li>
+          <li class="cat-nav-item">
+            <a href="couverture.html" class="cat-nav-link">Zones de Livraison</a>
+          </li>
+          <li class="cat-nav-item">
+            <a href="tracking.html" class="cat-nav-link">Suivi de Commande</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner Slider -->
+  <section class="hero-slider-section">
+    <div class="container">
+      <div class="hero-slider" id="heroSlider">
+        <div class="slider-wrapper" id="sliderWrapper">
+          <!-- Slide contents will load dynamically via JS -->
+        </div>
+        <button class="slider-btn prev" id="prevBtn" aria-label="Précédent"><i data-lucide="chevron-left"></i></button>
+        <button class="slider-btn next" id="nextBtn" aria-label="Suivant"><i data-lucide="chevron-right"></i></button>
+        <div class="slider-dots" id="sliderDots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Promotions Banner underneath Slider -->
+  <section class="promo-banners-section">
+    <div class="container">
+      <div class="promo-banners-grid">
+        <div class="promo-banner-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(37,99,235,0.15) 100%);">
+          <div class="promo-banner-content">
+            <h4>Paiement à la livraison</h4>
+            <p>Commandez en ligne et payez cash à la réception du colis.</p>
+            <a href="couverture.html" class="promo-banner-link">Voir tarifs <i data-lucide="arrow-right"></i></a>
+          </div>
+          <i data-lucide="truck" class="promo-banner-img" style="font-size: 5rem; stroke-width: 1; color: var(--primary); opacity: 0.15;"></i>
+        </div>
+        <div class="promo-banner-card" style="background: linear-gradient(135deg, rgba(249,115,22,0.05) 0%, rgba(249,115,22,0.15) 100%);">
+          <div class="promo-banner-content">
+            <h4>Support Client H24</h4>
+            <p>Notre équipe est à votre disposition pour vous conseiller.</p>
+            <a href="https://wa.me/213559469956" target="_blank" class="promo-banner-link">Nous contacter <i data-lucide="arrow-right"></i></a>
+          </div>
+          <i data-lucide="messages-square" class="promo-banner-img" style="font-size: 5rem; stroke-width: 1; color: var(--accent); opacity: 0.15;"></i>
+        </div>
+        <div class="promo-banner-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.05) 0%, rgba(16,185,129,0.15) 100%);">
+          <div class="promo-banner-content">
+            <h4>Garantie Officielle</h4>
+            <p>Tous nos équipements possèdent une garantie de 12 mois.</p>
+            <a href="#" class="promo-banner-link">En savoir plus <i data-lucide="arrow-right"></i></a>
+          </div>
+          <i data-lucide="shield-check" class="promo-banner-img" style="font-size: 5rem; stroke-width: 1; color: var(--success); opacity: 0.15;"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hot Deal Countdown Banner -->
+  <section class="countdown-section">
+    <div class="container">
+      <div class="countdown-promo-banner">
+        <div class="countdown-info">
+          <h2><i data-lucide="flame"></i> VENTES FLASH DE LA SEMAINE</h2>
+          <p>Profitez de réductions exclusives sur une sélection de laptops professionnels. Stock limité !</p>
+        </div>
+        <div class="countdown-timer-wrapper" id="promoCountdown">
+          <div class="timer-block">
+            <span class="timer-num" id="daysBox">02</span>
+            <span class="timer-label">Jours</span>
+          </div>
+          <div class="timer-block">
+            <span class="timer-num" id="hoursBox">14</span>
+            <span class="timer-label">Heures</span>
+          </div>
+          <div class="timer-block">
+            <span class="timer-num" id="minsBox">23</span>
+            <span class="timer-label">Mins</span>
+          </div>
+          <div class="timer-block">
+            <span class="timer-num" id="secsBox">45</span>
+            <span class="timer-label">Secs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- Featured Category Card Grid -->
+    <div class="section-title-wrap">
+      <h2>Catégories Populaires</h2>
+    </div>
+    <div class="featured-categories-grid">
+      <div class="featured-cat-card active" onclick="selectCat('', document.getElementById('btnAll'))" id="featCatAll">
+        <div class="featured-cat-icon"><i data-lucide="layout-grid"></i></div>
+        <div class="featured-cat-name">Tous</div>
+        <span class="featured-cat-count" id="countAll">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="selectCat('laptop', document.getElementById('btnLaptop'))" id="featCatLaptop">
+        <div class="featured-cat-icon"><i data-lucide="laptop"></i></div>
+        <div class="featured-cat-name">Laptops</div>
+        <span class="featured-cat-count" id="countLaptop">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="selectCat('imprimantes', document.getElementById('btnImprimantes'))" id="featCatImprimantes">
+        <div class="featured-cat-icon"><i data-lucide="printer"></i></div>
+        <div class="featured-cat-name">Imprimantes</div>
+        <span class="featured-cat-count" id="countImprimantes">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="selectCat('accessoires', document.getElementById('btnAccessoires'))" id="featCatAccessoires">
+        <div class="featured-cat-icon"><i data-lucide="mouse-pointer"></i></div>
+        <div class="featured-cat-name">Accessoires</div>
+        <span class="featured-cat-count" id="countAccessoires">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="applyQuickFilter('desc', 'Gaming')">
+        <div class="featured-cat-icon"><i data-lucide="gamepad-2"></i></div>
+        <div class="featured-cat-name">Gaming</div>
+        <span class="featured-cat-count" id="countGaming">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="applyQuickFilter('desc', 'Intel')">
+        <div class="featured-cat-icon"><i data-lucide="cpu"></i></div>
+        <div class="featured-cat-name">Composants</div>
+        <span class="featured-cat-count" id="countComponents">—</span>
+      </div>
+    </div>
+
+    <!-- Main Store Panel (Sidebar filters + Products Grid) -->
+    <div class="main-store-layout">
+      <!-- Filter Sidebar -->
+      <aside class="filter-sidebar" id="filterSidebar">
+        <h2 class="filter-sidebar-title"><i data-lucide="sliders-horizontal"></i> Filtres Avancés</h2>
+        
+        <!-- Filter by Brand -->
+        <div class="filter-block">
+          <h3>Marques</h3>
+          <div class="filter-list" id="brandFilterList">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- Filter by Price -->
+        <div class="filter-block">
+          <h3>Prix (DA)</h3>
+          <div class="price-range-inputs">
+            <input type="number" id="priceMinInput" placeholder="Min" class="price-input-box" oninput="filterProducts()">
+            <span style="color:var(--text-muted)">-</span>
+            <input type="number" id="priceMaxInput" placeholder="Max" class="price-input-box" oninput="filterProducts()">
+          </div>
+        </div>
+
+        <!-- Filter by Processor CPU -->
+        <div class="filter-block">
+          <h3>Processeur</h3>
+          <div class="filter-list" id="cpuFilterList">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- Filter by GPU -->
+        <div class="filter-block">
+          <h3>Carte Graphique</h3>
+          <div class="filter-list" id="gpuFilterList">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- Filter by RAM -->
+        <div class="filter-block">
+          <h3>Mémoire RAM</h3>
+          <div class="filter-list" id="ramFilterList">
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="4gb" onchange="filterProducts()"> <span>4 Go</span>
+            </label>
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="8gb" onchange="filterProducts()"> <span>8 Go</span>
+            </label>
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="16gb" onchange="filterProducts()"> <span>16 Go</span>
+            </label>
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="32gb" onchange="filterProducts()"> <span>32 Go</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Filter by Storage -->
+        <div class="filter-block">
+          <h3>Stockage</h3>
+          <div class="filter-list" id="storageFilterList">
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="128gb" onchange="filterProducts()"> <span>128 Go SSD</span>
+            </label>
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="256gb" onchange="filterProducts()"> <span>256 Go SSD</span>
+            </label>
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="512gb" onchange="filterProducts()"> <span>512 Go SSD</span>
+            </label>
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="1tb" onchange="filterProducts()"> <span>1 To SSD</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Reset Button -->
+        <button class="btn-checkout" style="background-color:var(--bg-input); color:var(--text-primary); border:1px solid var(--border); margin-top:20px;" onclick="resetAllFilters()">
+          Réinitialiser les filtres
+        </button>
+      </aside>
+
+      <!-- Products Listing and Toolbar -->
+      <section class="products-listing-area">
+        <!-- Toolbar -->
+        <div class="store-toolbar">
+          <div class="toolbar-results-count">
+            Nombre de produits: <strong id="resultsCount">0</strong>
+          </div>
+          <div class="toolbar-actions">
+            <!-- Sort dropdown -->
+            <div class="sort-select-wrapper">
+              <label for="sortSelect">Trier par :</label>
+              <select id="sortSelect" class="sort-select" onchange="filterProducts()">
+                <option value="featured">Recommandations</option>
+                <option value="price-asc">Prix croissant</option>
+                <option value="price-desc">Prix décroissant</option>
+                <option value="date-new">Nouveautés</option>
+              </select>
+            </div>
+            <!-- View Mode Switcher -->
+            <div class="view-mode-btns">
+              <button class="view-mode-btn active" id="viewGridBtn" aria-label="Grid View"><i data-lucide="grid"></i></button>
+              <button class="view-mode-btn" id="viewListBtn" aria-label="List View"><i data-lucide="list"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Main Grid -->
+        <div class="store-products-grid" id="productsGrid">
+          <!-- Dynamic products cards or skeletons loaded here -->
+        </div>
+
+        <!-- Pagination Load More -->
+        <div style="text-align: center; margin-top: 40px;">
+          <button id="loadMoreBtn" class="btn-slider-cta" onclick="loadMoreProducts()" style="display: none;">
+            Afficher plus de produits <i data-lucide="plus"></i>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Brands Carousel Section -->
+  <section class="brand-carousel-section">
+    <div class="container">
+      <div class="brand-carousel-track">
+        <img src="logo.png" alt="Brand Logo" class="brand-logo-item">
+        <span style="font-family:'Poppins', sans-serif; font-weight:800; font-size:1.8rem; opacity:0.35;">DELL</span>
+        <span style="font-family:'Poppins', sans-serif; font-weight:800; font-size:1.8rem; opacity:0.35;">HP INC</span>
+        <span style="font-family:'Poppins', sans-serif; font-weight:800; font-size:1.8rem; opacity:0.35;">LENOVO</span>
+        <span style="font-family:'Poppins', sans-serif; font-weight:800; font-size:1.8rem; opacity:0.35;">ASUS ROG</span>
+        <span style="font-family:'Poppins', sans-serif; font-weight:800; font-size:1.8rem; opacity:0.35;">MSI</span>
+        <span style="font-family:'Poppins', sans-serif; font-weight:800; font-size:1.8rem; opacity:0.35;">EPSON</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section" style="padding: 60px 0; background-color: var(--bg-card); border-top: 1px solid var(--border);">
+    <div class="container">
+      <div class="section-title-wrap">
+        <h2>Avis de nos Clients</h2>
+      </div>
+      <div class="promo-banners-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+        <div class="skeleton-card" style="animation:none; background:var(--bg-main);">
+          <div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary);">"Achat d'un laptop Dell Latitude reconditionné. L'appareil est dans un état impeccable, comme neuf ! Livraison rapide en 24h sur Sétif. Service client réactif."</p>
+          <strong style="margin-top:10px; font-size:0.85rem;">Sofiane K. (Sétif)</strong>
+        </div>
+        <div class="skeleton-card" style="animation:none; background:var(--bg-main);">
+          <div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary);">"Très bon rapport qualité-prix. J'ai commandé une imprimante Canon et des accessoires, livraison Stop Desk conforme à Alger. Je recommande vivement !"</p>
+          <strong style="margin-top:10px; font-size:0.85rem;">Amine B. (Alger)</strong>
+        </div>
+        <div class="skeleton-card" style="animation:none; background:var(--bg-main);">
+          <div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+          <p style="font-style:italic; font-size:0.9rem; color:var(--text-secondary);">"Excellent service après-vente. Le laptop avait un petit souci de batterie, il a été remplacé sous garantie sans aucune discussion. Équipe honnête et professionnelle."</p>
+          <strong style="margin-top:10px; font-size:0.85rem;">Yasmine A. (Oran)</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Accordions Section -->
+  <section class="faq-section" style="padding: 60px 0;">
+    <div class="container" style="max-width: 800px;">
+      <div class="section-title-wrap" style="justify-content:center;">
+        <h2 style="text-align:center;">Questions Fréquentes (FAQ)</h2>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:15px; margin-top:30px;">
+        <div class="specs-table" style="border:none;">
+          <div class="cart-item" style="flex-direction:column; align-items:flex-start; background:var(--bg-card); cursor:pointer; margin-bottom:10px;" onclick="toggleFaq(this)">
+            <h4 style="font-size:0.95rem; width:100%; display:flex; justify-content:space-between; align-items:center;">
+              <span>Comment commander sur votre site ?</span>
+              <i data-lucide="chevron-down"></i>
+            </h4>
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:8px; display:none;">Il vous suffit d'ajouter vos produits préférés au panier, de cliquer sur "Passer la commande", et de remplir vos coordonnées. Nous vous appellerons par téléphone pour confirmer la livraison.</p>
+          </div>
+          <div class="cart-item" style="flex-direction:column; align-items:flex-start; background:var(--bg-card); cursor:pointer; margin-bottom:10px;" onclick="toggleFaq(this)">
+            <h4 style="font-size:0.95rem; width:100%; display:flex; justify-content:space-between; align-items:center;">
+              <span>Quels sont les délais et tarifs de livraison ?</span>
+              <i data-lucide="chevron-down"></i>
+            </h4>
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:8px; display:none;">Nous livrons à domicile ou en Stop Desk sur les 58 Wilayas d'Algérie. Les tarifs varient selon votre emplacement (de 300 DA à 1500 DA) et le délai varie entre 24h et 72h.</p>
+          </div>
+          <div class="cart-item" style="flex-direction:column; align-items:flex-start; background:var(--bg-card); cursor:pointer; margin-bottom:10px;" onclick="toggleFaq(this)">
+            <h4 style="font-size:0.95rem; width:100%; display:flex; justify-content:space-between; align-items:center;">
+              <span>Quelle est l'origine de vos produits ?</span>
+              <i data-lucide="chevron-down"></i>
+            </h4>
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:8px; display:none;">Nous importons du matériel informatique reconditionné de haute qualité certifié de grades A+ (quasi-neuf). Tous nos appareils passent par des tests rigoureux avant d'être mis en vente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Drawers & Widgets -->
+
+  <!-- Comparison Drawer -->
+  <div class="compare-drawer" id="compareDrawer">
+    <div class="container">
+      <div class="compare-drawer-header">
+        <h3 class="compare-drawer-title"><i data-lucide="git-compare"></i> Comparateur de Produits (<span id="compareCount">0</span>)</h3>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-slider-cta" style="padding:8px 20px; font-size:0.85rem;" onclick="openComparisonPage()">Comparer maintenant</button>
+          <button class="btn-cancel" style="padding:8px 15px; font-size:0.85rem;" onclick="clearComparison()">Vider</button>
+        </div>
+      </div>
+      <div class="compare-items-row" id="compareItemsRow">
+        <!-- Dynamically loaded compare products -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Wishlist Drawer Sidebar -->
+  <div class="wishlist-drawer" id="wishlistDrawer">
+    <div class="wishlist-drawer-header">
+      <h3 style="display:flex; align-items:center; gap:8px;"><i data-lucide="heart" style="color:var(--danger)"></i> Liste de souhaits</h3>
+      <button class="close-modal" id="closeWishlistBtn"><i data-lucide="x"></i></button>
+    </div>
+    <div class="wishlist-items-container" id="wishlistItemsContainer">
+      <!-- Dynamically populated favorites -->
+    </div>
+    <button class="btn-checkout" style="margin-top:20px;" onclick="addAllWishlistToCart()">Tout ajouter au panier</button>
+  </div>
+
+  <!-- Notifications Pop-up Dialog Drawer -->
+  <div class="wishlist-drawer" id="notificationsDrawer" style="z-index: 1550;">
+    <div class="wishlist-drawer-header">
+      <h3 style="display:flex; align-items:center; gap:8px;"><i data-lucide="bell"></i> Centre de notifications</h3>
+      <button class="close-modal" id="closeNotificationsBtn"><i data-lucide="x"></i></button>
+    </div>
+    <div class="wishlist-items-container">
+      <div class="wishlist-drawer-item" style="border-bottom:none;">
+        <i data-lucide="sparkles" style="color:var(--accent); font-size:1.8rem; flex-shrink:0;"></i>
+        <div class="wishlist-drawer-item-info">
+          <h4>Vente Privée Amar Info</h4>
+          <p style="font-size:0.75rem; color:var(--text-muted);">Saisissez le coupon <strong>AMAR19</strong> pour bénéficier de 5% de remise supplémentaire sur votre commande !</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Social Proof Purchase Toast Alert -->
+  <div class="social-proof-toast" id="socialProofToast">
+    <img src="logo.png" alt="Achat récent" class="social-proof-img" id="toastProductImg">
+    <div class="social-proof-content">
+      <p class="social-proof-buyer" id="toastText">Quelqu'un à Alger a acheté un laptop...</p>
+      <span class="social-proof-time"><i data-lucide="check" style="color:var(--success); width:12px; display:inline;"></i> Commande validée</span>
+    </div>
+  </div>
+
+  <!-- Back to Top and WhatsApp sticky buttons -->
+  <button class="back-to-top-btn" id="backToTopBtn" aria-label="Retour en haut"><i data-lucide="arrow-up"></i></button>
+  <a href="https://wa.me/213559469956" target="_blank" class="whatsapp-float-btn" title="Contactez-nous sur WhatsApp" aria-label="WhatsApp floating link">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <!-- ==========================================
+   * 🛒 SYSTEM MODAL DIALOGS
+   * ========================================== -->
+
+  <!-- Cart Modal -->
+  <div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle">
+    <div class="modal-content">
+      <button class="close-modal" aria-label="Fermer" id="closeCartModalBtn"><i data-lucide="x"></i></button>
+      <h2 id="cartModalTitle" style="display:flex; align-items:center; gap:8px;"><i data-lucide="shopping-bag"></i> Votre Panier</h2>
+      
+      <!-- Cart items scrollable wrapper -->
+      <div class="cart-items" id="cartItems" role="list" style="max-height: 380px; overflow-y: auto; padding-right:5px; margin-bottom: 20px;">
+        <!-- Populated via JS -->
+      </div>
+      
+      <!-- Coupon input block -->
+      <div style="display:flex; gap:10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom:15px;">
+        <input type="text" id="couponInput" placeholder="Code Promo (Ex: AMAR19)" class="search-input" style="flex:1; border-radius:8px; padding:10px 14px;">
+        <button class="btn-slider-cta" style="padding:10px 20px; border-radius:8px; font-size:0.85rem;" onclick="applyCouponCode()">Appliquer</button>
+      </div>
+
+      <div class="order-summary-box">
+        <div class="summary-row">
+          <span>Sous-total:</span>
+          <span><span id="cartSubtotal">0.00</span> DA</span>
+        </div>
+        <div class="summary-row" id="couponDiscountRow" style="display:none; color:var(--success); font-weight:700;">
+          <span>Remise (Coupon):</span>
+          <span>-<span id="couponDiscountVal">0.00</span> DA</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total de commande:</span>
+          <span><span id="totalPrice">0.00</span> DA</span>
+        </div>
+      </div>
+      
+      <button class="btn-checkout" id="checkoutBtn" style="margin-top:20px;">Passer la Commande <i data-lucide="arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- Order / Checkout Form Modal -->
   <div class="modal" id="orderFormModal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
     <div class="modal-content order-form-content">
-      <span class="close-modal" aria-label="Fermer">&times;</span>
-      <h2 id="orderModalTitle"><i class="fas fa-truck-fast"></i> Finaliser la Commande</h2>
+      <button class="close-modal" aria-label="Fermer" id="closeOrderModalBtn"><i data-lucide="x"></i></button>
+      
+      <!-- Stepper progress indicator -->
+      <div class="checkout-stepper">
+        <div class="step-item active" id="stepIndicator1">
+          <div class="step-circle">1</div>
+          <span class="step-label">Coordonnées</span>
+        </div>
+        <div class="step-item" id="stepIndicator2">
+          <div class="step-circle">2</div>
+          <span class="step-label">Expédition</span>
+        </div>
+        <div class="step-item" id="stepIndicator3">
+          <div class="step-circle">3</div>
+          <span class="step-label">Validation</span>
+        </div>
+      </div>
+
+      <h2 id="orderModalTitle" style="border:none; margin-bottom:15px;"><i data-lucide="check-square"></i> Finaliser l'achat</h2>
       <form id="orderForm">
-        <div class="form-group">
-          <label for="orderType"><i class="fas fa-map-marker-alt"></i> Type de Livraison *</label>
-          <select id="orderType" required>
-            <option value="">Sélectionner un type</option>
-            <option value="domicile">Livraison à domicile</option>
-            <option value="stopdesk">Stop Desk (Retrait au bureau)</option>
-          </select>
+        <!-- Step 1: Customer info -->
+        <div id="checkoutStep1">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">Prénom *</label>
+              <input type="text" id="firstName" required placeholder="Votre prénom" autocomplete="given-name">
+            </div>
+            <div class="form-group">
+              <label for="lastName">Nom *</label>
+              <input type="text" id="lastName" required placeholder="Votre nom" autocomplete="family-name">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="phone1">Téléphone Principal *</label>
+              <input type="tel" id="phone1" required placeholder="05XXXXXXXX" pattern="[0-9]{10}" autocomplete="tel">
+            </div>
+            <div class="form-group">
+              <label for="phone2">Autre Téléphone (Optionnel)</label>
+              <input type="tel" id="phone2" placeholder="0XXXXXXXXX" autocomplete="tel">
+            </div>
+          </div>
+          <button type="button" class="btn-checkout" style="margin-top:15px;" onclick="goToCheckoutStep(2)">Suivant : Expédition <i data-lucide="chevron-right"></i></button>
         </div>
-        <div class="form-row">
+
+        <!-- Step 2: Shipping details -->
+        <div id="checkoutStep2" style="display:none;">
           <div class="form-group">
-            <label for="firstName">Prénom *</label>
-            <input type="text" id="firstName" required placeholder="Votre prénom" autocomplete="given-name">
+            <label for="orderType">Type de Livraison *</label>
+            <select id="orderType" required>
+              <option value="">Choisir le mode</option>
+              <option value="domicile">Livraison à Domicile (Yalidine)</option>
+              <option value="stopdesk">Stop Desk (Retrait au bureau de livraison)</option>
+            </select>
           </div>
-          <div class="form-group">
-            <label for="lastName">Nom *</label>
-            <input type="text" id="lastName" required placeholder="Votre nom" autocomplete="family-name">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="wilaya">Wilaya *</label>
+              <select id="wilaya" required></select>
+            </div>
+            <div class="form-group">
+              <label for="commune">Commune *</label>
+              <select id="commune" required></select>
+            </div>
+          </div>
+          
+          <div class="shipping-info active" style="margin-top:15px;">
+            <div style="display:flex; justify-content:space-between; font-weight:700;">
+              <span>Frais de livraison estimatifs:</span>
+              <span id="shippingPrice" style="color:var(--accent);">0 DA</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:15px; margin-top:20px;">
+            <button type="button" class="btn-cancel" onclick="goToCheckoutStep(1)"><i data-lucide="chevron-left"></i> Retour</button>
+            <button type="button" class="btn-submit" onclick="goToCheckoutStep(3)">Suivant : Confirmer <i data-lucide="chevron-right"></i></button>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="phone1">Numéro de téléphone *</label>
-            <input type="tel" id="phone1" required placeholder="05XXXXXXXX" pattern="[0-9]{10}" autocomplete="tel">
+
+        <!-- Step 3: Confirmation Summary -->
+        <div id="checkoutStep3" style="display:none;">
+          <div class="order-summary-box" style="margin-top:0; margin-bottom:20px;">
+            <h4 style="margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px;">Résumé de Commande</h4>
+            <div class="summary-row">
+              <span>Articles:</span>
+              <span id="summaryCartTotal">0.00 DA</span>
+            </div>
+            <div class="summary-row" id="summaryDiscountRow" style="display:none; color:var(--success);">
+              <span>Remise Coupon:</span>
+              <span id="summaryDiscountVal">-0.00 DA</span>
+            </div>
+            <div class="summary-row">
+              <span>Frais de livraison:</span>
+              <span id="summaryShippingPrice">0.00 DA</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total final à payer:</span>
+              <span id="summaryGrandTotal">0.00 DA</span>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="phone2">Autre numéro (optionnel)</label>
-            <input type="tel" id="phone2" placeholder="05XXXXXXXX" autocomplete="tel">
+
+          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:20px; display:flex; gap:8px;">
+            <i data-lucide="info" style="color:var(--primary); flex-shrink:0;"></i>
+            <span>En confirmant, vous acceptez de payer le montant total à la réception de votre marchandise. Un conseiller validera votre commande par téléphone.</span>
           </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="wilaya">Wilaya *</label>
-            <select id="wilaya" required></select>
+
+          <div style="display:flex; gap:15px;">
+            <button type="button" class="btn-cancel" onclick="goToCheckoutStep(2)"><i data-lucide="chevron-left"></i> Retour</button>
+            <button type="submit" class="btn-submit" style="background-color:var(--success)">Confirmer Commande <i data-lucide="check"></i></button>
           </div>
-          <div class="form-group">
-            <label for="commune">Commune *</label>
-            <select id="commune" required></select>
-          </div>
-        </div>
-        <div class="shipping-info">
-          <div class="shipping-price">
-            <i class="fas fa-info-circle"></i> <span>Frais de livraison:</span>
-            <strong id="shippingPrice">0 DA</strong>
-          </div>
-        </div>
-        <div class="btn-actions">
-          <button type="button" class="btn-cancel" onclick="closeOrderForm()">Annuler</button>
-          <button type="submit" class="btn-submit">Confirmer la Commande</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Confirmation Successful Modal -->
   <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
-    <div class="modal-content" style="text-align: center;">
-      <span class="close-modal" aria-label="Fermer">&times;</span>
-      <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 20px;" aria-hidden="true"></i>
-      <h2 id="confirmModalTitle" style="border:none;">Commande Reçue!</h2>
-      <p style="font-size: 1.1rem; margin-bottom: 20px;">Merci pour votre achat.</p>
-      <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-        <p style="margin-bottom: 5px; font-size: 0.9rem;">Votre numéro de commande:</p>
-        <strong id="orderNumber" style="font-size: 1.5rem; color: var(--secondary-color); letter-spacing: 2px;"></strong>
+    <div class="modal-content" style="text-align: center; max-width:480px; padding:40px 30px;">
+      <button class="close-modal" aria-label="Fermer" onclick="location.reload()"><i data-lucide="x"></i></button>
+      
+      <!-- Animated Check Circle SVG -->
+      <div style="width:72px; height:72px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+        <i data-lucide="party-popper" style="width:40px; height:40px;"></i>
       </div>
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-        <i class="fas fa-camera" aria-hidden="true"></i> Prenez une capture d'écran de ce numéro.
-      </p>
-      <button class="btn-checkout" onclick="location.reload()">Continuer</button>
+      
+      <h2 id="confirmModalTitle" style="border:none; margin-bottom:10px;">Commande Reçue !</h2>
+      <p style="font-size: 0.95rem; color:var(--text-secondary); margin-bottom: 25px;">Merci pour votre confiance. Votre commande est enregistrée dans notre base.</p>
+      
+      <!-- Traceability number box -->
+      <div style="background: var(--bg-input); border: 1px solid var(--border); padding: 18px; border-radius: 12px; margin-bottom: 20px;">
+        <p style="margin-bottom: 5px; font-size: 0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Numéro de suivi de commande :</p>
+        <strong id="orderNumber" style="font-size: 1.6rem; color: var(--accent); letter-spacing: 2px;"></strong>
+      </div>
+      
+      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 25px; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <i data-lucide="camera"></i> <span>Prenez une capture d'écran de ce numéro.</span>
+      </div>
+      
+      <button class="btn-checkout" onclick="location.reload()">Continuer mes achats</button>
     </div>
   </div>
 
+  <!-- Product Detail Quick-View Modal -->
   <div class="modal" id="productDetailModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
-    <div class="modal-content product-detail-content">
-      <span class="close-modal" aria-label="Fermer">&times;</span>
+    <div class="modal-content product-detail-content" style="max-width:850px; padding:0; overflow:hidden;">
+      <button class="close-modal" aria-label="Fermer" id="closeDetailModalBtn" style="top:15px; right:15px; background:var(--bg-card); z-index:100;"><i data-lucide="x"></i></button>
       <div class="detail-layout">
-        <div class="detail-image-container">
-          <img id="detailImage" src="" alt="" class="detail-image" loading="lazy" onerror="this.src='logo.jpg'">
+        <div class="detail-image-container" style="background:var(--bg-main); padding:30px; display:flex; align-items:center; justify-content:center; height:380px;">
+          <img id="detailImage" src="" alt="Aperçu produit" class="detail-image" loading="lazy" onerror="this.src='logo.jpg'">
         </div>
-        <div class="detail-info">
-          <h2 id="productModalTitle"></h2>
-          <p id="detailCategory" class="product-category"></p>
-          <p id="detailDescription" class="product-description detail-description"></p>
-          <div class="detail-price"><span id="detailPrice"></span></div>
+        <div class="detail-info" style="padding:30px; display:flex; flex-direction:column; justify-content:center;">
+          <a href="#" id="detailModalLink" style="font-size:0.75rem; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; display:block;">Voir la fiche complète <i class="fas fa-external-link-alt" style="font-size:0.7rem;"></i></a>
+          <h2 id="productModalTitle" style="font-size:1.6rem; margin-bottom:8px; border:none; padding:0; line-height:1.3;"></h2>
+          <p id="detailCategory" class="product-category" style="margin-bottom:15px;"></p>
+          <p id="detailDescription" class="product-description" style="margin-bottom:20px; font-size:0.9rem; -webkit-line-clamp:3; height:auto; overflow:hidden;"></p>
+          <div class="detail-price" style="margin-bottom:20px; font-size:2rem;"><span id="detailPrice"></span></div>
           <button class="btn-modal-cart" id="modalAddToCartBtn">
-            <i class="fas fa-shopping-cart"></i> Ajouter au Panier
+            <i data-lucide="shopping-cart"></i> Ajouter au Panier
           </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Interactive Comparison Modal Panel -->
+  <div class="modal" id="comparisonModal" role="dialog" aria-modal="true" aria-labelledby="comparisonTitle">
+    <div class="modal-content" style="max-width:95%; width:1100px;">
+      <button class="close-modal" aria-label="Fermer" id="closeComparisonModalBtn"><i data-lucide="x"></i></button>
+      <h2 id="comparisonTitle" style="display:flex; align-items:center; gap:8px; margin-bottom:20px;"><i data-lucide="git-compare"></i> Comparer le matériel informatique</h2>
+      
+      <div style="overflow-x:auto;">
+        <table class="specs-table" style="min-width:700px;" id="comparisonTable">
+          <!-- Dynamically populated comparison rows -->
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
-  <footer>
-    <div class="container">
-      <div class="footer-social">
-        <h3 style="color: var(--text-main); margin-bottom: 15px; font-size: 1.1rem;">Suivez-nous</h3>
-        <div class="social-links">
-          <a href="https://wa.me/213559469956" target="_blank" class="social-link whatsapp" title="WhatsApp" aria-label="Contactez-nous sur WhatsApp">
-            <i class="fab fa-whatsapp"></i><span>WhatsApp</span>
-          </a>
-          <a href="https://www.facebook.com/share/17JGx1hrCd/?mibextid=wwXIfr" target="_blank" class="social-link facebook" title="Facebook" aria-label="Suivez-nous sur Facebook">
-            <i class="fab fa-facebook-f"></i><span>Facebook</span>
-          </a>
-          <a href="https://www.instagram.com/amar_info19?igsh=MTk0c3hxdGhwY2dwag==" target="_blank" class="social-link instagram" title="Instagram" aria-label="Suivez-nous sur Instagram">
-            <i class="fab fa-instagram"></i><span>Instagram</span>
-          </a>
+  <footer style="margin-top:80px;">
+    <div class="container" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:40px; text-align:left; margin-bottom:40px;">
+      <div>
+        <div class="logo" style="margin-bottom:15px;">
+          <img src="logo.png" alt="Logo" style="height:36px;">
+          <h1 style="font-size:1.15rem; color:var(--text-primary);">Amar Info</h1>
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.7;">Amar Informatique est votre partenaire de confiance en Algérie pour l'acquisition de laptops professionnels et matériels informatiques de haute qualité.</p>
+      </div>
+      <div>
+        <h4 style="color:var(--text-primary); margin-bottom:15px; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.5px;">Boutique</h4>
+        <ul class="mega-menu-links">
+          <li><a href="#" onclick="selectCat('laptop')">Ordinateurs Portables</a></li>
+          <li><a href="#" onclick="selectCat('imprimantes')">Imprimantes de bureau</a></li>
+          <li><a href="#" onclick="selectCat('accessoires')">Accessoires High-Tech</a></li>
+          <li><a href="#" onclick="applyQuickFilter('promo', true)">Bons plans %</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:var(--text-primary); margin-bottom:15px; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.5px;">Service Client</h4>
+        <ul class="mega-menu-links">
+          <li><a href="tracking.html">Suivi de colis</a></li>
+          <li><a href="couverture.html">Zones de couverture</a></li>
+          <li><a href="login.html">Administration</a></li>
+          <li><a href="#" onclick="alert('Boutique ouverte de Samedi à Jeudi de 9h00 à 18h00.')">Horaires d'ouverture</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:var(--text-primary); margin-bottom:15px; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.5px;">Rejoignez notre Newsletter</h4>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:15px;">Abonnez-vous pour recevoir des alertes lors de l'arrivée de nouveaux arrivages informatiques.</p>
+        <div style="display:flex; border-radius:20px; overflow:hidden; border:1px solid var(--border);">
+          <input type="email" placeholder="Votre e-mail" style="padding:10px 14px; background:var(--bg-card); color:var(--text-primary); border:none; width:100%; font-size:0.8rem; outline:none;" id="newsletterEmail">
+          <button class="btn-card-buy" style="border-radius:0; padding:0 15px; width:auto;" onclick="subscribeNewsletter()"><i data-lucide="send" style="width:16px;"></i></button>
         </div>
       </div>
-      <div class="footer-contact" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border);">
-        <p style="margin-bottom: 8px;">
-          <i class="fas fa-phone-alt" style="margin-right: 8px;"></i>
-          <strong>0559 46 99 56</strong>
-        </p>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">
-          <i class="fas fa-clock" style="margin-right: 6px;"></i>
-          Sam-Jeudi : 9h00 - 18h00
-        </p>
+    </div>
+    
+    <div class="container" style="border-top:1px solid var(--border); padding-top:25px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+      <p style="font-size:0.8rem; color:var(--text-muted);">&copy; 2026 Amar Informatique. Redessiné par Front-End Pro.</p>
+      
+      <!-- Payments Icons -->
+      <div style="display:flex; gap:8px; align-items:center; font-size:1.4rem; color:var(--text-muted);">
+        <i class="fas fa-money-bill-wave" title="Paiement à la livraison" style="color:var(--success)"></i>
+        <i class="far fa-credit-card" title="Dahabia / CIB disponible prochainement"></i>
+        <span style="font-size:0.65rem; font-weight:700; border:1px solid var(--border); padding:2px 6px; border-radius:4px; text-transform:uppercase;">Cash On Delivery</span>
       </div>
-      <p style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.85rem;">
-        &copy; 2026 Amar Informatique. Premium Tech Store.
-      </p>
     </div>
   </footer>
 
-  <!-- External JS -->
+  <!-- Scripts -->
   <script src="script.js"></script>
-
 </body>
 </html>

@@ -1,203 +1,96 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - Amar informatique</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            color: #2c3e50;
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .login-header p {
-            color: #7f8c8d;
-            font-size: 0.95rem;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #2c3e50;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .error-message {
-            display: none;
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 12px 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border-left: 4px solid #f5c6cb;
-        }
-
-        .info-box {
-            background-color: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            color: #0c5aa0;
-        }
-
-        .info-box strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        @media (max-width: 600px) {
-            .login-container {
-                padding: 30px 20px;
-                margin: 20px;
-            }
-
-            .login-header h1 {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
-    <!-- Meta Pixel Code -->
-    <script>
-        !function (f, b, e, v, n, t, s) {
-            if (f.fbq) return; n = f.fbq = function () {
-                n.callMethod ?
-                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-            };
-            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-            n.queue = []; t = b.createElement(e); t.async = !0;
-            t.src = v; s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s)
-        }(window, document, 'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1226041376399363');
-        fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-            src="https://www.facebook.com/tr?id=1226041376399363&ev=PageView&noscript=1" /></noscript>
-    <!-- End Meta Pixel Code -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0F19">
+  
+  <title>Connexion Admin - Amar Informatique</title>
+  
+  <!-- Global Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo.jpg" type="image/x-icon">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>🔐 Accès Admin</h1>
-            <p>Tableau de bord des commandes</p>
-        </div>
+<body class="dark-mode" style="background-color:#0B0F19; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
 
-        <div class="error-message" id="errorMessage"></div>
-
-        <div class="info-box">
-            <strong>Accès réservé</strong>
-            Veuillez entrer votre mot de passe administrateur
-        </div>
-
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" placeholder="Entrez le mot de passe" autofocus>
-            </div>
-            <button type="submit" class="login-btn">Accéder au Dashboard</button>
-        </form>
+  <!-- Login Card Wrapper -->
+  <div class="admin-login-card" style="animation: slideUp 400ms ease;">
+    <div class="admin-login-head">
+      <div style="width:60px; height:60px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+        <i data-lucide="shield-alert" style="width:30px; height:30px;"></i>
+      </div>
+      <h1>Portail Sécurisé</h1>
+      <p>Panneau d'administration de la boutique</p>
     </div>
 
-    <script>
-        // Mot de passe admin (à changer!)
-        const ADMIN_PASSWORD = 'amar19';
+    <!-- Error message dialog -->
+    <div id="errorMessage" style="display:none; padding:12px; background-color:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:var(--radius-sm); color:var(--danger); font-size:0.85rem; font-weight:600; margin-bottom:20px;">
+      ❌ Mot de passe incorrect
+    </div>
 
-        function handleLogin(event) {
-            event.preventDefault();
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('errorMessage');
+    <!-- Info hint box -->
+    <div style="background-color:var(--primary-light); border-left:4px solid var(--primary); padding:12px; border-radius:4px; font-size:0.8rem; color:var(--primary); margin-bottom:25px; text-align:left; line-height:1.4;">
+      <strong>Accès Administrateur</strong>
+      Seul le personnel d'Amar Informatique est habilité à franchir cette étape.
+    </div>
 
-            if (password === ADMIN_PASSWORD) {
-                // Marquer l'utilisateur comme connecté
-                sessionStorage.setItem('adminLogged', 'true');
-                // Rediriger vers le dashboard
-                window.location.href = 'admin.html';
-            } else {
-                errorMessage.textContent = '❌ Mot de passe incorrect';
-                errorMessage.style.display = 'block';
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
-            }
-        }
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group" style="text-align:left; margin-bottom:25px;">
+        <label for="password" class="form-label" style="margin-bottom:8px; display:block;">Clé d'accès *</label>
+        <div style="position:relative; display:flex; align-items:center;">
+          <input type="password" id="password" placeholder="Saisir le mot de passe admin" class="search-input" style="width:100%; border-radius:8px; padding:12px 14px 12px 40px; font-size:1rem;" autofocus required>
+          <i data-lucide="key-round" style="position:absolute; left:14px; width:18px; height:18px; color:var(--text-muted);"></i>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn-checkout" style="margin-top:0; border-radius:8px; font-weight:700;">
+        Se connecter au Dashboard
+      </button>
+    </form>
+    
+    <a href="index.html" style="display:inline-flex; align-items:center; gap:6px; margin-top:20px; font-size:0.85rem; color:var(--text-muted); font-weight:600;">
+      <i data-lucide="arrow-left" style="width:16px;"></i> Retourner au magasin
+    </a>
+  </div>
 
-        // Si déjà connecté, rediriger directement
-        if (sessionStorage.getItem('adminLogged') === 'true') {
+  <script>
+    // Mot de passe admin original
+    const ADMIN_PASSWORD = 'amar19';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) lucide.createIcons();
+    });
+
+    function handleLogin(event) {
+        event.preventDefault();
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+
+        if (password === ADMIN_PASSWORD) {
+            // Activer la session de l'admin
+            sessionStorage.setItem('adminLogged', 'true');
+            // Rediriger vers le dashboard
             window.location.href = 'admin.html';
+        } else {
+            errorMessage.style.display = 'block';
+            document.getElementById('password').value = '';
+            document.getElementById('password').focus();
         }
-    </script>
+    }
+
+    // Redirection automatique si déjà connecté
+    if (sessionStorage.getItem('adminLogged') === 'true') {
+        window.location.href = 'admin.html';
+    }
+  </script>
 </body>
-
-
 </html>
