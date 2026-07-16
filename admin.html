@@ -274,10 +274,10 @@
           <label class="form-label" style="display:block; margin-bottom:6px;">Image du produit *</label>
           <div style="display:flex; gap:10px; margin-bottom:10px;">
             <input type="text" id="productImagePath" class="search-input" placeholder="Lien URL de l'image" required style="flex:1; border-radius:8px; padding:10px 14px;">
-            <label class="btn-checkout" style="width:auto; margin-top:0; padding:10px 15px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; font-size:0.85rem;">
+            <input type="file" id="productImageFileInput" accept="image/*" style="display:none;" onchange="handleProductFileUpload(this, 'productImagePath')">
+            <button type="button" class="btn-checkout" onclick="document.getElementById('productImageFileInput').click()" style="width:auto; margin-top:0; padding:10px 15px; border-radius:8px; display:inline-flex; align-items:center; gap:5px; font-size:0.85rem; border:none; cursor:pointer;">
               <i class="fas fa-upload"></i> Charger
-              <input type="file" accept="image/*" style="display:none;" onchange="handleProductFileUpload(this, 'productImagePath')">
-            </label>
+            </button>
           </div>
           <div class="image-preview" id="imagePreview" style="border-radius:8px; overflow:hidden; border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; height:120px;">
             <span style="color:var(--text-muted); font-size:0.8rem;">Aperçu de l'image</span>
@@ -325,10 +325,10 @@
           <label class="form-label" style="display:block; margin-bottom:6px;">Image du produit</label>
           <div style="display:flex; gap:10px; margin-bottom:10px;">
             <input type="text" id="editProductImagePath" class="search-input" placeholder="Lien URL de l'image" style="flex:1; border-radius:8px; padding:10px 14px;">
-            <label class="btn-checkout" style="width:auto; margin-top:0; padding:10px 15px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; font-size:0.85rem;">
+            <input type="file" id="editProductImageFileInput" accept="image/*" style="display:none;" onchange="handleProductFileUpload(this, 'editProductImagePath')">
+            <button type="button" class="btn-checkout" onclick="document.getElementById('editProductImageFileInput').click()" style="width:auto; margin-top:0; padding:10px 15px; border-radius:8px; display:inline-flex; align-items:center; gap:5px; font-size:0.85rem; border:none; cursor:pointer;">
               <i class="fas fa-upload"></i> Charger
-              <input type="file" accept="image/*" style="display:none;" onchange="handleProductFileUpload(this, 'editProductImagePath')">
-            </label>
+            </button>
           </div>
           <div class="image-preview" id="editImagePreview" style="border-radius:8px; overflow:hidden; border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; height:120px;">
             <span style="color:var(--text-muted); font-size:0.8rem;">Aperçu de l'image</span>
