@@ -545,27 +545,29 @@
 
         try {
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('source', file);
+            formData.append('key', '6d207e02198a847ba98d0a2a901485a5');
+            formData.append('action', 'upload');
+            formData.append('format', 'json');
             
-            // ImgBB API key: bf6d2105151528ec8027732a39e3cb1b
-            const res = await fetch('https://api.imgbb.com/1/upload?key=bf6d2105151528ec8027732a39e3cb1b', {
+            const res = await fetch('https://freeimage.host/api/1/upload', {
                 method: 'POST',
                 body: formData
             });
             const json = await res.json();
             
-            if (json.success && json.data && json.data.url) {
-                const imgUrl = json.data.url;
+            if (json.status_code === 200 && json.image && json.image.url) {
+                const imgUrl = json.image.url;
                 targetInput.value = imgUrl;
                 if (previewEl) {
                     previewEl.innerHTML = `<img src="${imgUrl}" style="max-height:100%; object-fit:contain;">`;
                 }
-                showNotification("✅ Image hébergée avec succès (Méthode Gratuite ImgBB) !");
+                showNotification("✅ Image hébergée avec succès (Freeimage.host) !");
             } else {
                 throw new Error(json.error ? json.error.message : "Erreur serveur");
             }
         } catch (err) {
-            console.error("ImgBB upload error:", err);
+            console.error("Freeimage upload error:", err);
             if (previewEl) {
                 previewEl.innerHTML = '<span style="color:var(--text-muted); font-size:0.8rem;">Échec du téléchargement</span>';
             }
