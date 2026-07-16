@@ -76,10 +76,11 @@
         <h2 style="font-size:1.8rem; font-weight:800; display:flex; align-items:center; gap:8px;"><i data-lucide="shopping-bag" style="color:var(--primary)"></i> Suivi des commandes clients</h2>
         <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:4px;">Suivez et mettez à jour le statut des commandes reçues sur le site.</p>
       </div>
-      <div style="display:flex; gap:10px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn-submit" onclick="openAddProductModal()" style="width:auto; margin-top:0; padding:10px 20px; font-size:0.85rem; background-color:var(--success)"><i data-lucide="plus"></i> Nouveau Produit</button>
         <button class="btn-checkout" onclick="openPromoCodesModal()" style="width:auto; margin-top:0; padding:10px 20px; font-size:0.85rem; background-color:var(--primary);"><i data-lucide="ticket"></i> Codes Promo</button>
         <button class="btn-slider-cta" onclick="exportCommandes()" style="width:auto; padding:10px 20px; font-size:0.85rem;"><i data-lucide="download"></i> Exporter CSV</button>
+        <button class="btn-cancel" onclick="configureImgbbKey()" style="width:auto; margin-top:0; padding:10px 15px; font-size:0.85rem;" title="Configuration de l'hébergement d'images"><i class="fas fa-cog"></i> Config Image</button>
       </div>
     </div>
 
@@ -1152,6 +1153,33 @@
         }
     };
 
+    async function getImgbbApiKey() {
+        try {
+            const doc = await db.collection('settings').doc('imgbb').get();
+            if (doc.exists && doc.data().key) {
+                return doc.data().key;
+            }
+        } catch (e) {
+            console.warn("Failed to get Imgbb key from Firestore, trying localStorage:", e);
+        }
+        return localStorage.getItem('imgbb_api_key');
+    }
+
+    window.configureImgbbKey = async function() {
+        let currentKey = await getImgbbApiKey() || '';
+        const newKey = prompt("⚙️ Configuration de l'hébergement d'images (ImgBB)\n\nPour charger des images de votre téléphone, créez un compte gratuit sur https://api.imgbb.com/ et obtenez une clé API.\n\nCollez votre clé API ci-dessous :", currentKey);
+        if (newKey === null) return;
+
+        try {
+            await db.collection('settings').doc('imgbb').set({ key: newKey.trim() });
+            showNotificationPopup("✅ Clé API ImgBB enregistrée !");
+        } catch (err) {
+            console.warn("Firestore write blocked. Saving locally to this browser:", err);
+            localStorage.setItem('imgbb_api_key', newKey.trim());
+            showNotificationPopup("✅ Clé API ImgBB enregistrée localement !");
+        }
+    };
+
     window.handleProductFileUpload = async function(fileInput, targetInputId) {
         const file = fileInput.files[0];
         if (!file) return;
@@ -1160,39 +1188,48 @@
         const previewEl = document.getElementById(previewId);
         const targetInput = document.getElementById(targetInputId);
 
+        let apiKey = await getImgbbApiKey();
+        if (!apiKey) {
+            apiKey = prompt("⚠️ Clé API ImgBB manquante. Veuillez saisir votre clé API gratuite ImgBB (obtenez-la sur https://api.imgbb.com/) :");
+            if (!apiKey) return;
+            apiKey = apiKey.trim();
+            try {
+                await db.collection('settings').doc('imgbb').set({ key: apiKey });
+            } catch (e) {
+                localStorage.setItem('imgbb_api_key', apiKey);
+            }
+        }
+
         if (previewEl) {
             previewEl.innerHTML = '<div style="text-align:center; padding:10px;"><i class="fas fa-spinner fa-spin"></i> Téléchargement...</div>';
         }
 
         try {
             const formData = new FormData();
-            formData.append('source', file);
-            formData.append('key', '6d207e02198a847ba98d0a2a901485a5');
-            formData.append('action', 'upload');
-            formData.append('format', 'json');
+            formData.append('image', file);
             
-            const res = await fetch('https://freeimage.host/api/1/upload', {
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
                 method: 'POST',
                 body: formData
             });
             const json = await res.json();
             
-            if (json.status_code === 200 && json.image && json.image.url) {
-                const imgUrl = json.image.url;
+            if (json.success && json.data && json.data.url) {
+                const imgUrl = json.data.url;
                 targetInput.value = imgUrl;
                 if (previewEl) {
                     previewEl.innerHTML = `<img src="${imgUrl}" style="max-height:100%; object-fit:contain;">`;
                 }
-                showNotificationPopup("✅ Image hébergée avec succès (Freeimage.host) !");
+                showNotificationPopup("✅ Image hébergée avec succès sur ImgBB !");
             } else {
                 throw new Error(json.error ? json.error.message : "Erreur serveur");
             }
         } catch (err) {
-            console.error("Freeimage upload error:", err);
+            console.error("ImgBB upload error:", err);
             if (previewEl) {
                 previewEl.innerHTML = '<span style="color:var(--text-muted); font-size:0.8rem;">Échec du téléchargement</span>';
             }
-            alert("❌ Impossible d'héberger l'image. Veuillez vérifier votre connexion Internet.");
+            alert("❌ Impossible d'héberger l'image : " + err.message);
         }
     };
   </script>
