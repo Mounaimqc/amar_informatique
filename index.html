@@ -451,6 +451,43 @@
           </div>
         </div>
 
+        <!-- Subcategories Bar for Imprimantes -->
+        <style>
+          .subcat-pill-btn {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+          }
+          .subcat-pill-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+          }
+          .subcat-pill-btn.active {
+            background: var(--primary);
+            color: #ffffff !important;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+          }
+        </style>
+        <div class="printer-subcat-pills" id="printerSubcatPills" style="display:none; gap:10px; margin-bottom:25px; align-items:center; flex-wrap:wrap; background:var(--bg-card); padding:14px 20px; border-radius:var(--radius-lg); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+          <span style="font-weight:700; font-size:0.88rem; color:var(--text-primary); display:flex; align-items:center; gap:6px; margin-right:5px;">
+            <i data-lucide="printer" style="width:18px; height:18px; color:var(--primary);"></i> Type d'imprimante :
+          </span>
+          <button type="button" class="subcat-pill-btn active" onclick="selectSubCat('imprimantes', this)" id="pillSubCatAll">🖨️ Toutes les Imprimantes</button>
+          <button type="button" class="subcat-pill-btn" onclick="selectSubCat('imprimante_laser', this)" id="pillSubCatLaser">⚡ Imprimantes Laser</button>
+          <button type="button" class="subcat-pill-btn" onclick="selectSubCat('imprimante_jet_encre', this)" id="pillSubCatJet">💧 Imprimantes Jet d'encre</button>
+        </div>
+
         <!-- Products Main Grid -->
         <div class="store-products-grid" id="productsGrid">
           <!-- Dynamic products cards or skeletons loaded here -->

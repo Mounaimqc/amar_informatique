@@ -1645,12 +1645,36 @@ function setupEventListeners() {
 }
 
 // ========== 🏷️ CATEGORY CLICS ==========
+window.selectSubCat = function(code, btnElement) {
+    document.querySelectorAll('.subcat-pill-btn').forEach(b => b.classList.remove('active'));
+    btnElement?.classList.add('active');
+    window.selectCat(code);
+};
+
 window.selectCat = function(categoryCode, element) {
     window.selectedCategoryCode = categoryCode;
     document.querySelectorAll('.cat-nav-item, .featured-cat-card').forEach(item => item.classList.remove('active'));
     
     // Activer l'élément concerné
     element?.classList.add('active');
+
+    // Afficher ou masquer la barre de sous-catégories d'imprimantes
+    const pillsBar = document.getElementById('printerSubcatPills');
+    if (pillsBar) {
+        if (categoryCode && (categoryCode === 'imprimantes' || categoryCode.startsWith('imprimante'))) {
+            pillsBar.style.display = 'flex';
+            document.querySelectorAll('.subcat-pill-btn').forEach(b => b.classList.remove('active'));
+            if (categoryCode === 'imprimante_laser') {
+                document.getElementById('pillSubCatLaser')?.classList.add('active');
+            } else if (categoryCode === 'imprimante_jet_encre') {
+                document.getElementById('pillSubCatJet')?.classList.add('active');
+            } else {
+                document.getElementById('pillSubCatAll')?.classList.add('active');
+            }
+        } else {
+            pillsBar.style.display = 'none';
+        }
+    }
 
     // Mettre à jour la catégorie correspondante dans la grille en vedette
     if (categoryCode === '') {
