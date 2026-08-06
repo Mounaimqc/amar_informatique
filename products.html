@@ -168,19 +168,25 @@
           <label class="form-label" style="display:block; margin-bottom:6px;">Nom complet *</label>
           <input type="text" id="addName" class="search-input" required style="width:100%; border-radius:8px; padding:10px 14px;">
         </div>
-        <div class="form-row" style="display:flex; gap:15px; margin-bottom:15px;">
-          <div class="form-group" style="flex:1;">
+        <div class="form-row" style="display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap;">
+          <div class="form-group" style="flex:1; min-width:160px;">
             <label class="form-label" style="display:block; margin-bottom:6px;">Catégorie *</label>
-            <select id="addCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;">
+            <select id="addCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;" onchange="toggleSubCategorySelect(this, 'addSubGroup')">
               <option value="">Sélectionner</option>
               <option value="laptop">Laptop</option>
-              <option value="imprimantes">Imprimante (Toutes)</option>
-              <option value="imprimante_laser">Imprimante Laser</option>
-              <option value="imprimante_jet_encre">Imprimante Jet d'encre</option>
+              <option value="imprimantes">Imprimante</option>
               <option value="accessoires">Accessoire</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1;">
+          <div class="form-group" id="addSubGroup" style="flex:1; min-width:170px; display:none;">
+            <label class="form-label" style="display:block; margin-bottom:6px;">Type d'Imprimante *</label>
+            <select id="addSubCategory" class="sort-select" style="width:100%; border-radius:8px; padding:10px 14px;">
+              <option value="imprimante_laser">⚡ Imprimante Laser</option>
+              <option value="imprimante_jet_encre">💧 Imprimante Jet d'encre</option>
+              <option value="imprimantes">🖨️ Autre / Générale</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1; min-width:130px;">
             <label class="form-label" style="display:block; margin-bottom:6px;">Prix (DA) *</label>
             <input type="number" id="addPrice" class="search-input" required min="0" step="1" style="width:100%; border-radius:8px; padding:10px 14px;">
           </div>
@@ -222,18 +228,24 @@
           <label class="form-label" style="display:block; margin-bottom:6px;">Nom complet *</label>
           <input type="text" id="editName" class="search-input" required style="width:100%; border-radius:8px; padding:10px 14px;">
         </div>
-        <div class="form-row" style="display:flex; gap:15px; margin-bottom:15px;">
-          <div class="form-group" style="flex:1;">
+        <div class="form-row" style="display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap;">
+          <div class="form-group" style="flex:1; min-width:160px;">
             <label class="form-label" style="display:block; margin-bottom:6px;">Catégorie *</label>
-            <select id="editCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;">
+            <select id="editCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;" onchange="toggleSubCategorySelect(this, 'editSubGroup')">
               <option value="laptop">Laptop</option>
-              <option value="imprimantes">Imprimante (Toutes)</option>
-              <option value="imprimante_laser">Imprimante Laser</option>
-              <option value="imprimante_jet_encre">Imprimante Jet d'encre</option>
+              <option value="imprimantes">Imprimante</option>
               <option value="accessoires">Accessoire</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1;">
+          <div class="form-group" id="editSubGroup" style="flex:1; min-width:170px; display:none;">
+            <label class="form-label" style="display:block; margin-bottom:6px;">Type d'Imprimante *</label>
+            <select id="editSubCategory" class="sort-select" style="width:100%; border-radius:8px; padding:10px 14px;">
+              <option value="imprimante_laser">⚡ Imprimante Laser</option>
+              <option value="imprimante_jet_encre">💧 Imprimante Jet d'encre</option>
+              <option value="imprimantes">🖨️ Autre / Générale</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1; min-width:130px;">
             <label class="form-label" style="display:block; margin-bottom:6px;">Prix (DA) *</label>
             <input type="number" id="editPrice" class="search-input" required min="0" step="1" style="width:100%; border-radius:8px; padding:10px 14px;">
           </div>
@@ -467,9 +479,22 @@
         document.getElementById('addModal').classList.remove('active');
     };
 
+    window.toggleSubCategorySelect = function(selectEl, subGroupId) {
+        const subGroup = document.getElementById(subGroupId);
+        if (!subGroup) return;
+        if (selectEl.value === 'imprimantes' || selectEl.value.startsWith('imprimante')) {
+            subGroup.style.display = 'block';
+        } else {
+            subGroup.style.display = 'none';
+        }
+    };
+
     window.submitAdd = async function() {
       const name = document.getElementById('addName').value.trim();
-      const cat = document.getElementById('addCategory').value;
+      let cat = document.getElementById('addCategory').value;
+      if (cat === 'imprimantes') {
+          cat = document.getElementById('addSubCategory').value || 'imprimantes';
+      }
       const price = parseFloat(document.getElementById('addPrice').value);
       const desc = document.getElementById('addDesc').value.trim();
       const img = document.getElementById('addImage').value.trim();
@@ -513,7 +538,20 @@
 
       editingId = id;
       document.getElementById('editName').value = p.name || '';
-      document.getElementById('editCategory').value = p.category || 'laptop';
+      
+      const catSelect = document.getElementById('editCategory');
+      const subGroup = document.getElementById('editSubGroup');
+      const subSelect = document.getElementById('editSubCategory');
+
+      if (p.category && p.category.startsWith('imprimante')) {
+          catSelect.value = 'imprimantes';
+          subGroup.style.display = 'block';
+          subSelect.value = (p.category === 'imprimante_laser' || p.category === 'imprimante_jet_encre') ? p.category : 'imprimantes';
+      } else {
+          catSelect.value = p.category || 'laptop';
+          subGroup.style.display = 'none';
+      }
+
       document.getElementById('editPrice').value = p.price || '';
       document.getElementById('editDesc').value = p.description || '';
       document.getElementById('editImage').value = p.image || '';
@@ -533,7 +571,10 @@
       if (!editingId) return;
 
       const name = document.getElementById('editName').value.trim();
-      const cat = document.getElementById('editCategory').value;
+      let cat = document.getElementById('editCategory').value;
+      if (cat === 'imprimantes') {
+          cat = document.getElementById('editSubCategory').value || 'imprimantes';
+      }
       const price = parseFloat(document.getElementById('editPrice').value);
       const desc = document.getElementById('editDesc').value.trim();
       const img = document.getElementById('editImage').value.trim();

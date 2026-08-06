@@ -252,19 +252,25 @@
           <label class="form-label" style="display:block; margin-bottom:6px;">Nom du produit *</label>
           <input type="text" id="productName" class="search-input" required style="width:100%; border-radius:8px; padding:10px 14px;">
         </div>
-        <div class="form-row" style="display:flex; gap:15px; margin-bottom:15px;">
-          <div class="form-group" style="flex:1;">
+        <div class="form-row" style="display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap;">
+          <div class="form-group" style="flex:1; min-width:160px;">
             <label class="form-label" style="display:block; margin-bottom:6px;">Catégorie *</label>
-            <select id="productCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;">
+            <select id="productCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;" onchange="toggleSubCategorySelect(this, 'productSubGroup')">
               <option value="">Sélectionner</option>
               <option value="laptop">Laptop</option>
-              <option value="imprimantes">Imprimante (Toutes)</option>
-              <option value="imprimante_laser">Imprimante Laser</option>
-              <option value="imprimante_jet_encre">Imprimante Jet d'encre</option>
+              <option value="imprimantes">Imprimante</option>
               <option value="accessoires">Accessoire</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1;">
+          <div class="form-group" id="productSubGroup" style="flex:1; min-width:170px; display:none;">
+            <label class="form-label" style="display:block; margin-bottom:6px;">Type d'Imprimante *</label>
+            <select id="productSubCategory" class="sort-select" style="width:100%; border-radius:8px; padding:10px 14px;">
+              <option value="imprimante_laser">⚡ Imprimante Laser</option>
+              <option value="imprimante_jet_encre">💧 Imprimante Jet d'encre</option>
+              <option value="imprimantes">🖨️ Autre / Générale</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1; min-width:130px;">
             <label class="form-label" style="display:block; margin-bottom:6px;">Prix (DA) *</label>
             <input type="number" id="productPrice" class="search-input" required min="0" step="1" style="width:100%; border-radius:8px; padding:10px 14px;">
           </div>
@@ -306,18 +312,24 @@
           <label class="form-label" style="display:block; margin-bottom:6px;">Nom du produit *</label>
           <input type="text" id="editProductName" class="search-input" required style="width:100%; border-radius:8px; padding:10px 14px;">
         </div>
-        <div class="form-row" style="display:flex; gap:15px; margin-bottom:15px;">
-          <div class="form-group" style="flex:1;">
+        <div class="form-row" style="display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap;">
+          <div class="form-group" style="flex:1; min-width:160px;">
             <label class="form-label" style="display:block; margin-bottom:6px;">Catégorie *</label>
-            <select id="editProductCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;">
+            <select id="editProductCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;" onchange="toggleSubCategorySelect(this, 'editProductSubGroup')">
               <option value="laptop">Laptop</option>
-              <option value="imprimantes">Imprimante (Toutes)</option>
-              <option value="imprimante_laser">Imprimante Laser</option>
-              <option value="imprimante_jet_encre">Imprimante Jet d'encre</option>
+              <option value="imprimantes">Imprimante</option>
               <option value="accessoires">Accessoire</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1;">
+          <div class="form-group" id="editProductSubGroup" style="flex:1; min-width:170px; display:none;">
+            <label class="form-label" style="display:block; margin-bottom:6px;">Type d'Imprimante *</label>
+            <select id="editProductSubCategory" class="sort-select" style="width:100%; border-radius:8px; padding:10px 14px;">
+              <option value="imprimante_laser">⚡ Imprimante Laser</option>
+              <option value="imprimante_jet_encre">💧 Imprimante Jet d'encre</option>
+              <option value="imprimantes">🖨️ Autre / Générale</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1; min-width:130px;">
             <label class="form-label" style="display:block; margin-bottom:6px;">Prix (DA) *</label>
             <input type="number" id="editProductPrice" class="search-input" required min="0" step="1" style="width:100%; border-radius:8px; padding:10px 14px;">
           </div>
@@ -852,11 +864,24 @@
         }).catch(err => console.error("Error loading products cache:", err));
     }
 
+    window.toggleSubCategorySelect = function(selectEl, subGroupId) {
+        const subGroup = document.getElementById(subGroupId);
+        if (!subGroup) return;
+        if (selectEl.value === 'imprimantes' || selectEl.value.startsWith('imprimante')) {
+            subGroup.style.display = 'block';
+        } else {
+            subGroup.style.display = 'none';
+        }
+    };
+
     // Submit add product
     document.getElementById('addProductForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('productName').value.trim();
-        const cat = document.getElementById('productCategory').value;
+        let cat = document.getElementById('productCategory').value;
+        if (cat === 'imprimantes') {
+            cat = document.getElementById('productSubCategory').value || 'imprimantes';
+        }
         const price = parseFloat(document.getElementById('productPrice').value);
         const desc = document.getElementById('productDescription').value.trim();
         const img = document.getElementById('productImagePath').value.trim();
