@@ -439,6 +439,15 @@
         if (window.lucide) lucide.createIcons();
     }
 
+    function formatCategoryName(cat) {
+        if (cat === 'imprimante_laser') return 'Imprimante Laser';
+        if (cat === 'imprimante_jet_encre') return "Imprimante Jet d'encre";
+        if (cat === 'imprimantes') return 'Imprimante';
+        if (cat === 'laptop') return 'Laptop';
+        if (cat === 'accessoires') return 'Accessoire';
+        return cat || 'Général';
+    }
+
     function renderProductPageDetails(p) {
         const container = document.getElementById('productContainer');
         const price = parseFloat(p.price) || 0;
@@ -486,7 +495,7 @@
                     
                     <h1>${p.name}</h1>
                     <div class="detail-meta-row">
-                        <span class="product-category" style="margin-bottom:0;">Catégorie : ${p.category || 'Général'}</span>
+                        <span class="product-category" style="margin-bottom:0;">Catégorie : ${formatCategoryName(p.category)}</span>
                         <div class="product-rating" style="margin-bottom:0;">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                             <span>5.0 (Avis vérifiés)</span>
@@ -920,7 +929,7 @@
         if (!grid) return;
 
         try {
-            const snapshot = await db.collection('produits')
+            let snapshot = await db.collection('produits')
                 .where('category', '==', category)
                 .limit(5)
                 .get();
@@ -932,6 +941,21 @@
                     relatedHTML.push(buildSecondaryCard(doc.id, data));
                 }
             });
+
+            // If empty and category is a printer subcategory, fallback to general printers
+            if (relatedHTML.length === 0 && (category === 'imprimante_laser' || category === 'imprimante_jet_encre')) {
+                snapshot = await db.collection('produits')
+                    .where('category', '==', 'imprimantes')
+                    .limit(5)
+                    .get();
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (doc.id !== currentId) {
+                        relatedHTML.push(buildSecondaryCard(doc.id, data));
+                    }
+                });
+            }
 
             if (relatedHTML.length === 0) {
                 grid.parentElement.style.display = 'none';

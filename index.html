@@ -192,6 +192,16 @@
           </li>
           <li class="cat-nav-item" onclick="selectCat('imprimantes', this)" id="btnImprimantes">
             <a href="#" class="cat-nav-link">Imprimantes</a>
+            <div class="mega-menu" style="min-width:260px;">
+              <div class="mega-menu-column">
+                <h3>Types d'Imprimantes</h3>
+                <ul class="mega-menu-links">
+                  <li><a href="#" onclick="event.stopPropagation(); selectCat('imprimantes', document.getElementById('btnImprimantes'))">Toutes les Imprimantes 🖨️</a></li>
+                  <li><a href="#" onclick="event.stopPropagation(); selectCat('imprimante_laser', document.getElementById('btnImprimantes'))">Imprimantes Laser ⚡</a></li>
+                  <li><a href="#" onclick="event.stopPropagation(); selectCat('imprimante_jet_encre', document.getElementById('btnImprimantes'))">Imprimantes Jet d'encre 💧</a></li>
+                </ul>
+              </div>
+            </div>
           </li>
           <li class="cat-nav-item" onclick="selectCat('accessoires', this)" id="btnAccessoires">
             <a href="#" class="cat-nav-link">Accessoires & Périphériques</a>
@@ -303,6 +313,16 @@
         <div class="featured-cat-icon"><i data-lucide="printer"></i></div>
         <div class="featured-cat-name">Imprimantes</div>
         <span class="featured-cat-count" id="countImprimantes">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="selectCat('imprimante_laser', this)" id="featCatImprimanteLaser">
+        <div class="featured-cat-icon"><i data-lucide="zap"></i></div>
+        <div class="featured-cat-name">Laser</div>
+        <span class="featured-cat-count" id="countImprimanteLaser">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="selectCat('imprimante_jet_encre', this)" id="featCatImprimanteJetEncre">
+        <div class="featured-cat-icon"><i data-lucide="droplets"></i></div>
+        <div class="featured-cat-name">Jet d'encre</div>
+        <span class="featured-cat-count" id="countImprimanteJetEncre">—</span>
       </div>
       <div class="featured-cat-card" onclick="selectCat('accessoires', document.getElementById('btnAccessoires'))" id="featCatAccessoires">
         <div class="featured-cat-icon"><i data-lucide="mouse-pointer"></i></div>

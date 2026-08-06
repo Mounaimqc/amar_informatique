@@ -320,13 +320,17 @@ function filterProducts(productsToDisplay = null, resetPagination = true) {
     let searchVal = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
     let minPrice = parseFloat(document.getElementById('priceMinInput')?.value) || 0;
     let maxPrice = parseFloat(document.getElementById('priceMaxInput')?.value) || Infinity;
-    let category = document.querySelector('.cat-nav-item.active, .featured-cat-card.active')?.id || '';
+    let category = window.selectedCategoryCode !== undefined ? window.selectedCategoryCode : (document.querySelector('.cat-nav-item.active, .featured-cat-card.active')?.id || '');
     
     // Category mapping
-    let categoryFilter = '';
-    if (category.includes('Laptop')) categoryFilter = 'laptop';
-    else if (category.includes('Imprimantes')) categoryFilter = 'imprimantes';
-    else if (category.includes('Accessoires')) categoryFilter = 'accessoires';
+    let categoryFilter = window.selectedCategoryCode !== undefined ? window.selectedCategoryCode : '';
+    if (!categoryFilter) {
+        if (category.includes('ImprimanteLaser')) categoryFilter = 'imprimante_laser';
+        else if (category.includes('ImprimanteJetEncre')) categoryFilter = 'imprimante_jet_encre';
+        else if (category.includes('Laptop')) categoryFilter = 'laptop';
+        else if (category.includes('Imprimantes')) categoryFilter = 'imprimantes';
+        else if (category.includes('Accessoires')) categoryFilter = 'accessoires';
+    }
 
     // Lire les filtres de la sidebar
     let activeBrands = Array.from(document.querySelectorAll('.brand-filter-cb:checked')).map(cb => cb.value);
@@ -339,10 +343,29 @@ function filterProducts(productsToDisplay = null, resetPagination = true) {
         const matchesSearch = !searchVal || 
             product.name.toLowerCase().includes(searchVal) || 
             product.description.toLowerCase().includes(searchVal) ||
-            product.category.toLowerCase().includes(searchVal);
+            (product.category || '').toLowerCase().includes(searchVal);
 
         // Catégorie
-        const matchesCategory = !categoryFilter || product.category === categoryFilter;
+        let matchesCategory = true;
+        if (categoryFilter === 'laptop') {
+            matchesCategory = product.category === 'laptop';
+        } else if (categoryFilter === 'imprimantes') {
+            matchesCategory = product.category && (product.category === 'imprimantes' || product.category.startsWith('imprimante'));
+        } else if (categoryFilter === 'imprimante_laser') {
+            const pCat = product.category || '';
+            const pName = (product.name || '').toLowerCase();
+            const pDesc = (product.description || '').toLowerCase();
+            matchesCategory = pCat === 'imprimante_laser' || (pCat.startsWith('imprimante') && (pName.includes('laser') || pDesc.includes('laser')));
+        } else if (categoryFilter === 'imprimante_jet_encre') {
+            const pCat = product.category || '';
+            const pName = (product.name || '').toLowerCase();
+            const pDesc = (product.description || '').toLowerCase();
+            matchesCategory = pCat === 'imprimante_jet_encre' || (pCat.startsWith('imprimante') && (pName.includes('jet') || pName.includes('ink') || pDesc.includes('jet') || pDesc.includes('encre')));
+        } else if (categoryFilter === 'accessoires') {
+            matchesCategory = product.category === 'accessoires';
+        } else if (categoryFilter) {
+            matchesCategory = product.category === categoryFilter;
+        }
 
         // Prix min/max
         const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
@@ -1136,7 +1159,11 @@ window.applyPromoCode = async function() {
         if (data.applicableCategory !== 'all') {
             const hasEligibleItem = cart.some(item => {
                 const prod = products.find(p => p.id === item.id);
-                return prod && prod.category === data.applicableCategory;
+                if (!prod) return false;
+                if (data.applicableCategory === 'imprimantes') {
+                    return prod.category && prod.category.startsWith('imprimante');
+                }
+                return prod.category === data.applicableCategory;
             });
 
             if (!hasEligibleItem) {
@@ -1474,10 +1501,12 @@ function updateCatCounts() {
 
     setEl('countAll', total);
     setEl('countLaptop', products.filter(p => p.category === 'laptop').length);
-    setEl('countImprimantes', products.filter(p => p.category === 'imprimantes').length);
+    setEl('countImprimantes', products.filter(p => p.category && (p.category === 'imprimantes' || p.category.startsWith('imprimante'))).length);
+    setEl('countImprimanteLaser', products.filter(p => p.category === 'imprimante_laser' || (p.category && p.category.startsWith('imprimante') && ((p.name||'').toLowerCase().includes('laser') || (p.description||'').toLowerCase().includes('laser')))).length);
+    setEl('countImprimanteJetEncre', products.filter(p => p.category === 'imprimante_jet_encre' || (p.category && p.category.startsWith('imprimante') && ((p.name||'').toLowerCase().includes('jet') || (p.name||'').toLowerCase().includes('ink') || (p.description||'').toLowerCase().includes('jet') || (p.description||'').toLowerCase().includes('encre')))).length);
     setEl('countAccessoires', products.filter(p => p.category === 'accessoires').length);
-    setEl('countGaming', products.filter(p => p.description.toLowerCase().includes('gaming') || p.name.toLowerCase().includes('gaming')).length);
-    setEl('countComponents', products.filter(p => p.description.toLowerCase().includes('ram') || p.name.toLowerCase().includes('intel')).length);
+    setEl('countGaming', products.filter(p => (p.description||'').toLowerCase().includes('gaming') || (p.name||'').toLowerCase().includes('gaming')).length);
+    setEl('countComponents', products.filter(p => (p.description||'').toLowerCase().includes('ram') || (p.name||'').toLowerCase().includes('intel')).length);
 }
 
 // ========== ⚙️ EVENTS CONNECTORS ==========
@@ -1617,6 +1646,7 @@ function setupEventListeners() {
 
 // ========== 🏷️ CATEGORY CLICS ==========
 window.selectCat = function(categoryCode, element) {
+    window.selectedCategoryCode = categoryCode;
     document.querySelectorAll('.cat-nav-item, .featured-cat-card').forEach(item => item.classList.remove('active'));
     
     // Activer l'élément concerné
@@ -1629,6 +1659,10 @@ window.selectCat = function(categoryCode, element) {
         document.getElementById('featCatLaptop')?.classList.add('active');
     } else if (categoryCode === 'imprimantes') {
         document.getElementById('featCatImprimantes')?.classList.add('active');
+    } else if (categoryCode === 'imprimante_laser') {
+        document.getElementById('featCatImprimanteLaser')?.classList.add('active');
+    } else if (categoryCode === 'imprimante_jet_encre') {
+        document.getElementById('featCatImprimanteJetEncre')?.classList.add('active');
     } else if (categoryCode === 'accessoires') {
         document.getElementById('featCatAccessoires')?.classList.add('active');
     }

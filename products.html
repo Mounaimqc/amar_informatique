@@ -83,7 +83,7 @@
     </div>
 
     <!-- Category Filter Cards -->
-    <div class="cat-cards" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:40px;">
+    <div class="cat-cards" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:15px; margin-bottom:40px;">
       <div class="featured-cat-card active" onclick="filterByCat('')" id="card-all">
         <div class="featured-cat-icon"><i data-lucide="layout-grid"></i></div>
         <div class="featured-cat-name">Tous les produits</div>
@@ -91,13 +91,23 @@
       </div>
       <div class="featured-cat-card" onclick="filterByCat('laptop')" id="card-laptop">
         <div class="featured-cat-icon"><i data-lucide="laptop"></i></div>
-        <div class="featured-cat-name">Laptops / Portables</div>
+        <div class="featured-cat-name">Laptops</div>
         <span class="featured-cat-count" id="statLaptop">—</span>
       </div>
       <div class="featured-cat-card" onclick="filterByCat('imprimantes')" id="card-imprimantes">
         <div class="featured-cat-icon"><i data-lucide="printer"></i></div>
         <div class="featured-cat-name">Imprimantes</div>
         <span class="featured-cat-count" id="statImp">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="filterByCat('imprimante_laser')" id="card-imprimante_laser">
+        <div class="featured-cat-icon"><i data-lucide="zap"></i></div>
+        <div class="featured-cat-name">Impr. Laser</div>
+        <span class="featured-cat-count" id="statImpLaser">—</span>
+      </div>
+      <div class="featured-cat-card" onclick="filterByCat('imprimante_jet_encre')" id="card-imprimante_jet_encre">
+        <div class="featured-cat-icon"><i data-lucide="droplets"></i></div>
+        <div class="featured-cat-name">Impr. Jet d'encre</div>
+        <span class="featured-cat-count" id="statImpJet">—</span>
       </div>
       <div class="featured-cat-card" onclick="filterByCat('accessoires')" id="card-accessoires">
         <div class="featured-cat-icon"><i data-lucide="mouse"></i></div>
@@ -164,7 +174,9 @@
             <select id="addCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;">
               <option value="">Sélectionner</option>
               <option value="laptop">Laptop</option>
-              <option value="imprimantes">Imprimante</option>
+              <option value="imprimantes">Imprimante (Toutes)</option>
+              <option value="imprimante_laser">Imprimante Laser</option>
+              <option value="imprimante_jet_encre">Imprimante Jet d'encre</option>
               <option value="accessoires">Accessoire</option>
             </select>
           </div>
@@ -215,7 +227,9 @@
             <label class="form-label" style="display:block; margin-bottom:6px;">Catégorie *</label>
             <select id="editCategory" class="sort-select" required style="width:100%; border-radius:8px; padding:10px 14px;">
               <option value="laptop">Laptop</option>
-              <option value="imprimantes">Imprimante</option>
+              <option value="imprimantes">Imprimante (Toutes)</option>
+              <option value="imprimante_laser">Imprimante Laser</option>
+              <option value="imprimante_jet_encre">Imprimante Jet d'encre</option>
               <option value="accessoires">Accessoire</option>
             </select>
           </div>
@@ -347,6 +361,15 @@
       }
     }
 
+    function getCategoryBadgeLabel(cat) {
+      if (cat === 'imprimante_laser') return 'Imprimante Laser';
+      if (cat === 'imprimante_jet_encre') return "Imprimante Jet d'encre";
+      if (cat === 'imprimantes') return 'Imprimante';
+      if (cat === 'laptop') return 'Laptop';
+      if (cat === 'accessoires') return 'Accessoire';
+      return cat || 'Général';
+    }
+
     function renderGrid(productsList) {
       const tbody = document.getElementById('productsGrid');
       if (!tbody) return;
@@ -362,7 +385,7 @@
             <img src="${p.image || 'logo.png'}" style="width:45px; height:45px; border-radius:6px; object-fit:cover; border:1px solid var(--border);" onerror="this.src='logo.png'">
           </td>
           <td><strong>${p.name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted); -webkit-line-clamp:1; display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden;">${p.description || ''}</span></td>
-          <td><span class="status-badge status-accepted">${p.category}</span></td>
+          <td><span class="status-badge status-accepted">${getCategoryBadgeLabel(p.category)}</span></td>
           <td><strong>${(p.price || 0).toLocaleString('fr-FR')} DA</strong></td>
           <td>
             <div style="display:flex; gap:6px;">
@@ -377,7 +400,9 @@
     function updateStats() {
       setText('statTotal', allProducts.length);
       setText('statLaptop', allProducts.filter(p => p.category === 'laptop').length);
-      setText('statImp', allProducts.filter(p => p.category === 'imprimantes').length);
+      setText('statImp', allProducts.filter(p => p.category && (p.category === 'imprimantes' || p.category.startsWith('imprimante'))).length);
+      setText('statImpLaser', allProducts.filter(p => p.category === 'imprimante_laser' || (p.category && p.category.startsWith('imprimante') && ((p.name||'').toLowerCase().includes('laser') || (p.description||'').toLowerCase().includes('laser')))).length);
+      setText('statImpJet', allProducts.filter(p => p.category === 'imprimante_jet_encre' || (p.category && p.category.startsWith('imprimante') && ((p.name||'').toLowerCase().includes('jet') || (p.name||'').toLowerCase().includes('ink') || (p.description||'').toLowerCase().includes('jet') || (p.description||'').toLowerCase().includes('encre')))).length);
       setText('statAcc', allProducts.filter(p => p.category === 'accessoires').length);
     }
 
@@ -391,10 +416,26 @@
 
     function applyFilters() {
       const q = document.getElementById('searchInput').value.toLowerCase().trim();
-      const filtered = allProducts.filter(p => 
-        (!q || p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)) &&
-        (!activeCat || p.category === activeCat)
-      );
+      const filtered = allProducts.filter(p => {
+        const matchesQuery = !q || p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q);
+        let matchesCategory = true;
+        if (activeCat === 'imprimantes') {
+          matchesCategory = p.category && (p.category === 'imprimantes' || p.category.startsWith('imprimante'));
+        } else if (activeCat === 'imprimante_laser') {
+          const pCat = p.category || '';
+          const pName = (p.name || '').toLowerCase();
+          const pDesc = (p.description || '').toLowerCase();
+          matchesCategory = pCat === 'imprimante_laser' || (pCat.startsWith('imprimante') && (pName.includes('laser') || pDesc.includes('laser')));
+        } else if (activeCat === 'imprimante_jet_encre') {
+          const pCat = p.category || '';
+          const pName = (p.name || '').toLowerCase();
+          const pDesc = (p.description || '').toLowerCase();
+          matchesCategory = pCat === 'imprimante_jet_encre' || (pCat.startsWith('imprimante') && (pName.includes('jet') || pName.includes('ink') || pDesc.includes('jet') || pDesc.includes('encre')));
+        } else if (activeCat) {
+          matchesCategory = p.category === activeCat;
+        }
+        return matchesQuery && matchesCategory;
+      });
       renderGrid(filtered);
     }
 
