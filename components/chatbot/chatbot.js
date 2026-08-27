@@ -1,6 +1,6 @@
 /**
  * Amar Informatique - Client Chatbot IA
- * Integrated Chatbot Widget JavaScript (Production Ready with ARIA Fix & Dynamic Endpoint)
+ * Integrated Chatbot Widget JavaScript (Production Ready with Strict Error Handling & ARIA Fix)
  */
 
 (function () {
@@ -144,7 +144,7 @@
   }
 
   /**
-   * ÉTAPE 10 — Correction de l'erreur ARIA :
+   * ÉTAPE 10 — Correction de l'erreur ARIA Focus :
    * Déplace le focus vers chatbotTriggerBtn AVANT d'appliquer aria-hidden="true"
    */
   function closeChatWindow() {
@@ -216,7 +216,7 @@
     console.log("Chat request payload:", payload);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch(API_ENDPOINT, {
@@ -230,44 +230,38 @@
       });
 
       clearTimeout(timeoutId);
-      removeTypingIndicator();
 
-      console.log("Chat response status:", response.status, response.statusText);
-
-      let responseData = null;
-      try {
-        responseData = await response.json();
-        console.log("Chat response:", responseData);
-      } catch (e) {
-        console.error("❌ Impossible de lire la réponse JSON:", e);
-      }
-
+      // ÉTAPE 10 — Traitement propre du corps de réponse
       if (!response.ok) {
-        console.error("❌ Chat request HTTP Error:", {
-          status: response.status,
-          statusText: response.statusText,
-          url: API_ENDPOINT,
-          errorBody: responseData
-        });
+        const errorBody = await response.json().catch(() => null);
 
-        // Diagnostic fin selon le code HTTP
-        let errorMsg = "";
-        if (response.status === 404) {
-          errorMsg = `Erreur 404: L'endpoint ${API_ENDPOINT} est introuvable sur le serveur.`;
-        } else if (response.status === 401) {
-          errorMsg = "Configuration IA invalide ou clé API incorrecte.";
-        } else if (response.status === 429) {
-          errorMsg = "Le service IA est temporairement très sollicité. Veuillez réessayer dans quelques instants.";
-        } else if (response.status === 500) {
-          const serverErr = responseData?.error;
-          errorMsg = typeof serverErr === 'object' ? (serverErr.message || JSON.stringify(serverErr)) : (serverErr || "Une erreur est survenue sur le serveur backend.");
-        } else {
-          errorMsg = `Erreur serveur HTTP (${response.status}).`;
+        let serverMessage = errorBody?.error?.message || errorBody?.message;
+        if (!serverMessage) {
+          if (response.status === 401) {
+            serverMessage = "Configuration du service IA invalide.";
+          } else if (response.status === 429) {
+            serverMessage = "Le service IA est temporairement très sollicité ou le quota API est dépassé.";
+          } else if (response.status === 500) {
+            serverMessage = "Une erreur interne est survenue lors du traitement de votre demande.";
+          } else {
+            serverMessage = `Erreur HTTP ${response.status}`;
+          }
         }
 
-        handleClientFallback(userText, errorMsg);
-        return;
+        throw {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          errorBody: errorBody,
+          message: serverMessage
+        };
       }
+
+      const responseData = await response.json();
+      console.log("Chat response status:", response.status);
+      console.log("Chat response:", responseData);
+
+      removeTypingIndicator();
 
       if (responseData && responseData.conversationId) {
         conversationId = responseData.conversationId;
@@ -277,36 +271,39 @@
       if (responseData && responseData.message) {
         appendBotBubble(responseData.message, responseData.products);
       } else {
-        const errDetail = responseData?.error || "Réponse serveur non valide.";
-        handleClientFallback(userText, errDetail);
+        handleClientFallback(userText, "Format de réponse du serveur non valide.");
       }
 
     } catch (error) {
       clearTimeout(timeoutId);
       removeTypingIndicator();
 
-      console.error("❌ Erreur réseau Chatbot API:", error);
+      // ÉTAPE 10 — Log sérialisé propre sans [object Object]
+      const errorMessage =
+        error?.message ||
+        error?.errorBody?.error?.message ||
+        `Erreur serveur HTTP (${error?.status || "inconnue"})`;
 
-      let errMessage = `Impossible de joindre l'API sur ${API_ENDPOINT}.`;
-      if (error.name === 'AbortError') {
-        errMessage = "La réponse du serveur prend trop de temps (Timeout).";
-      }
+      console.error(
+        "Chatbot error:",
+        JSON.stringify(error, null, 2)
+      );
 
-      handleClientFallback(userText, errMessage);
+      console.warn(
+        "Chatbot Fallback activé :",
+        errorMessage
+      );
+
+      handleClientFallback(userText, errorMessage);
     } finally {
       isSending = false;
     }
   }
 
   /**
-   * Fallback client intelligent en cas de serveur indisponible
+   * Fallback client intelligent si le serveur retourne une erreur HTTP ou est indisponible
    */
   function handleClientFallback(userText, errorContext = null) {
-    if (errorContext) {
-      const errStr = typeof errorContext === 'object' ? (errorContext.message || JSON.stringify(errorContext)) : String(errorContext);
-      console.warn(`⚠️ Chatbot Fallback activé : ${errStr}`);
-    }
-
     const textLower = userText.toLowerCase();
     let replyText = "";
     let localProducts = [];

@@ -26,62 +26,60 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, error: 'Méthode non autorisée. Utilisez POST.' });
+    return res.status(405).json({ success: false, error: { code: 'METHOD_NOT_ALLOWED', message: 'Méthode non autorisée. Utilisez POST.' } });
   }
 
+  // ÉTAPE 2 — Logs Vercel Serverless
+  console.log("========================================");
+  console.log("Chat API invoked");
+  console.log("Request method:", req.method);
+  console.log("Message exists:", Boolean(req.body?.message));
+  console.log("OpenAI API key configured:", Boolean(process.env.OPENAI_API_KEY));
+  console.log("OpenAI model:", process.env.OPENAI_MODEL || 'gpt-4o-mini');
+
   try {
-    const body = req.body || {};
-    const message = body.message;
-    const conversationId = body.conversationId;
+    // ÉTAPE 9 — Format req.body et conversationId: null
+    const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
+    const conversationId = typeof req.body?.conversationId === 'string' ? req.body.conversationId.trim() : null;
 
-    console.log("========================================");
-    console.log("💬 Serverless /api/chat called");
-    console.log("Message received:", message);
-
-    if (!message || typeof message !== 'string' || message.trim() === '') {
+    if (!message) {
       return res.status(400).json({
         success: false,
-        error: "Le champ 'message' est obligatoire et doit être une chaîne non vide."
+        error: {
+          code: "INVALID_INPUT",
+          message: "Le champ 'message' est obligatoire et doit être une chaîne non vide."
+        }
       });
     }
 
     if (message.length > 1000) {
       return res.status(400).json({
         success: false,
-        error: "Le message dépasse la longueur maximale autorisée (1000 caractères)."
+        error: {
+          code: "INPUT_TOO_LONG",
+          message: "Le message dépasse la longueur maximale autorisée (1000 caractères)."
+        }
       });
     }
 
     const session = getOrCreateConversation(conversationId);
-    const result = await processChatMessage(message.trim(), session.id);
+    const result = await processChatMessage(message, session.id);
 
     return res.status(200).json(result);
 
   } catch (error) {
-    console.error("❌ AI Serverless Error:", error);
-    const errText = error?.message || "Erreur serveur API Chat.";
+    // ÉTAPE 2 — Logs d'erreur fatale serveur
+    console.error("FATAL CHAT API ERROR");
+    console.error("Name:", error?.name || "Error");
+    console.error("Message:", error?.message || "Unknown error");
+    console.error("Stack:", error?.stack || "No stack trace available");
 
-    return res.status(200).json({
-      success: true,
-      conversationId: req.body?.conversationId || 'conv-fallback',
-      message: "Bonjour 👋 Merci pour votre message. Voici les produits disponibles dans notre catalogue :",
-      products: [
-        {
-          id: "demo-1",
-          name: "Dell Latitude 5400 Core i5 8th 16GB SSD 512GB",
-          price: 52000,
-          image: "logo.jpg",
-          productUrl: "produit.html?id=demo-1"
-        },
-        {
-          id: "demo-2",
-          name: "Lenovo ThinkPad T490 i7 8th 16GB SSD 512GB MX250",
-          price: 68000,
-          image: "logo.jpg",
-          productUrl: "produit.html?id=demo-2"
-        }
-      ],
-      actions: []
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: error?.message || "Erreur serveur interne"
+      }
     });
   }
 }
