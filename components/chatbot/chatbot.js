@@ -1,6 +1,6 @@
 /**
  * Amar Informatique - Client Chatbot IA
- * Integrated Chatbot Widget JavaScript (Production Ready with Strict Error Handling & ARIA Fix)
+ * Integrated Chatbot Widget JavaScript (Production Ready with Strict Real AI Architecture & Error Handling)
  */
 
 (function () {
@@ -143,10 +143,6 @@
     document.getElementById('chatbotInput')?.focus();
   }
 
-  /**
-   * ÉTAPE 10 — Correction de l'erreur ARIA Focus :
-   * Déplace le focus vers chatbotTriggerBtn AVANT d'appliquer aria-hidden="true"
-   */
   function closeChatWindow() {
     const windowEl = document.getElementById('chatbotWindow');
     const triggerBtn = document.getElementById('chatbotTriggerBtn');
@@ -216,7 +212,7 @@
     console.log("Chat request payload:", payload);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     try {
       const response = await fetch(API_ENDPOINT, {
@@ -231,108 +227,38 @@
 
       clearTimeout(timeoutId);
 
-      // ÉTAPE 10 — Traitement propre du corps de réponse
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-
-        let serverMessage = errorBody?.error?.message || errorBody?.message;
-        if (!serverMessage) {
-          if (response.status === 401) {
-            serverMessage = "Configuration du service IA invalide.";
-          } else if (response.status === 429) {
-            serverMessage = "Le service IA est temporairement très sollicité ou le quota API est dépassé.";
-          } else if (response.status === 500) {
-            serverMessage = "Une erreur interne est survenue lors du traitement de votre demande.";
-          } else {
-            serverMessage = `Erreur HTTP ${response.status}`;
-          }
-        }
-
-        throw {
-          status: response.status,
-          statusText: response.statusText,
-          url: response.url,
-          errorBody: errorBody,
-          message: serverMessage
-        };
-      }
-
-      const responseData = await response.json();
+      const responseData = await response.json().catch(() => null);
       console.log("Chat response status:", response.status);
       console.log("Chat response:", responseData);
 
       removeTypingIndicator();
 
-      if (responseData && responseData.conversationId) {
+      if (!response.ok || !responseData || responseData.success === false) {
+        console.error("❌ Backend Error Response:", responseData);
+        appendBotBubble("⚠️ Je rencontre temporairement un problème technique. Veuillez réessayer dans quelques instants.");
+        return;
+      }
+
+      if (responseData.conversationId) {
         conversationId = responseData.conversationId;
         localStorage.setItem(CHAT_STORAGE_KEY, conversationId);
       }
 
-      if (responseData && responseData.message) {
+      if (responseData.message) {
         appendBotBubble(responseData.message, responseData.products);
       } else {
-        handleClientFallback(userText, "Format de réponse du serveur non valide.");
+        appendBotBubble("⚠️ Je rencontre temporairement un problème technique. Veuillez réessayer dans quelques instants.");
       }
 
     } catch (error) {
       clearTimeout(timeoutId);
       removeTypingIndicator();
 
-      // ÉTAPE 10 — Log sérialisé propre sans [object Object]
-      const errorMessage =
-        error?.message ||
-        error?.errorBody?.error?.message ||
-        `Erreur serveur HTTP (${error?.status || "inconnue"})`;
-
-      console.error(
-        "Chatbot error:",
-        JSON.stringify(error, null, 2)
-      );
-
-      console.warn(
-        "Chatbot Fallback activé :",
-        errorMessage
-      );
-
-      handleClientFallback(userText, errorMessage);
+      console.error("Chatbot network/server error:", error);
+      appendBotBubble("⚠️ Je rencontre temporairement un problème technique. Veuillez réessayer dans quelques instants.");
     } finally {
       isSending = false;
     }
-  }
-
-  /**
-   * Fallback client intelligent si le serveur retourne une erreur HTTP ou est indisponible
-   */
-  function handleClientFallback(userText, errorContext = null) {
-    const textLower = userText.toLowerCase();
-    let replyText = "";
-    let localProducts = [];
-
-    const siteProducts = Array.isArray(window.products) ? window.products : [];
-
-    if (textLower.includes('bonjour') || textLower.includes('salut') || textLower.includes('سلام') || textLower.includes('مرحبا')) {
-      replyText = "Bonjour 👋 Bienvenue chez <strong>Amar Informatique</strong> ! Comment puis-je vous aider aujourd'hui ? Vous pouvez rechercher un laptop, une imprimante ou demander des recommandations par budget.";
-    } else if (textLower.includes('gamer') || textLower.includes('gaming') || textLower.includes('للعاب') || textLower.includes('الڤايمينغ')) {
-      replyText = "Bien sûr 🎮 Voici nos meilleurs ordinateurs portables performants pour le **Gaming** et le montage vidéo :";
-      localProducts = siteProducts.filter(p => {
-        const desc = (p.description || '').toLowerCase();
-        const name = (p.name || '').toLowerCase();
-        return desc.includes('rtx') || desc.includes('gtx') || desc.includes('mx') || desc.includes('i7') || name.includes('gamer') || name.includes('thinkpad');
-      }).slice(0, 4);
-    } else if (textLower.includes('imprimante') || textLower.includes('طابعة') || textLower.includes('laser') || textLower.includes('epson')) {
-      replyText = "Voici les modèles d'**imprimantes** (Laser et Jet d'encre) disponibles dans notre magasin :";
-      localProducts = siteProducts.filter(p => (p.category || '').startsWith('imprimante')).slice(0, 4);
-    } else if (textLower.includes('budget') || textLower.includes('سعر') || textLower.includes('شحال') || textLower.includes('سومة') || textLower.includes('100000') || textLower.includes('150000') || textLower.includes('50000')) {
-      replyText = "Voici une sélection de nos meilleurs produits informatiques au rapport qualité/prix garanti en magasin :";
-      localProducts = siteProducts.slice(0, 4);
-    } else if (textLower.includes('ssd') || textLower.includes('hdd') || textLower.includes('stockage') || textLower.includes('différence') || textLower.includes('فرق')) {
-      replyText = "💡 **SSD vs HDD** :\n- **SSD (Solid State Drive)** : Ultra-rapide (jusqu'à 10x plus rapide qu'un HDD), silencieux et résistant aux chocs. Idéal pour démarrer Windows en quelques secondes.\n- **HDD (Hard Disk Drive)** : Disque mécanique traditionnel, plus lent mais offre un espace de stockage à bas coût.\n\n*Tous nos laptops Amar Informatique sont équipés de SSD NVMe rapides.*";
-    } else {
-      replyText = "Bien sûr 💻 Quel type d'équipement recherchez-vous ? Vous pouvez choisir une catégorie ci-dessous ou préciser votre budget.";
-      localProducts = siteProducts.slice(0, 3);
-    }
-
-    appendBotBubble(replyText, localProducts);
   }
 
   function appendUserBubble(text) {
