@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 export default async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -15,11 +12,14 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const openaiConfigured = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '' && !process.env.OPENAI_API_KEY.includes('your_openai_api_key'));
+  const isConfigured = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '' && !process.env.OPENAI_API_KEY.includes('your_openai_api_key'));
 
   return res.status(200).json({
     success: true,
     server: "online",
-    openaiConfigured: openaiConfigured
+    chatApi: "available",
+    openaiConfigured: isConfigured,
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    timestamp: new Date().toISOString()
   });
 }
