@@ -5,14 +5,133 @@ const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'amar-informatique';
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 const MODEL_NAME = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
-const STRICT_SYSTEM_PROMPT = `Tu es l'assistant virtuel officiel de Amar Informatique, un magasin informatique en Algérie.
+// Mémoire in-memory des sessions de conversation pour la gestion du contexte
+const conversationSessions = new Map();
 
-RÈGLES ABSOLUES ANTI-HALLUCINATION :
-1. Pour toute information commerciale concernant Amar Informatique, les produits fournis dans la liste "productsFound" sont LA SEULE ET UNIQUE SOURCE DE VÉRITÉ.
-2. NE JAMAIS INVENTER un produit, un prix, un stock, une promotion, une réduction ou une caractéristique technique non présente dans "productsFound".
-3. Si la liste "productsFound" est vide et que la question concerne un produit/prix/promotion, dis explicitement : "Je n'ai pas trouvé ce produit dans notre catalogue actuel." ou "Aucune promotion active n'est disponible actuellement pour cet article."
-4. Pour les explications techniques générales (ex: différence SSD vs HDD, i5 vs i7), explique la technique sans jamais inventer un prix ou un produit du site.
-5. Réponds dans la même langue que l'utilisateur (Français, Arabe ou Darija algérienne). Ton court, accueillant et professionnel.`;
+// System Prompt de l'Agent IA Hybride conforme aux exigences
+const SYSTEM_PROMPT = `Tu es l'assistant virtuel officiel et expert technologique de Amar Informatique, le magasin e-commerce de référence en Algérie pour le matériel informatique (laptops, imprimantes, composants, accessoires).
+
+TES MISSIONS :
+1. Aider les clients à trouver le matériel idéal selon leurs besoins et leur budget en Dinars Algériens (DA).
+2. Expliquer clairement les technologies (SSD vs HDD, RAM, processeurs, cartes graphiques, imprimantes).
+3. Utiliser les outils (Tools) de manière autonome et pertinente.
+
+RÈGLES D'UTILISATION DES OUTILS (TOOLS) :
+1. DONNÉES COMMERCIALES AMAR INFORMATIQUE (Produits, Prix, Stock, Promotions, Disponibilité, Fiches techniques) :
+   - Tu DOIS IMPÉRATIVEMENT appeler les outils Firestore ("searchProducts", "getProductDetails", "recommendProducts", "compareProducts", "checkAvailability").
+   - Ne JAMAIS inventer un produit, un prix, une réduction ou une disponibilité non retournée par ces outils.
+2. CONNAISSANCES GÉNÉRALES TECH (ex: SSD vs HDD, rôle de la RAM, fonctionnement d'une imprimante) :
+   - Réponds directement sans appeler d'outils s'il n'y a pas de demande commerciale.
+3. INFORMATIONS RÉCENTES OU EXTERNES (ex: dernière version de Windows, nouveaux processeurs non présents en magasin) :
+   - Utilise l'outil "webSearch". Ne jamais utiliser webSearch pour les prix/stock de Amar Informatique.
+
+LANGUE ET TON :
+- Détecte automatiquement la langue de l'utilisateur et réponds STRICTEMENT dans la même langue :
+  * Français
+  * Arabe (العربية)
+  * Darija algérienne (ex: "خصني بيسي غايمينغ بـ 15 مليون", "كاين هذا البرودوي؟")
+  * Mélange Français/Arabe/Darija
+- Adopte un ton amical, professionnel, concis et commercial.`;
+
+// Définitions des 6 Tools pour OpenAI Function Calling
+const TOOLS_DEFINITIONS = [
+  {
+    type: 'function',
+    function: {
+      name: 'searchProducts',
+      description: 'Rechercher des produits dans le catalogue réel de Amar Informatique.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Mots clés de recherche (ex: Dell i7, Epson, SSD 512)' },
+          category: { type: 'string', description: 'Catégorie (laptop, imprimantes, accessoires)' },
+          minPrice: { type: 'number', description: 'Prix minimum en DA' },
+          maxPrice: { type: 'number', description: 'Prix maximum en DA' },
+          brand: { type: 'string', description: 'Marque (Dell, HP, Lenovo, Epson, Asus)' }
+        }
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'getProductDetails',
+      description: 'Obtenir la fiche technique et le prix d un produit spécifique par son ID.',
+      parameters: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', description: 'ID du produit' }
+        },
+        required: ['productId']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'recommendProducts',
+      description: 'Recommander des ordinateurs selon l usage (gaming, montage, bureautique, etudiant) et le budget en DA.',
+      parameters: {
+        type: 'object',
+        properties: {
+          usage: { type: 'string', description: 'Usage cible (gaming, montage, bureautique, autocad)' },
+          budget: { type: 'number', description: 'Budget maximum en DA' },
+          requirements: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Exigences spécifiques (ex: RTX, 16GB, SSD)'
+          }
+        }
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'compareProducts',
+      description: 'Comparer les caractéristiques et prix de 2 ou plusieurs produits du magasin.',
+      parameters: {
+        type: 'object',
+        properties: {
+          productIds: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'IDs des produits à comparer'
+          }
+        },
+        required: ['productIds']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'checkAvailability',
+      description: 'Vérifier la disponibilité et le stock réel d un produit.',
+      parameters: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', description: 'ID du produit' }
+        },
+        required: ['productId']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'webSearch',
+      description: 'Rechercher des informations externes récentes (specs processeurs récents, actus tech, version Windows). NE PAS utiliser pour le prix ou stock du site.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Requête de recherche externe' }
+        },
+        required: ['query']
+      }
+    }
+  }
+];
 
 export default async function handler(req, res) {
   // CORS Headers
@@ -29,7 +148,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    return res.status(200).json({ success: true, message: "Backend Chat API is online." });
+    return res.status(200).json({ success: true, message: "Backend Chat API Agent is online." });
   }
 
   if (req.method !== 'POST') {
@@ -38,322 +157,363 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    const rawMessage = body.message;
-    const userMessage = typeof rawMessage === 'string' ? rawMessage.trim() : '';
+    const userMessage = typeof body.message === 'string' ? body.message.trim() : '';
     const conversationId = typeof body.conversationId === 'string' ? body.conversationId.trim() : `conv-${Date.now()}`;
 
     if (!userMessage) {
       return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: "Le message est obligatoire." } });
     }
 
-    // ÉTAPE 11 — LOGS DE VÉRIFICATION ENTRÉE
-    console.log("========================================");
-    console.log("USER MESSAGE:", userMessage);
+    // Gestion de la session de conversation et de l'historique récent
+    const history = getSessionHistory(conversationId);
+    saveMessageToSession(conversationId, 'user', userMessage);
 
-    // ÉTAPE 4 — Classification de l'intention
-    const intent = classifyIntent(userMessage);
-    console.log("DETECTED INTENT:", intent);
-
-    // ÉTAPE 1 & 2 — Récupération Firestore + Recherche Produits
+    // Chargement de tous les produits réels depuis Firestore
     const allProducts = await fetchFirestoreProducts();
-    const searchResult = searchProductsInFirestore(allProducts, userMessage, intent);
 
-    console.log("FIRESTORE SEARCH QUERY:", searchResult.searchQuery);
-    console.log("PRODUCTS FOUND:", searchResult.products.length);
-    console.log("PRODUCT NAMES:", searchResult.products.map(p => p.name));
+    let sourcesUsed = { firestore: false, web: false, ai: false };
+    let recommendedProducts = [];
 
-    // ÉTAPE 9 — Attribution de la source (firestore vs ai_general)
-    const source = intent === 'GENERAL_TECHNICAL_QUESTION' ? 'ai_general' : 'firestore';
-
-    // ÉTAPE 3 & 7 — Transmission du Contexte Réel pour l'IA
-    console.log("AI RECEIVED REAL PRODUCT CONTEXT:", searchResult.products.length);
-
-    let replyMessage = "";
-
+    // Si clé OpenAI présente : Exécution du véritable Agent IA avec Tool Calling
     if (OPENAI_KEY && OPENAI_KEY.trim() !== '' && !OPENAI_KEY.includes('your_openai_api_key')) {
       try {
-        replyMessage = await callOpenAIWithStrictContext(userMessage, intent, searchResult.products, searchResult.hasExactMatch);
-      } catch (aiErr) {
-        console.warn("⚠️ OpenAI Call Exception, utilisation du générateur local strict:", aiErr.message);
+        const messagesPayload = [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...history,
+          { role: 'user', content: userMessage }
+        ];
+
+        let openAiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_KEY.trim()}`
+          },
+          body: JSON.stringify({
+            model: MODEL_NAME,
+            messages: messagesPayload,
+            tools: TOOLS_DEFINITIONS,
+            tool_choice: 'auto',
+            temperature: 0.3
+          })
+        });
+
+        if (openAiRes.ok) {
+          let openAiData = await openAiRes.json();
+          let responseMessage = openAiData.choices?.[0]?.message;
+
+          // Boucle d'exécution des outils appelés dynamiquement par l'IA
+          while (responseMessage && responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
+            messagesPayload.push(responseMessage);
+
+            for (const toolCall of responseMessage.tool_calls) {
+              const funcName = toolCall.function.name;
+              const funcArgs = JSON.parse(toolCall.function.arguments || '{}');
+              let toolOutput = null;
+
+              console.log(`🤖 [Agent IA Tool Call] ${funcName}:`, funcArgs);
+
+              if (funcName === 'searchProducts') {
+                sourcesUsed.firestore = true;
+                toolOutput = executeSearchProducts(allProducts, funcArgs);
+                if (Array.isArray(toolOutput)) recommendedProducts.push(...toolOutput);
+
+              } else if (funcName === 'getProductDetails') {
+                sourcesUsed.firestore = true;
+                toolOutput = executeGetProductDetails(allProducts, funcArgs.productId);
+                if (toolOutput && !toolOutput.error) recommendedProducts.push(toolOutput);
+
+              } else if (funcName === 'recommendProducts') {
+                sourcesUsed.firestore = true;
+                toolOutput = executeRecommendProducts(allProducts, funcArgs);
+                if (Array.isArray(toolOutput)) recommendedProducts.push(...toolOutput);
+
+              } else if (funcName === 'compareProducts') {
+                sourcesUsed.firestore = true;
+                toolOutput = executeCompareProducts(allProducts, funcArgs.productIds);
+                if (toolOutput && toolOutput.products) recommendedProducts.push(...toolOutput.products);
+
+              } else if (funcName === 'checkAvailability') {
+                sourcesUsed.firestore = true;
+                toolOutput = executeCheckAvailability(allProducts, funcArgs.productId);
+
+              } else if (funcName === 'webSearch') {
+                sourcesUsed.web = true;
+                toolOutput = await executeWebSearch(funcArgs.query);
+              }
+
+              messagesPayload.push({
+                tool_call_id: toolCall.id,
+                role: 'tool',
+                name: funcName,
+                content: JSON.stringify(toolOutput || {})
+              });
+            }
+
+            // Ré-interrogation de l'IA avec les données des outils
+            openAiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_KEY.trim()}`
+              },
+              body: JSON.stringify({
+                model: MODEL_NAME,
+                messages: messagesPayload
+              })
+            });
+
+            if (openAiRes.ok) {
+              openAiData = await openAiRes.json();
+              responseMessage = openAiData.choices?.[0]?.message;
+            } else {
+              break;
+            }
+          }
+
+          if (responseMessage && responseMessage.content) {
+            if (!sourcesUsed.firestore && !sourcesUsed.web) sourcesUsed.ai = true;
+
+            const finalReply = responseMessage.content;
+            saveMessageToSession(conversationId, 'assistant', finalReply);
+
+            const sourceResult = determineSourceType(sourcesUsed);
+            const deduplicatedProducts = deduplicateProducts(recommendedProducts);
+
+            return res.status(200).json({
+              success: true,
+              conversationId: conversationId,
+              message: finalReply,
+              products: deduplicatedProducts.slice(0, 4),
+              source: sourceResult,
+              language: detectLanguage(userMessage)
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("⚠️ Exception Agent IA OpenAI, bascule vers moteur hybride local:", err.message);
       }
     }
 
-    if (!replyMessage) {
-      replyMessage = generateLocalStrictResponse(userMessage, intent, searchResult);
-    }
-
-    // ÉTAPE 5 & 6 — Si aucun produit trouvé ou promotion absente, adapter l'affichage
-    const finalDisplayProducts = (intent === 'GENERAL_TECHNICAL_QUESTION') 
-      ? searchResult.products.slice(0, 3)
-      : searchResult.products.slice(0, 4);
+    // Moteur Hybride Local de secours (si OpenAI non disponible)
+    const fallbackResult = executeLocalHybridEngine(allProducts, userMessage);
+    saveMessageToSession(conversationId, 'assistant', fallbackResult.message);
 
     return res.status(200).json({
       success: true,
       conversationId: conversationId,
-      intent: intent,
-      source: source,
-      message: replyMessage,
-      language: detectLanguage(userMessage),
-      products: finalDisplayProducts,
-      actions: finalDisplayProducts.length > 0 ? [{ type: 'view_product', productId: finalDisplayProducts[0].id }] : []
+      message: fallbackResult.message,
+      products: fallbackResult.products.slice(0, 4),
+      source: fallbackResult.source,
+      language: detectLanguage(userMessage)
     });
 
   } catch (error) {
-    console.error("❌ Exception /api/chat:", error);
+    console.error("❌ Erreur serveur /api/chat:", error);
     return res.status(200).json({
       success: true,
       conversationId: `conv-${Date.now()}`,
-      intent: 'FALLBACK',
-      source: 'firestore',
-      message: "Bonjour 👋 Bienvenue chez **Amar Informatique** ! Voici nos produits disponibles actuellement en magasin :",
-      language: "fr",
+      message: "Bonjour 👋 Bienvenue chez **Amar Informatique** ! Comment puis-je vous aider aujourd'hui ?",
       products: getFallbackDemoProducts().slice(0, 4),
-      actions: []
+      source: "firestore",
+      language: "fr"
     });
   }
 }
 
 /**
- * ÉTAPE 4 — Classifier le type de demande
+ * IMPLÉMENTATION DES OUTILS (TOOLS)
  */
-function classifyIntent(text) {
-  const q = normalizeString(text);
 
-  // Question technique générale (sans demande commerciale spécifique)
-  if (
-    q.includes('difference') ||
-    q.includes('c quoi') ||
-    q.includes('c\'est quoi') ||
-    q.includes('comment fonctionne') ||
-    q.includes('qu\'est ce') ||
-    q.includes('explication') ||
-    (q.includes('ssd') && q.includes('hdd') && !q.includes('prix') && !q.includes('achat') && !q.includes('disponible'))
-  ) {
-    return 'GENERAL_TECHNICAL_QUESTION';
-  }
+function executeSearchProducts(allProducts, args) {
+  const query = normalizeString(args.query || '');
+  const cat = normalizeString(args.category || '');
+  const brand = normalizeString(args.brand || '');
+  const maxP = args.maxPrice || null;
 
-  // Recherche de promotion
-  if (
-    q.includes('promotion') ||
-    q.includes('promo') ||
-    q.includes('reduction') ||
-    q.includes('solde') ||
-    q.includes('remise') ||
-    q.includes('تخفيض') ||
-    q.includes('بروموسيون')
-  ) {
-    return 'PROMOTION_SEARCH';
-  }
+  return allProducts.filter(p => {
+    const nameN = normalizeString(p.name);
+    const descN = normalizeString(p.description);
+    const catN = normalizeString(p.category);
+    const brandN = normalizeString(p.brand || '');
 
-  // Recherche de disponibilité
-  if (
-    q.includes('disponible') ||
-    q.includes('en stock') ||
-    q.includes('vous avez') ||
-    q.includes('كاين') ||
-    q.includes('متوفر') ||
-    q.includes('عندكم')
-  ) {
-    return 'AVAILABILITY_SEARCH';
-  }
+    if (maxP && p.price > maxP) return false;
+    if (cat && !catN.includes(cat)) return false;
+    if (brand && !brandN.includes(brand)) return false;
 
-  // Recherche de prix / budget
-  if (
-    q.includes('prix') ||
-    q.includes('combien') ||
-    q.includes('budget') ||
-    q.includes(' da') ||
-    q.includes('دج') ||
-    q.includes('سومة') ||
-    q.includes('شحال') ||
-    q.includes('moins de') ||
-    q.includes('entre')
-  ) {
-    return 'PRICE_SEARCH';
-  }
-
-  // Recherche par défaut d'un produit
-  return 'PRODUCT_SEARCH';
-}
-
-/**
- * ÉTAPE 2 — Vraie recherche produits dans Firestore avec tokenisation et normalisation
- */
-function searchProductsInFirestore(allProducts, rawQuery, intent) {
-  const normQuery = normalizeString(rawQuery);
-  
-  // Extraction des jetons de recherche (mots clés de 2 lettres ou plus)
-  const tokens = normQuery
-    .replace(/[^\w\s\u0600-\u06FF]/g, ' ')
-    .split(/\s+/)
-    .filter(t => t.length >= 2 && !['cherche', 'voulais', 'avez', 'vous', 'dans', 'pour', 'avec', 'les', 'une', 'des', 'mon'].includes(t));
-
-  // Extraction d'un budget en DA si présent dans la phrase
-  const budgetMatch = rawQuery.match(/\d+/);
-  let requestedBudget = null;
-  if (budgetMatch) {
-    const num = parseInt(budgetMatch[0]);
-    requestedBudget = rawQuery.includes('مليون') ? num * 10000 : num;
-    if (requestedBudget < 1000) requestedBudget *= 1000; // Ajustement si écrit en kilo
-  }
-
-  let hasExactMatch = false;
-
-  let matched = allProducts.filter(p => {
-    const nameNorm = normalizeString(p.name || '');
-    const descNorm = normalizeString(p.description || '');
-    const catNorm = normalizeString(p.category || '');
-    const brandNorm = normalizeString(p.brand || '');
-
-    // Filtre par budget si spécifié
-    if (intent === 'PRICE_SEARCH' && requestedBudget && p.price > requestedBudget * 1.15) {
-      return false;
+    if (query) {
+      return nameN.includes(query) || descN.includes(query) || catN.includes(query) || brandN.includes(query);
     }
-
-    // Filtre par promotion si spécifiée
-    if (intent === 'PROMOTION_SEARCH') {
-      const isPromo = p.promo === true || (p.oldPrice && p.oldPrice > p.price);
-      if (!isPromo) return false;
-    }
-
-    // Vérifier si au moins un jeton important correspond
-    if (tokens.length === 0) return true;
-
-    // Correspondance parfaite si tous les jetons spécifiques (ex: "epson", "l3250") sont présents
-    const matchesAllTokens = tokens.every(t => 
-      nameNorm.includes(t) || descNorm.includes(t) || catNorm.includes(t) || brandNorm.includes(t)
-    );
-
-    if (matchesAllTokens) {
-      hasExactMatch = true;
-      return true;
-    }
-
-    // Correspondance partielle si au moins un jeton clé correspond
-    const matchesAnyToken = tokens.some(t => 
-      nameNorm.includes(t) || catNorm.includes(t) || brandNorm.includes(t)
-    );
-
-    return matchesAnyToken;
+    return true;
   });
+}
 
-  // Tri par pertinence : les produits qui ont le plus de jetons correspondants d'abord
-  if (tokens.length > 0) {
-    matched.sort((a, b) => {
-      const nameA = normalizeString(a.name);
-      const nameB = normalizeString(b.name);
-      const scoreA = tokens.reduce((sc, t) => sc + (nameA.includes(t) ? 2 : 0), 0);
-      const scoreB = tokens.reduce((sc, t) => sc + (nameB.includes(t) ? 2 : 0), 0);
-      return scoreB - scoreA;
-    });
+function executeGetProductDetails(allProducts, productId) {
+  const found = allProducts.find(p => p.id === productId || normalizeString(p.name).includes(normalizeString(productId)));
+  if (found) {
+    return {
+      id: found.id,
+      name: found.name,
+      price: found.price,
+      oldPrice: found.oldPrice,
+      promo: found.promo,
+      stock: true,
+      category: found.category,
+      description: found.description,
+      warranty: "Garantie officielle Magasin Amar Informatique (12 mois)"
+    };
   }
+  return { error: "Produit non trouvé" };
+}
+
+function executeRecommendProducts(allProducts, args) {
+  const usage = normalizeString(args.usage || '');
+  const budget = args.budget || null;
+
+  return allProducts.filter(p => {
+    const nameN = normalizeString(p.name);
+    const descN = normalizeString(p.description);
+
+    if (budget && p.price > budget * 1.15) return false;
+
+    if (usage.includes('gaming') || usage.includes('jeu')) {
+      return descN.includes('rtx') || descN.includes('gtx') || descN.includes('mx') || descN.includes('i7') || nameN.includes('gamer');
+    }
+    if (usage.includes('montage') || usage.includes('autocad') || usage.includes('3d')) {
+      return descN.includes('workstation') || descN.includes('quadro') || descN.includes('i7') || descN.includes('32gb');
+    }
+    if (usage.includes('bureautique') || usage.includes('etudiant')) {
+      return p.price <= 70000;
+    }
+    return true;
+  });
+}
+
+function executeCompareProducts(allProducts, productIds) {
+  if (!Array.isArray(productIds)) return { error: "IDs invalides" };
+  const prods = allProducts.filter(p => productIds.includes(p.id) || productIds.some(id => normalizeString(p.name).includes(normalizeString(id))));
+  return {
+    products: prods,
+    comparison: prods.map(p => ({ id: p.id, name: p.name, price: p.price, specs: p.description }))
+  };
+}
+
+function executeCheckAvailability(allProducts, productId) {
+  const found = allProducts.find(p => p.id === productId || normalizeString(p.name).includes(normalizeString(productId)));
+  if (found) {
+    return { available: true, inStock: true, price: found.price, productName: found.name };
+  }
+  return { available: false, inStock: false };
+}
+
+async function executeWebSearch(query) {
+  try {
+    const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.AbstractText) {
+        return { snippet: data.AbstractText, source: data.AbstractURL || 'Web' };
+      }
+      if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+        const topics = data.RelatedTopics.slice(0, 3).map(t => t.Text).filter(Boolean);
+        return { snippet: topics.join(' \n ') };
+      }
+    }
+  } catch (e) {
+    console.warn("⚠️ Web Search Warning:", e.message);
+  }
+  return { snippet: `Recherche web externe effectuée pour: ${query}` };
+}
+
+/**
+ * MOTEUR HYBRIDE LOCAL (Si OpenAI absent)
+ */
+function executeLocalHybridEngine(allProducts, userText) {
+  const q = normalizeString(userText);
+  const lang = detectLanguage(userText);
+
+  // 1. Question technique générale
+  if (q.includes('difference') || q.includes('c quoi') || q.includes('comment fonctionne') || (q.includes('ssd') && q.includes('hdd') && !q.includes('prix'))) {
+    return {
+      message: "💡 **SSD vs HDD** :\n- **SSD (Solid State Drive)** : Ultra-rapide (jusqu'à 10x plus rapide qu'un HDD), silencieux et sans pièces mécaniques. Idéal pour démarrer Windows en secondes.\n- **HDD (Hard Disk Drive)** : Disque mécanique traditionnel à coût modéré.\n\n*Tous nos ordinateurs Amar Informatique sont équipés de SSD NVMe rapides.*",
+      products: allProducts.slice(0, 3),
+      source: "ai"
+    };
+  }
+
+  // 2. Question web externe
+  if (q.includes('dernier windows') || q.includes('derniere version') || q.includes('intel 14th') || q.includes('rtx 5060')) {
+    return {
+      message: "🌐 **Informations Technologiques Récentes** :\n- **Windows** : La version la plus récente est Windows 11 (Mise à jour 23H2 / 24H2).\n- **Cartes Graphiques** : Les séries RTX 4000 et les récentes annonces RTX 5000 offrent des performances exceptionnelles avec DLSS 3.5.\n\n*Retrouvez nos PC équipés de ces technologies chez Amar Informatique !*",
+      products: allProducts.slice(0, 3),
+      source: "web"
+    };
+  }
+
+  // 3. Recherche commerciale Firestore
+  let matchedProds = [];
+  const budgetMatch = userText.match(/\d+/);
+  let budget = budgetMatch ? parseInt(budgetMatch[0]) * (userText.includes('مليون') ? 10000 : 1) : null;
+  if (budget && budget < 1000) budget *= 1000;
+
+  if (q.includes('gamer') || q.includes('gaming') || q.includes('الڤايمينغ')) {
+    matchedProds = executeRecommendProducts(allProducts, { usage: 'gaming', budget: budget || 150000 });
+  } else if (q.includes('epson') || q.includes('imprimante') || q.includes('طابعة')) {
+    matchedProds = executeSearchProducts(allProducts, { query: 'epson' });
+  } else {
+    matchedProds = executeSearchProducts(allProducts, { query: q, maxPrice: budget });
+  }
+
+  if (matchedProds.length === 0) matchedProds = allProducts;
+
+  const msg = lang === 'dz' || lang === 'ar'
+    ? "مرحباً بك في عمار للمعلوماتية 👋 إليك المنتجات الأكثر طلباً والمتوفرة حالياً في المحل:"
+    : "Bonjour 👋 Bienvenue chez Amar Informatique ! Voici nos produits les plus recherchés disponibles en magasin :";
 
   return {
-    searchQuery: normQuery,
-    tokens: tokens,
-    requestedBudget: requestedBudget,
-    hasExactMatch: hasExactMatch,
-    products: matched
+    message: msg,
+    products: matchedProds,
+    source: "firestore"
   };
 }
 
 /**
- * ÉTAPE 7 & 12 — Appel OpenAI avec Contexte Strict et Règles Anti-Hallucination
+ * GESTION DU CONTEXTE DE SESSION (conversationId)
  */
-async function callOpenAIWithStrictContext(userMessage, intent, products, hasExactMatch) {
-  const contextData = {
-    userMessage: userMessage,
-    intent: intent,
-    hasExactMatch: hasExactMatch,
-    productsFound: products.map(p => ({
-      name: p.name,
-      price: p.price,
-      oldPrice: p.oldPrice || null,
-      promo: p.promo || false,
-      available: true,
-      category: p.category,
-      description: p.description
-    }))
-  };
+function getSessionHistory(id) {
+  if (!conversationSessions.has(id)) {
+    conversationSessions.set(id, []);
+  }
+  return conversationSessions.get(id);
+}
 
-  const userPromptWithContext = `Données réelles Firestore disponibles : ${JSON.stringify(contextData, null, 2)}\n\nQuestion de l'utilisateur : "${userMessage}"`;
+function saveMessageToSession(id, role, content) {
+  const history = getSessionHistory(id);
+  history.push({ role, content });
+  if (history.length > 12) {
+    conversationSessions.set(id, history.slice(-12));
+  }
+}
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${OPENAI_KEY.trim()}`
-    },
-    body: JSON.stringify({
-      model: MODEL_NAME,
-      messages: [
-        { role: 'system', content: STRICT_SYSTEM_PROMPT },
-        { role: 'user', content: userPromptWithContext }
-      ],
-      temperature: 0.2,
-      max_tokens: 450
-    })
+function determineSourceType(sources) {
+  if (sources.firestore && sources.web) return 'hybrid';
+  if (sources.firestore) return 'firestore';
+  if (sources.web) return 'web';
+  return 'ai';
+}
+
+function deduplicateProducts(prods) {
+  const map = new Map();
+  prods.forEach(p => {
+    if (p && p.id) map.set(p.id, p);
   });
-
-  if (response.ok) {
-    const json = await response.json();
-    return json.choices?.[0]?.message?.content || null;
-  } else {
-    console.warn("⚠️ HTTP OpenAI Warning:", response.status);
-    return null;
-  }
+  return Array.from(map.values());
 }
 
-/**
- * ÉTAPE 5 & 6 — Moteur de réponse local strict si OpenAI indisponible
- */
-function generateLocalStrictResponse(userText, intent, searchResult) {
-  const lang = detectLanguage(userText);
-  const products = searchResult.products;
-
-  if (intent === 'GENERAL_TECHNICAL_QUESTION') {
-    return "💡 **SSD vs HDD** :\n- **SSD (Solid State Drive)** : Ultra-rapide (jusqu'à 10x plus rapide qu'un HDD), silencieux et résistant aux chocs. Idéal pour démarrer Windows en quelques secondes.\n- **HDD (Hard Disk Drive)** : Disque mécanique traditionnel, offre un espace de stockage à bas coût.\n\n*Tous nos laptops Amar Informatique sont équipés de SSD NVMe rapides.*";
-  }
-
-  if (products.length === 0) {
-    if (intent === 'PROMOTION_SEARCH') {
-      return lang === 'dz' || lang === 'ar'
-        ? "لم نجد حالياً أي تخفيض نشط على هذا النوع من المنتجات في محلنا."
-        : "Je n'ai actuellement trouvé aucune promotion active sur ce type d'article dans notre catalogue. Voici nos produits disponibles au meilleur prix :";
-    }
-
-    return lang === 'dz' || lang === 'ar'
-      ? `عذراً، لم أجد المنتج "${userText}" في الكتالوج الحالي لمحلنا. تفضل بالاطلاع على المنتجات المتوفرة لدينا:`
-      : `Je n'ai pas trouvé le produit "${userText}" dans notre catalogue actuel. Voici nos matériels informatiques disponibles en magasin :`;
-  }
-
-  if (intent === 'PROMOTION_SEARCH') {
-    return lang === 'dz' || lang === 'ar'
-      ? "تفضل المنتجات المتوفرة حالياً في التخفيض في المحل مع أسعارها الحقيقية:"
-      : "Voici les produits actuellement en promotion dans notre magasin avec leurs réductions réelles :";
-  }
-
-  if (intent === 'AVAILABILITY_SEARCH') {
-    const prodName = products[0].name;
-    return lang === 'dz' || lang === 'ar'
-      ? `نعم، المنتج **${prodName}** متوفر حالياً في المحل بسعر ${products[0].price.toLocaleString('fr-FR')} دج.`
-      : `Oui ! Le produit **${prodName}** est disponible actuellement dans notre magasin au prix de **${products[0].price.toLocaleString('fr-FR')} DA**.`;
-  }
-
-  return lang === 'dz' || lang === 'ar'
-    ? "تفضل نتائج البحث من قاعدة بيانات المحل Amar Informatique:"
-    : "Voici les résultats correspondants dans le catalogue réels de notre magasin Amar Informatique :";
-}
-
-/**
- * Utilitaires de normalisation et détection de langue
- */
 function normalizeString(str) {
   if (!str) return '';
-  return str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 function detectLanguage(text) {
@@ -367,7 +527,7 @@ function detectLanguage(text) {
 }
 
 /**
- * ÉTAPE 1 — Récupération Firestore REST
+ * RÉCUPÉRATION FIRESTORE REST
  */
 async function fetchFirestoreProducts() {
   try {
@@ -398,7 +558,6 @@ async function fetchFirestoreProducts() {
   } catch (e) {
     console.warn("⚠️ Échec chargement Firestore REST:", e.message);
   }
-
   return getFallbackDemoProducts();
 }
 
