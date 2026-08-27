@@ -14,8 +14,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware CORS
-app.use(cors());
+// Configuration CORS permissive pour développement & déploiement
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+}));
 
 // Body Parser
 app.use(express.json({ limit: '1mb' }));
@@ -37,9 +41,24 @@ const chatLimiter = rateLimit({
 const rootPath = path.join(__dirname, '..');
 app.use(express.static(rootPath));
 
-// Endpoint de santé
+// ÉTAPE 10 — Endpoint de santé GET /api/health
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'Amar Informatique Chatbot API', timestamp: new Date().toISOString() });
+  const isAiConfigured = !!(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '' && !process.env.OPENAI_API_KEY.includes('your_openai_api_key'));
+  res.json({
+    success: true,
+    server: 'online',
+    aiConfigured: isAiConfigured,
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ÉTAPE 2 — Endpoint de test rapide sans IA (POST /api/chat-test)
+app.post('/api/chat-test', (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend connection works"
+  });
 });
 
 // Endpoint principal Chatbot IA
@@ -55,8 +74,11 @@ app.use((req, res, next) => {
 });
 
 app.listen(PORT, () => {
+  const isKeyConfigured = !!(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '' && !process.env.OPENAI_API_KEY.includes('your_openai_api_key'));
   console.log(`==================================================`);
   console.log(`🚀 Serveur Chatbot Amar Informatique démarré sur http://localhost:${PORT}`);
-  console.log(`💬 Endpoint Chat API: POST http://localhost:${PORT}/api/chat`);
+  console.log(`💬 Endpoint Chat API : POST http://localhost:${PORT}/api/chat`);
+  console.log(`🏥 Health Check     : GET  http://localhost:${PORT}/api/health`);
+  console.log(`🔑 OpenAI API Key Configured : ${isKeyConfigured}`);
   console.log(`==================================================`);
 });

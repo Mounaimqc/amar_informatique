@@ -156,6 +156,7 @@ export async function processChatMessage(userMessage, conversationId) {
 
   // Si pas de clé OpenAI active, mode intelligent local de démonstration rapide
   if (!openai) {
+    console.log("ℹ️ OPENAI_API_KEY non configurée ou non définie. Utilisation du fallback local.");
     return await handleFallbackChat(userMessage, conversationId, detectedLanguage);
   }
 
@@ -259,13 +260,21 @@ export async function processChatMessage(userMessage, conversationId) {
     };
 
   } catch (error) {
-    console.error("❌ Erreur OpenAI Chat Completion:", error);
+    // ÉTAPE 3 — Logs d'erreurs IA complets
+    console.error("AI ERROR:", error);
+    console.error("Error message:", error.message);
+    console.error("Error status:", error.status);
+    if (error.response?.data) {
+      console.error("Error response:", error.response.data);
+    }
+    
+    // Fallback gracieux en cas d'erreur de clé ou quota OpenAI
     return await handleFallbackChat(userMessage, conversationId, detectedLanguage);
   }
 }
 
 /**
- * Moteur fallback rapide si OpenAI n'est pas configuré
+ * Moteur fallback rapide si OpenAI n'est pas configuré ou en cas d'erreur API
  */
 async function handleFallbackChat(userMessage, conversationId, language) {
   const msgLower = userMessage.toLowerCase();
@@ -294,6 +303,9 @@ async function handleFallbackChat(userMessage, conversationId, language) {
     textReply = language === 'ar' || language === 'dz'
       ? "إليك مقارنة سريعة بين أفضل الأجهزة الأكثر طلباً لدينا من ناحية المعالج والذاكرة والسعر:"
       : "Voici une comparaison des modèles les plus demandés en magasin :";
+  } else if (msgLower.includes('ssd') || msgLower.includes('hdd') || msgLower.includes('stockage')) {
+    textReply = "💡 **SSD vs HDD** :\n- **SSD (Solid State Drive)** : Ultra-rapide (jusqu'à 10x plus rapide qu'un HDD), silencieux et résistant aux chocs. Idéal pour démarrer Windows en quelques secondes.\n- **HDD (Hard Disk Drive)** : Disque mécanique traditionnel, plus lent mais offre un espace de stockage à bas coût.\n\n*Tous nos laptops Amar Informatique sont équipés de SSD NVMe rapides.*";
+    prods = await searchProducts({ query: 'SSD' });
   } else {
     prods = await searchProducts({ query: '' });
     textReply = language === 'ar' || language === 'dz'
