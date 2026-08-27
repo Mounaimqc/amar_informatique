@@ -1,13 +1,15 @@
 /**
  * Amar Informatique - Client Chatbot IA
- * Integrated Chatbot Widget JavaScript
+ * Integrated Chatbot Widget JavaScript (Redesigned with Advanced Diagnostics & Fallback)
  */
 
 (function () {
   const CHAT_STORAGE_KEY = 'amar_chat_session_id';
-  const API_ENDPOINT = (window.location.origin && !window.location.origin.startsWith('file'))
-    ? '/api/chat'
-    : 'http://localhost:3000/api/chat';
+
+  // Configurable API base URL or automatic detection
+  const API_BASE_URL = window.CHATBOT_API_URL 
+    || (window.location.origin && !window.location.origin.startsWith('file') ? window.location.origin : 'http://localhost:3000');
+  const API_ENDPOINT = `${API_BASE_URL.replace(/\/$/, '')}/api/chat`;
 
   let conversationId = localStorage.getItem(CHAT_STORAGE_KEY) || null;
   let isSending = false;
@@ -172,42 +174,136 @@
     appendUserBubble(userText);
     showTypingIndicator();
 
+    const payload = {
+      message: userText,
+      conversationId: conversationId
+    };
+
+    console.log("💬 [Frontend Chat Request]");
+    console.log("Chat request URL:", API_ENDPOINT);
+    console.log("Chat request payload:", payload);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
+
     try {
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userText,
-          conversationId: conversationId
-        })
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
       removeTypingIndicator();
 
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
+      console.log("Chat response status:", response.status, response.statusText);
+
+      let responseData = null;
+      try {
+        responseData = await response.json();
+        console.log("Chat response:", responseData);
+      } catch (e) {
+        console.error("❌ Impossible de lire la réponse JSON:", e);
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        console.error("❌ Chat request HTTP Error:", {
+          status: response.status,
+          statusText: response.statusText,
+          url: API_ENDPOINT,
+          errorBody: responseData
+        });
 
-      if (data.conversationId) {
-        conversationId = data.conversationId;
+        // Diagnostics fins des erreurs HTTP
+        let errorMsg = "";
+        if (response.status === 401) {
+          errorMsg = "Configuration IA invalide ou clé API incorrecte.";
+        } else if (response.status === 429) {
+          errorMsg = "Le service IA est temporairement très sollicité. Veuillez réessayer dans quelques instants.";
+        } else if (response.status === 500) {
+          errorMsg = responseData?.error || "Une erreur est survenue sur le serveur backend.";
+        } else {
+          errorMsg = `Erreur serveur HTTP (${response.status}).`;
+        }
+
+        // Exécuter le fallback local avec l'erreur informative
+        handleClientFallback(userText, errorMsg);
+        return;
+      }
+
+      if (responseData && responseData.conversationId) {
+        conversationId = responseData.conversationId;
         localStorage.setItem(CHAT_STORAGE_KEY, conversationId);
       }
 
-      if (data.success && data.message) {
-        appendBotBubble(data.message, data.products);
+      if (responseData && responseData.success && responseData.message) {
+        appendBotBubble(responseData.message, responseData.products);
       } else {
-        appendBotBubble("Désolé, je n'ai pas réussi à traiter votre demande. Veuillez réessayer.");
+        const errDetail = responseData?.error || "Réponse serveur non valide.";
+        handleClientFallback(userText, errDetail);
       }
 
     } catch (error) {
-      console.error("❌ Erreur Chatbot API:", error);
+      clearTimeout(timeoutId);
       removeTypingIndicator();
-      appendBotBubble("⚠️ Problème de connexion au serveur IA. Veuillez vérifier votre connexion ou retenter dans quelques secondes.");
+
+      console.error("❌ Erreur réseau Chatbot API:", error);
+
+      let errMessage = "Impossible de joindre le serveur backend.";
+      if (error.name === 'AbortError') {
+        errMessage = "La réponse du serveur prend trop de temps (Timeout).";
+      }
+
+      // Reconnect / Local Client Fallback
+      handleClientFallback(userText, errMessage);
     } finally {
       isSending = false;
     }
+  }
+
+  /**
+   * Fallback client intelligent en cas de serveur offline ou d'erreur API
+   * Permet au Chatbot de TOUJOURS répondre intelligemment avec les produits locaux
+   */
+  function handleClientFallback(userText, errorContext = null) {
+    if (errorContext) {
+      console.warn(`⚠️ Chatbot Fallback activé : ${errorContext}`);
+    }
+
+    const textLower = userText.toLowerCase();
+    let replyText = "";
+    let localProducts = [];
+
+    // Récupération des produits locaux si chargés sur le site (depuis window.products ou Firestore)
+    const siteProducts = Array.isArray(window.products) ? window.products : [];
+
+    if (textLower.includes('bonjour') || textLower.includes('salut') || textLower.includes('سلام') || textLower.includes('مرحبا')) {
+      replyText = "Bonjour 👋 Bienvenue chez <strong>Amar Informatique</strong> ! Comment puis-je vous aider aujourd'hui ? Vous pouvez rechercher un laptop, une imprimante ou demander des recommandations par budget.";
+    } else if (textLower.includes('gamer') || textLower.includes('gaming') || textLower.includes('للعاب') || textLower.includes('الڤايمينغ')) {
+      replyText = "Bien sûr 🎮 Voici nos meilleurs ordinateurs portables performants pour le **Gaming** et le montage vidéo :";
+      localProducts = siteProducts.filter(p => {
+        const desc = (p.description || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return desc.includes('rtx') || desc.includes('gtx') || desc.includes('mx') || desc.includes('i7') || name.includes('gamer') || name.includes('thinkpad');
+      }).slice(0, 4);
+    } else if (textLower.includes('imprimante') || textLower.includes('طابعة') || textLower.includes('laser') || textLower.includes('epson')) {
+      replyText = "Voici les modèles d'**imprimantes** (Laser et Jet d'encre) disponibles dans notre magasin :";
+      localProducts = siteProducts.filter(p => (p.category || '').startsWith('imprimante')).slice(0, 4);
+    } else if (textLower.includes('budget') || textLower.includes('سعر') || textLower.includes('شحال') || textLower.includes('سومة') || textLower.includes('100000') || textLower.includes('150000') || textLower.includes('50000')) {
+      replyText = "Voici une sélection de nos meilleurs produits informatiques au rapport qualité/prix garanti en magasin :";
+      localProducts = siteProducts.slice(0, 4);
+    } else if (textLower.includes('ssd') || textLower.includes('hdd') || textLower.includes('stockage') || textLower.includes('différence') || textLower.includes('فرق')) {
+      replyText = "💡 **SSD vs HDD** :\n- **SSD (Solid State Drive)** : Ultra-rapide (jusqu'à 10x plus rapide qu'un HDD), silencieux et résistant aux chocs. Idéal pour démarrer Windows en quelques secondes.\n- **HDD (Hard Disk Drive)** : Disque mécanique traditionnel, plus lent mais offre un espace de stockage à bas coût.\n\n*Tous nos laptops Amar Informatique sont équipés de SSD NVMe rapides.*";
+    } else {
+      replyText = "Bien sûr 💻 Quel type d'équipement recherchez-vous ? Vous pouvez choisir une catégorie ci-dessous ou préciser votre budget.";
+      localProducts = siteProducts.slice(0, 3);
+    }
+
+    appendBotBubble(replyText, localProducts);
   }
 
   function appendUserBubble(text) {
@@ -233,9 +329,9 @@
       productsHTML = `<div class="chat-products-grid">
         ${products.map(p => `
           <div class="chat-product-card">
-            <img src="${p.image || 'logo.jpg'}" alt="${escapeHTML(p.name)}" class="chat-product-img" onerror="this.src='logo.jpg'">
+            <img src="${p.image || 'logo.jpg'}" alt="${escapeHTML(p.name || 'Produit')}" class="chat-product-img" onerror="this.src='logo.jpg'">
             <div class="chat-product-details">
-              <h4 class="chat-product-name">${escapeHTML(p.name)}</h4>
+              <h4 class="chat-product-name">${escapeHTML(p.name || 'Produit')}</h4>
               <div class="chat-product-price">
                 ${p.oldPrice ? `<del>${p.oldPrice.toLocaleString('fr-FR')} DA</del>` : ''}
                 <span>${(p.price || 0).toLocaleString('fr-FR')} DA</span>
@@ -291,6 +387,7 @@
   }
 
   function escapeHTML(str) {
+    if (!str) return '';
     return str.replace(/[&<>'"]/g, 
       tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
     );
