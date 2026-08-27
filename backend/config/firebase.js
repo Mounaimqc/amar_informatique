@@ -1,58 +1,19 @@
-import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const projectId = process.env.FIREBASE_PROJECT_ID || 'amar-informatique';
 
-let db = null;
-
-try {
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      projectId: projectId
-    });
-  }
-  db = admin.firestore();
-  console.log(`🔥 Firebase Admin initialisé pour le projet: ${projectId}`);
-} catch (error) {
-  console.warn("⚠️ Firebase Admin non initialisé avec clé secrète, mode dégradé/REST prêt.", error.message);
-}
-
 /**
- * Récupère tous les produits depuis Firestore (Admin SDK ou Fallback REST API)
+ * Récupère tous les produits depuis Firestore (API REST publique)
+ * Sans dépendance lourde ni problème de clés d'administration Google.
  */
 export async function getAllProducts() {
-  if (db) {
-    try {
-      const snapshot = await db.collection('produits').get();
-      if (!snapshot.empty) {
-        const prods = [];
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          prods.push({
-            id: doc.id,
-            name: d.name || 'Produit sans nom',
-            category: d.category || '',
-            description: d.description || '',
-            price: typeof d.price === 'number' ? d.price : parseFloat(d.price) || 0,
-            oldPrice: d.oldPrice ? (typeof d.oldPrice === 'number' ? d.oldPrice : parseFloat(d.oldPrice)) : null,
-            image: d.image || '',
-            promo: d.promo || false,
-            featured: d.featured || false,
-            createdAt: d.createdAt || new Date().toISOString()
-          });
-        });
-        return prods;
-      }
-    } catch (e) {
-      console.warn("⚠️ Échec Firestore SDK direct, essai via l'API REST...", e.message);
-    }
-  }
-
-  // Fallback REST API pour Firestore public
   try {
     const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/produits`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: { 'Accept': 'application/json' }
+    });
+
     if (response.ok) {
       const data = await response.json();
       if (data.documents && data.documents.length > 0) {
@@ -61,12 +22,12 @@ export async function getAllProducts() {
           const fields = doc.fields || {};
           return {
             id: docId,
-            name: fields.name?.stringValue || 'Produit',
+            name: fields.name?.stringValue || 'Produit Informatique',
             category: fields.category?.stringValue || '',
             description: fields.description?.stringValue || '',
-            price: fields.price?.doubleValue || fields.price?.integerValue ? Number(fields.price.doubleValue || fields.price.integerValue) : 0,
+            price: fields.price?.doubleValue || fields.price?.integerValue ? Number(fields.price.doubleValue || fields.price.integerValue) : (fields.price?.stringValue ? parseFloat(fields.price.stringValue) : 0),
             oldPrice: fields.oldPrice?.doubleValue || fields.oldPrice?.integerValue ? Number(fields.oldPrice.doubleValue || fields.oldPrice.integerValue) : null,
-            image: fields.image?.stringValue || '',
+            image: fields.image?.stringValue || 'logo.jpg',
             promo: fields.promo?.booleanValue || false,
             featured: fields.featured?.booleanValue || false,
             createdAt: fields.createdAt?.timestampValue || new Date().toISOString()
@@ -75,16 +36,16 @@ export async function getAllProducts() {
       }
     }
   } catch (err) {
-    console.error("❌ Erreur REST Firestore:", err.message);
+    console.warn("⚠️ Firestore REST Query Warning:", err.message);
   }
 
-  // Fallback échantillons de démonstration Amar Informatique si Firestore vide/inaccessible
+  // Échantillons de démonstration Amar Informatique si Firestore est temporairement inaccessible
   return [
     {
       id: "demo-1",
       name: "Dell Latitude 5400 Core i5 8th 16GB SSD 512GB",
       category: "laptop",
-      description: "PC Portable Professionnel Dell Latitude 5400, Processeur Intel Core i5 8365U, 16Go RAM DDR4, SSD 512Go NVMe, Écran 14 IPS Full HD, Clavier Retroéclairé, Grade A+.",
+      description: "PC Portable Professionnel Dell Latitude 5400, Intel Core i5 8365U, 16Go RAM DDR4, SSD 512Go NVMe, Écran 14 IPS Full HD, Grade A+.",
       price: 52000,
       oldPrice: 58000,
       promo: true,
@@ -137,5 +98,3 @@ export async function getAllProducts() {
     }
   ];
 }
-
-export { db };

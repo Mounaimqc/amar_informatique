@@ -1,17 +1,19 @@
-import { crypto } from 'crypto';
+import { randomUUID } from 'crypto';
 
 // Mémoire in-memory des sessions de conversation
 const conversationStore = new Map();
 
 // Nettoyage automatique des conversations inactives (> 2 heures)
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, session] of conversationStore.entries()) {
-    if (now - session.lastActivity > 2 * 60 * 60 * 1000) {
-      conversationStore.delete(id);
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [id, session] of conversationStore.entries()) {
+      if (now - session.lastActivity > 2 * 60 * 60 * 1000) {
+        conversationStore.delete(id);
+      }
     }
-  }
-}, 15 * 60 * 1000);
+  }, 15 * 60 * 1000);
+}
 
 export function getOrCreateConversation(conversationId) {
   let id = conversationId;
@@ -48,8 +50,10 @@ export function getConversationHistory(conversationId) {
 }
 
 function generateUUID() {
-  if (typeof globalThis.crypto?.randomUUID === 'function') {
-    return globalThis.crypto.randomUUID();
-  }
+  try {
+    if (typeof randomUUID === 'function') {
+      return randomUUID();
+    }
+  } catch (e) {}
   return 'conv-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now();
 }

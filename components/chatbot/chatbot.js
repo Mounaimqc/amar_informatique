@@ -1,14 +1,20 @@
 /**
  * Amar Informatique - Client Chatbot IA
- * Integrated Chatbot Widget JavaScript (Redesigned with Advanced Diagnostics & Fallback)
+ * Integrated Chatbot Widget JavaScript (Production Ready with ARIA Fix & Dynamic Endpoint)
  */
 
 (function () {
   const CHAT_STORAGE_KEY = 'amar_chat_session_id';
 
-  // Configurable API base URL or automatic detection
-  const API_BASE_URL = window.CHATBOT_API_URL 
-    || (window.location.origin && !window.location.origin.startsWith('file') ? window.location.origin : 'http://localhost:3000');
+  // Configurable API base URL or automatic origin detection
+  let API_BASE_URL = window.CHATBOT_API_URL || '';
+  if (!API_BASE_URL) {
+    if (window.location.origin && !window.location.origin.startsWith('file')) {
+      API_BASE_URL = window.location.origin;
+    } else {
+      API_BASE_URL = 'http://localhost:3000';
+    }
+  }
   const API_ENDPOINT = `${API_BASE_URL.replace(/\/$/, '')}/api/chat`;
 
   let conversationId = localStorage.getItem(CHAT_STORAGE_KEY) || null;
@@ -47,8 +53,8 @@
             </div>
           </div>
           <div class="chatbot-header-actions">
-            <button class="chatbot-header-btn" id="chatbotMinimizeBtn" title="Réduire"><i class="fas fa-minus"></i></button>
-            <button class="chatbot-header-btn" id="chatbotCloseBtn" title="Fermer"><i class="fas fa-times"></i></button>
+            <button class="chatbot-header-btn" id="chatbotMinimizeBtn" title="Réduire" type="button"><i class="fas fa-minus"></i></button>
+            <button class="chatbot-header-btn" id="chatbotCloseBtn" title="Fermer" type="button"><i class="fas fa-times"></i></button>
           </div>
         </div>
 
@@ -70,7 +76,7 @@
         <!-- Input Footer -->
         <div class="chatbot-footer">
           <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Posez votre question sur nos produits..." autocomplete="off">
-          <button class="chatbot-send-btn" id="chatbotSendBtn" title="Envoyer"><i class="fas fa-paper-plane"></i></button>
+          <button class="chatbot-send-btn" id="chatbotSendBtn" title="Envoyer" type="button"><i class="fas fa-paper-plane"></i></button>
         </div>
       </div>
     `;
@@ -137,8 +143,22 @@
     document.getElementById('chatbotInput')?.focus();
   }
 
+  /**
+   * ÉTAPE 10 — Correction de l'erreur ARIA :
+   * Déplace le focus vers chatbotTriggerBtn AVANT d'appliquer aria-hidden="true"
+   */
   function closeChatWindow() {
     const windowEl = document.getElementById('chatbotWindow');
+    const triggerBtn = document.getElementById('chatbotTriggerBtn');
+
+    if (windowEl && windowEl.contains(document.activeElement)) {
+      if (triggerBtn) {
+        triggerBtn.focus();
+      } else if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+    }
+
     if (!windowEl) return;
     windowEl.classList.remove('active');
     windowEl.setAttribute('aria-hidden', 'true');
@@ -146,8 +166,20 @@
 
   function minimizeChatWindow() {
     const windowEl = document.getElementById('chatbotWindow');
-    if (!windowEl) return;
-    windowEl.classList.toggle('minimized');
+    const triggerBtn = document.getElementById('chatbotTriggerBtn');
+
+    if (windowEl && windowEl.classList.contains('minimized')) {
+      windowEl.classList.remove('minimized');
+    } else if (windowEl) {
+      if (windowEl.contains(document.activeElement)) {
+        if (triggerBtn) {
+          triggerBtn.focus();
+        } else if (document.activeElement && typeof document.activeElement.blur === 'function') {
+          document.activeElement.blur();
+        }
+      }
+      windowEl.classList.add('minimized');
+    }
   }
 
   function appendWelcomeMessage() {
@@ -184,7 +216,7 @@
     console.log("Chat request payload:", payload);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
     try {
       const response = await fetch(API_ENDPOINT, {
@@ -218,19 +250,21 @@
           errorBody: responseData
         });
 
-        // Diagnostics fins des erreurs HTTP
+        // Diagnostic fin selon le code HTTP
         let errorMsg = "";
-        if (response.status === 401) {
+        if (response.status === 404) {
+          errorMsg = `Erreur 404: L'endpoint ${API_ENDPOINT} est introuvable sur le serveur.`;
+        } else if (response.status === 401) {
           errorMsg = "Configuration IA invalide ou clé API incorrecte.";
         } else if (response.status === 429) {
           errorMsg = "Le service IA est temporairement très sollicité. Veuillez réessayer dans quelques instants.";
         } else if (response.status === 500) {
-          errorMsg = responseData?.error || "Une erreur est survenue sur le serveur backend.";
+          const serverErr = responseData?.error;
+          errorMsg = typeof serverErr === 'object' ? (serverErr.message || JSON.stringify(serverErr)) : (serverErr || "Une erreur est survenue sur le serveur backend.");
         } else {
           errorMsg = `Erreur serveur HTTP (${response.status}).`;
         }
 
-        // Exécuter le fallback local avec l'erreur informative
         handleClientFallback(userText, errorMsg);
         return;
       }
@@ -240,7 +274,7 @@
         localStorage.setItem(CHAT_STORAGE_KEY, conversationId);
       }
 
-      if (responseData && responseData.success && responseData.message) {
+      if (responseData && responseData.message) {
         appendBotBubble(responseData.message, responseData.products);
       } else {
         const errDetail = responseData?.error || "Réponse serveur non valide.";
@@ -253,12 +287,11 @@
 
       console.error("❌ Erreur réseau Chatbot API:", error);
 
-      let errMessage = "Impossible de joindre le serveur backend.";
+      let errMessage = `Impossible de joindre l'API sur ${API_ENDPOINT}.`;
       if (error.name === 'AbortError') {
         errMessage = "La réponse du serveur prend trop de temps (Timeout).";
       }
 
-      // Reconnect / Local Client Fallback
       handleClientFallback(userText, errMessage);
     } finally {
       isSending = false;
@@ -266,19 +299,18 @@
   }
 
   /**
-   * Fallback client intelligent en cas de serveur offline ou d'erreur API
-   * Permet au Chatbot de TOUJOURS répondre intelligemment avec les produits locaux
+   * Fallback client intelligent en cas de serveur indisponible
    */
   function handleClientFallback(userText, errorContext = null) {
     if (errorContext) {
-      console.warn(`⚠️ Chatbot Fallback activé : ${errorContext}`);
+      const errStr = typeof errorContext === 'object' ? (errorContext.message || JSON.stringify(errorContext)) : String(errorContext);
+      console.warn(`⚠️ Chatbot Fallback activé : ${errStr}`);
     }
 
     const textLower = userText.toLowerCase();
     let replyText = "";
     let localProducts = [];
 
-    // Récupération des produits locaux si chargés sur le site (depuis window.products ou Firestore)
     const siteProducts = Array.isArray(window.products) ? window.products : [];
 
     if (textLower.includes('bonjour') || textLower.includes('salut') || textLower.includes('سلام') || textLower.includes('مرحبا')) {
