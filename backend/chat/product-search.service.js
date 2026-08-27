@@ -1,70 +1,93 @@
 import { getAllProducts } from '../config/firebase.js';
 
+function normalizeString(str) {
+  if (!str) return '';
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 /**
  * Tool 1 : searchProducts
- * Recherche et filtre dans la base de données réelle de produits.
+ * Recherche tokenisée et filtrée dans la base de données réelle de produits.
  */
 export async function searchProducts({ query, category, minPrice, maxPrice, brand, specifications }) {
   try {
     const products = await getAllProducts();
 
-    const filtered = products.filter(product => {
-      const pName = (product.name || '').toLowerCase();
-      const pDesc = (product.description || '').toLowerCase();
-      const pCat = (product.category || '').toLowerCase();
+    const queryNorm = normalizeString(query);
+    const catNorm = normalizeString(category);
+    const brandNorm = normalizeString(brand);
+    const tokens = queryNorm.split(/\s+/).filter(t => t.length > 0);
 
-      // 1. Recherche par terme textuel
-      if (query) {
-        const q = query.toLowerCase().trim();
-        const matchesQuery = pName.includes(q) || pDesc.includes(q) || pCat.includes(q);
-        if (!matchesQuery) return false;
+    const scored = [];
+
+    for (const p of products) {
+      if (typeof minPrice === 'number' && minPrice > 0 && p.price < minPrice) continue;
+      if (typeof maxPrice === 'number' && maxPrice > 0 && p.price > maxPrice) continue;
+
+      const pCat = normalizeString(p.category);
+      const pBrand = normalizeString(p.brand || p.name);
+
+      if (catNorm) {
+        if (catNorm === 'laptop' && pCat !== 'laptop') continue;
+        if (catNorm === 'imprimantes' && !pCat.startsWith('imprimante')) continue;
+        if (!pCat.includes(catNorm)) continue;
       }
 
-      // 2. Catégorie
-      if (category) {
-        const cat = category.toLowerCase().trim();
-        if (cat === 'laptop' && pCat !== 'laptop') return false;
-        if (cat === 'imprimantes' && !pCat.startsWith('imprimante')) return false;
-        if (cat === 'imprimante_laser' && !(pCat === 'imprimante_laser' || (pCat.startsWith('imprimante') && (pName.includes('laser') || pDesc.includes('laser'))))) return false;
-        if (cat === 'imprimante_jet_encre' && !(pCat === 'imprimante_jet_encre' || (pCat.startsWith('imprimante') && (pName.includes('jet') || pDesc.includes('jet'))))) return false;
-        if (cat === 'accessoires' && pCat !== 'accessoires') return false;
-      }
+      if (brandNorm && !pBrand.includes(brandNorm)) continue;
 
-      // 3. Filtrage par prix min & max
-      if (typeof minPrice === 'number' && minPrice > 0 && product.price < minPrice) return false;
-      if (typeof maxPrice === 'number' && maxPrice > 0 && product.price > maxPrice) return false;
-
-      // 4. Marque
-      if (brand) {
-        const b = brand.toLowerCase().trim();
-        if (!pName.includes(b) && !pDesc.includes(b)) return false;
-      }
-
-      // 5. Spécifications particulières (ex: i7, RTX, 16GB, SSD)
       if (specifications && Array.isArray(specifications)) {
+        const pName = normalizeString(p.name);
+        const pDesc = normalizeString(p.description);
         const matchSpecs = specifications.every(spec => {
-          const s = spec.toLowerCase().trim();
+          const s = normalizeString(spec);
           return pName.includes(s) || pDesc.includes(s);
         });
-        if (!matchSpecs) return false;
+        if (!matchSpecs) continue;
       }
 
-      return true;
-    });
+      if (tokens.length === 0) {
+        scored.push({ product: p, score: 1 });
+        continue;
+      }
 
-    // Retourner un sous-ensemble propre de données pour éviter de surcharger les tokens
-    return filtered.map(p => ({
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      oldPrice: p.oldPrice || null,
-      stock: true, // Produits en base sont disponibles
-      brand: p.name.split(' ')[0],
-      category: p.category,
-      specifications: p.description.substring(0, 150),
-      image: p.image || 'logo.jpg',
-      productUrl: `produit.html?id=${p.id}`
-    })).slice(0, 8); // Max 8 résultats pertinents
+      const pName = normalizeString(p.name);
+      const pDesc = normalizeString(p.description);
+      const pModel = normalizeString(p.model || '');
+      const pRef = normalizeString(p.reference || '');
+
+      let score = 0;
+      for (const token of tokens) {
+        if (pName.includes(token)) score += 4;
+        if (pModel.includes(token)) score += 4;
+        if (pRef.includes(token)) score += 4;
+        if (pBrand.includes(token)) score += 3;
+        if (pCat.includes(token)) score += 2;
+        if (pDesc.includes(token)) score += 1;
+      }
+
+      if (score > 0) {
+        scored.push({ product: p, score });
+      }
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+
+    return scored.map(item => {
+      const p = item.product;
+      return {
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        oldPrice: p.oldPrice || null,
+        stock: p.stock !== undefined ? p.stock : null,
+        available: p.available !== undefined ? p.available : null,
+        brand: p.brand || p.name.split(' ')[0],
+        category: p.category,
+        specifications: (p.description || '').substring(0, 150),
+        image: p.image || 'logo.jpg',
+        productUrl: `produit.html?id=${p.id}`
+      };
+    }).slice(0, 8);
 
   } catch (error) {
     console.error("❌ Erreur searchProducts:", error);
@@ -91,13 +114,13 @@ export async function getProductDetails({ productId }) {
       description: product.description,
       price: product.price,
       oldPrice: product.oldPrice || null,
-      available: true,
-      stockQuantity: 5, // Quantité estimée disponible
+      stock: product.stock !== undefined ? product.stock : null,
+      available: product.available !== undefined ? product.available : null,
+      warranty: product.warranty !== undefined ? product.warranty : null,
       specifications: product.description,
-      brand: product.name.split(' ')[0],
-      images: [product.image || 'logo.jpg'],
+      brand: product.brand || product.name.split(' ')[0],
+      image: product.image || 'logo.jpg',
       category: product.category,
-      warranty: "12 mois de garantie certifiée",
       productUrl: `produit.html?id=${product.id}`
     };
   } catch (error) {
@@ -108,7 +131,7 @@ export async function getProductDetails({ productId }) {
 
 /**
  * Tool 3 : checkProductAvailability
- * Vérifie la disponibilité réelle en base de données.
+ * Vérifie la disponibilité réelle en base de données sans fausses garanties.
  */
 export async function checkProductAvailability({ productId }) {
   try {
@@ -116,17 +139,17 @@ export async function checkProductAvailability({ productId }) {
     const product = products.find(p => p.id === productId || String(p.id) === String(productId));
 
     if (!product) {
-      return { available: false, stockQuantity: 0, message: "Produit non trouvé en magasin." };
+      return { available: false, stock: null, message: "Produit non trouvé en magasin." };
     }
 
     return {
-      available: true,
-      stockQuantity: 10,
+      available: product.available !== undefined ? product.available : (product.stock !== undefined ? product.stock : null),
+      stock: product.stock !== undefined ? product.stock : null,
       name: product.name,
       price: product.price
     };
   } catch (error) {
     console.error("❌ Erreur checkProductAvailability:", error);
-    return { available: false, stockQuantity: 0 };
+    return { available: false, stock: null };
   }
 }

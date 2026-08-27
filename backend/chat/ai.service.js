@@ -15,19 +15,29 @@ if (apiKey && apiKey.trim() !== '' && !apiKey.includes('your_openai_api_key')) {
   openai = new OpenAI({ apiKey: apiKey });
 }
 
-// System Prompt Hybride
-const SYSTEM_PROMPT = `Tu es l'assistant virtuel officiel et expert technologique de Amar Informatique, le magasin e-commerce spécialisé en matériel informatique en Algérie.
+// System Prompt Officiel conforme aux exigences
+const SYSTEM_PROMPT = `Tu es Amar AI, l'assistant intelligent de Amar Informatique.
 
-TES MISSIONS :
-1. Aider les clients à trouver le matériel idéal selon leurs besoins et leur budget en DA.
-2. Expliquer clairement les technologies (SSD vs HDD, RAM, processeurs, cartes graphiques).
-3. Utiliser les outils (Tools) de manière autonome et pertinente.
+Tu réponds naturellement aux questions générales et techniques.
 
-RÈGLES STRICTES :
-1. DONNÉES COMMERCIALES (Prix, Stock, Promotions, Disponibilité) : Tu DOIS obligatoirement appeler les outils Firestore. Ne jamais inventer une donnée non retournée.
-2. CONNAISSANCES GÉNÉRALES TECH : Réponds directement sans outil.
-3. INFORMATIONS RÉCENTES : Utilise "webSearch".
-4. LANGUE : Réponds dans la langue du client (Français, Arabe, Darija algérienne). Ton court et accueillant.`;
+Pour les informations propres au magasin Amar Informatique, utilise les outils disponibles.
+
+Ne prétends jamais qu'un produit est disponible, en promotion ou à un certain prix sans données réelles retournées par Firestore.
+
+Pour les informations récentes et externes, utilise la recherche Web lorsque nécessaire.
+
+Si un outil échoue ou si une information n'est pas disponible, dis-le clairement.
+
+N'invente jamais une recherche, un produit, un prix, une promotion, une disponibilité ou une information récente.
+
+Réponds dans la langue principale utilisée par le client.
+
+Comprends également :
+- Français
+- العربية
+- Darija algérienne
+- Français + Darija
+- Arabe + Français`;
 
 const TOOLS_DEFINITIONS = [
   {
@@ -128,7 +138,12 @@ export async function processChatMessage(userMessage, conversationId) {
   let sources = { firestore: false, web: false, ai: false };
 
   if (!openai) {
-    return await handleFallbackChat(userMessage, conversationId, detectedLanguage);
+    console.error("OpenAI status: 401 - OPENAI_KEY missing or invalid");
+    console.error("OpenAI error body: Clé API OpenAI non configurée ou invalide dans les variables d'environnement.");
+    const err = new Error("Le service IA est temporairement indisponible.");
+    err.status = 500;
+    err.code = "OPENAI_KEY_MISSING";
+    throw err;
   }
 
   try {
@@ -209,7 +224,7 @@ export async function processChatMessage(userMessage, conversationId) {
     const finalReply = responseMessage.content || "Je reste à votre entière disposition pour tout renseignement.";
 
     const uniqueProductsMap = new Map();
-    recommendedProducts.forEach(p => { if (p.id) uniqueProductsMap.set(p.id, p); });
+    recommendedProducts.forEach(p => { if (p && p.id) uniqueProductsMap.set(p.id, p); });
     const uniqueProducts = Array.from(uniqueProductsMap.values());
 
     saveMessageToConversation(conversationId, 'assistant', finalReply);
@@ -224,55 +239,19 @@ export async function processChatMessage(userMessage, conversationId) {
       conversationId: conversationId,
       message: finalReply,
       language: detectedLanguage,
-      products: uniqueProducts,
+      products: uniqueProducts.slice(0, 4),
       source: sourceType,
       actions: uniqueProducts.length > 0 ? [{ type: 'view_product', productId: uniqueProducts[0].id }] : []
     };
 
   } catch (error) {
-    console.error("❌ Erreur OpenAI Chat Completions:", error);
-    return await handleFallbackChat(userMessage, conversationId, detectedLanguage);
+    console.error("OpenAI status:", error.status || error.statusCode || 500);
+    console.error("OpenAI error body:", error.message || error);
+    const err = new Error("Le service IA est temporairement indisponible.");
+    err.status = error.status || error.statusCode || 500;
+    err.code = "CHAT_PROCESSING_FAILED";
+    throw err;
   }
-}
-
-async function handleFallbackChat(userMessage, conversationId, language) {
-  const msgLower = userMessage.toLowerCase();
-  let textReply = "";
-  let prods = [];
-  let source = "firestore";
-
-  if (msgLower.includes('gamer') || msgLower.includes('gaming') || msgLower.includes('للعاب') || msgLower.includes('الڤايمينغ')) {
-    prods = await getProductRecommendations({ usage: 'gaming', budget: 150000 });
-    textReply = language === 'ar' || language === 'dz' 
-      ? "تفضل أفضل حواسيب الـ Gaming المتوفرة لدينا حالياً مع خصائصها وأسعارها الحقيقية:" 
-      : "Voici nos meilleurs PC Portable Gaming disponibles en magasin dans votre budget :";
-  } else if (msgLower.includes('imprimante') || msgLower.includes('طابعة') || msgLower.includes('epson')) {
-    prods = await searchProducts({ category: 'imprimantes' });
-    textReply = language === 'ar' || language === 'dz'
-      ? "تفضل الطابعات الأكثر مبيعاً والمتوفرة لدينا حالياً في المحل:"
-      : "Voici les modèles d'imprimantes disponibles actuellement dans notre magasin :";
-  } else if (msgLower.includes('ssd') || msgLower.includes('hdd')) {
-    source = "ai";
-    textReply = "💡 **SSD vs HDD** :\n- **SSD (Solid State Drive)** : Ultra-rapide (jusqu'à 10x plus rapide qu'un HDD), silencieux et résistant aux chocs. Idéal pour démarrer Windows en quelques secondes.\n- **HDD (Hard Disk Drive)** : Disque mécanique traditionnel, plus lent mais offre un espace de stockage à bas coût.";
-    prods = await searchProducts({ query: 'SSD' });
-  } else {
-    prods = await searchProducts({ query: '' });
-    textReply = language === 'ar' || language === 'dz'
-      ? "مرحباً بك في عمار للمعلوماتية 👋 كيف يمكنني مساعدتك اليوم؟ تفضل باختيار أحد المنتجات أو طرح سؤالك."
-      : "Bonjour 👋 Bienvenue chez Amar Informatique ! Comment puis-je vous aider aujourd'hui ? N'hésitez pas à me demander un modèle, une comparaison ou des recommandations selon votre budget.";
-  }
-
-  saveMessageToConversation(conversationId, 'assistant', textReply);
-
-  return {
-    success: true,
-    conversationId: conversationId,
-    message: textReply,
-    language: language,
-    products: prods.slice(0, 4),
-    source: source,
-    actions: prods.length > 0 ? [{ type: 'view_product', productId: prods[0].id }] : []
-  };
 }
 
 function detectLanguage(text) {
